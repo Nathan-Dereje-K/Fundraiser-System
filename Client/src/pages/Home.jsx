@@ -14,6 +14,7 @@ const Home = () => {
           <div className="flex flex-wrap gap-5">
             <Categories />
           </div>
+          <h1 className="font-bold py-10 text-3xl">Featured Campaigns</h1>
         </div>
         <Footer />
       </div>

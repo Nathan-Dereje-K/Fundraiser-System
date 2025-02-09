@@ -3,7 +3,18 @@ import "react-responsive-carousel/lib/styles/carousel.min.css";
 
 const Hero = () => {
   return (
-    <div>
+    <div className="relative w-full h-[70vh]">
+      <div className="absolute z-30 inset-0 flex justify-center sm:justify-end items-center sm:pr-32 mt-24">
+        <div className="flex justify-center items-center flex-col text-center sm:text-left">
+          <h1 className="text-4xl md:text-6xl font-bold text-white">
+            Make a Difference Today
+          </h1>
+          <p className="text-lg md:text-2xl text-stone-300">
+            Your Donation Matters!
+          </p>
+        </div>
+      </div>
+
       <div className="relative ">
         <Carousel
           showThumbs={false}
