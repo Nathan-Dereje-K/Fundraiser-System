@@ -8,9 +8,9 @@ const Home = () => {
     <>
       <div>
         <Navbar />
-        <div className="mr-11 ml-11">
+        <div className="ml-6 mr-6 md:mr-14 md:ml-14 lg:mr-20 lg:ml-20">
           <Hero />
-          <h1 className="font-sans py-10 text-3xl">Categories</h1>
+          <h1 className="font-bold py-10 text-3xl">Categories</h1>
           <div className="flex flex-wrap gap-5">
             <Categories />
           </div>
