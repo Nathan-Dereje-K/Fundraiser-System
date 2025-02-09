@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 const Hero = () => {
   return (
     <div className="relative w-full h-[70vh]">
-      <div className="absolute z-30 inset-0 flex justify-center sm:justify-end items-center sm:pr-32 mt-24">
+      <div className="absolute mr-10 ml-10 z-10 inset-0 flex justify-center sm:justify-end items-center sm:pr-32 mt-24">
         <div className="flex justify-center items-center flex-col text-center gap-2 sm:text-left">
           <motion.h1
             initial={{ scale: 0.7, opacity: 0 }}
@@ -34,7 +34,7 @@ const Hero = () => {
           infiniteLoop={true}
           interval={2500}
         >
-          <div className="relative w-full h-[70vh] overflow-hidden">
+          <div className="relative  w-full h-[70vh] overflow-hidden">
             <img
               className="w-full h-full object-cover object-center"
               src="https://images.pexels.com/photos/6613050/pexels-photo-6613050.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"

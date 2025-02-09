@@ -3,10 +3,10 @@ import { motion } from "framer-motion";
 const FeaturedCampaign = () => {
   return (
     <>
-      <div className="flex flex-col md:flex-row justify-center items-center gap-16 w-full h-auto">
+      <div className="flex flex-col sm:flex-row justify-center items-center gap-16 w-full h-auto">
         <div className="w-1/2 h-auto">
           <img
-            className="w-screen h-96 object-cover object-center rounded-2xl"
+            className="w-auto h-96 object-cover object-center rounded-2xl"
             src="https://images.pexels.com/photos/289738/pexels-photo-289738.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
             alt="Featured Campaign"
           />

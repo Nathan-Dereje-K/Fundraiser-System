@@ -27,7 +27,11 @@ const Home = () => {
               <Categories />
             </div>
             <h1 className="font-bold py-10 text-3xl">Featured Campaigns</h1>
-            <FeaturedCampaign />
+            {/* featured campaign hlder div */}
+            <div className="flex flex-col gap-10">
+              <FeaturedCampaign />
+              <FeaturedCampaign />
+            </div>
           </motion.div>
         </div>
         <Footer />
