@@ -1,35 +1,31 @@
 import { motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import { Menu, X } from "lucide-react";
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  UserButton,
+} from "@clerk/clerk-react";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
 
-  // Close the mobile menu if clicking outside of it
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         setIsOpen(false);
       }
     };
-
-    // Add event listener
     document.addEventListener("mousedown", handleClickOutside);
-
-    // Cleanup the event listener on component unmount
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
-  // Disable scrolling when the mobile menu is open
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
+    document.body.style.overflow = isOpen ? "hidden" : "auto";
   }, [isOpen]);
 
   return (
@@ -73,14 +69,22 @@ const Navbar = () => {
               Start a Campaign
             </motion.button>
           </li>
+          {/* Authentication */}
           <li>
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              className="px-5 py-2 bg-gray-300 text-gray-800 rounded-full shadow-sm"
-            >
-              Log in
-            </motion.button>
+            <SignedOut>
+              <SignInButton mode="modal">
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-5 py-2 bg-gray-300 text-gray-800 rounded-full shadow-sm"
+                >
+                  Log in
+                </motion.button>
+              </SignInButton>
+            </SignedOut>
+            <SignedIn>
+              <UserButton afterSignOutUrl="/" />
+            </SignedIn>
           </li>
         </ul>
 
@@ -99,50 +103,50 @@ const Navbar = () => {
       {/* Mobile Nav */}
       {isOpen && (
         <motion.div
-          ref={menuRef} // Attach the ref to the mobile menu
+          ref={menuRef}
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
           className="md:hidden flex flex-col items-center bg-white p-5 shadow-lg"
         >
-          <motion.a
-            whileTap={{ scale: 0.95 }}
-            className="text-lg font-medium text-gray-700 py-2 hover:text-orange-500 cursor-pointer"
-          >
+          <motion.a className="text-lg font-medium text-gray-700 py-2 hover:text-orange-500 cursor-pointer">
             Causes
           </motion.a>
-          <motion.a
-            whileTap={{ scale: 0.95 }}
-            className="text-lg font-medium text-gray-700 py-2 hover:text-orange-500 cursor-pointer"
-          >
+          <motion.a className="text-lg font-medium text-gray-700 py-2 hover:text-orange-500 cursor-pointer">
             Campaigns
           </motion.a>
-          <motion.a
-            whileTap={{ scale: 0.95 }}
-            className="text-lg font-medium text-gray-700 py-2 hover:text-orange-500 cursor-pointer"
-          >
+          <motion.a className="text-lg font-medium text-gray-700 py-2 hover:text-orange-500 cursor-pointer">
             About Us
           </motion.a>
-          <motion.a
-            whileTap={{ scale: 0.95 }}
-            className="text-lg font-medium text-gray-700 py-2 hover:text-orange-500 cursor-pointer"
-          >
+          <motion.a className="text-lg font-medium text-gray-700 py-2 hover:text-orange-500 cursor-pointer">
             Impact
           </motion.a>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="mt-3 px-5 py-2 bg-orange-500 text-white rounded-full shadow-md"
+          <div
+            className="flex
+           gap-3"
           >
-            Start a Campaign
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="mt-3 px-5 py-2 bg-gray-300 text-gray-800 rounded-full shadow-md"
-          >
-            Log in
-          </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              className="mt-3 px-5 py-2 bg-orange-500 text-white rounded-full shadow-md"
+            >
+              Start a Campaign
+            </motion.button>
+            <SignedOut>
+              <SignInButton mode="modal">
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="mt-3 px-5 py-2 bg-gray-300 text-gray-800 rounded-full shadow-md"
+                >
+                  Log in
+                </motion.button>
+              </SignInButton>
+            </SignedOut>
+          </div>
+          <SignedIn>
+            <UserButton afterSignOutUrl="/" />
+          </SignedIn>
         </motion.div>
       )}
     </motion.div>
