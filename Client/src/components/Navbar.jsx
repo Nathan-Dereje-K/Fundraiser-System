@@ -6,11 +6,17 @@ import {
   SignedOut,
   SignInButton,
   UserButton,
+  useAuth,
+  useClerk,
 } from "@clerk/clerk-react";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
+  const { openSignIn } = useClerk();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
+  const { isSignedIn } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -27,6 +33,14 @@ const Navbar = () => {
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "auto";
   }, [isOpen]);
+
+  const handleStartCampaign = () => {
+    if (isSignedIn) {
+      navigate("/campaignCreation");
+    } else {
+      openSignIn(); // Opens Clerk sign-in modal
+    }
+  };
 
   return (
     <motion.div
@@ -65,6 +79,7 @@ const Navbar = () => {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               className="px-5 py-2 bg-orange-500 text-white rounded-full shadow-md"
+              onClick={handleStartCampaign}
             >
               Start a Campaign
             </motion.button>
@@ -82,8 +97,9 @@ const Navbar = () => {
                 </motion.button>
               </SignInButton>
             </SignedOut>
+
             <SignedIn>
-              <UserButton afterSignOutUrl="/" />
+              <UserButton />
             </SignedIn>
           </li>
         </ul>
@@ -121,14 +137,12 @@ const Navbar = () => {
           <motion.a className="text-lg font-medium text-gray-700 py-2 hover:text-orange-500 cursor-pointer">
             Impact
           </motion.a>
-          <div
-            className="flex
-           gap-3"
-          >
+          <div className="flex gap-3">
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               className="mt-3 px-5 py-2 bg-orange-500 text-white rounded-full shadow-md"
+              onClick={handleStartCampaign}
             >
               Start a Campaign
             </motion.button>
@@ -145,7 +159,7 @@ const Navbar = () => {
             </SignedOut>
           </div>
           <SignedIn>
-            <UserButton afterSignOutUrl="/" />
+            <UserButton />
           </SignedIn>
         </motion.div>
       )}

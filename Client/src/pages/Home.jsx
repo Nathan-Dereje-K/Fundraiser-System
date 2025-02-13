@@ -19,14 +19,13 @@ const Home = () => {
             transition={{ duration: 0.5, delay: 1, ease: "easeOut" }}
           >
             <h1 className="font-bold py-10 text-3xl">Categories</h1>
-            <div className=" flex justify-center flex-wrap gap-9">
-              <Categories />
+            <div className=" flex justify-start flex-wrap gap-9">
               <Categories />
               <Categories />
               <Categories />
               <Categories />
             </div>
-            <h1 className="font-bold py-10 text-3xl">Featured Campaigns</h1>
+            <h1 className="font-bold py-12 text-3xl">Featured Campaigns</h1>
             {/* featured campaign hlder div */}
             <div className="flex flex-col gap-10">
               <FeaturedCampaign />
