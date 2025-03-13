@@ -7,6 +7,8 @@ import {
 import { SignedIn, SignedOut, SignIn } from "@clerk/clerk-react";
 import Home from "./pages/Home";
 import CampaignCreation from "./pages/CampaignCreation";
+import Validator from "./pages/Validator";
+import Error from "./pages/Error";
 
 // eslint-disable-next-line react/prop-types
 const ProtectedRoute = ({ children }) => {
@@ -26,8 +28,11 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/sign-in" element={<SignIn />} />
+        <Route path="/validator" element={<Validator />} />
+        <Route path="*" element={<Error />} />
+
         <Route
-          path="/campaignCreation"
+          path="/campaign_creation"
           element={
             <ProtectedRoute>
               <CampaignCreation />

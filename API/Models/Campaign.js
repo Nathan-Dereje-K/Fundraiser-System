@@ -16,13 +16,14 @@ const campaignSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    validator: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    campaignManager: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    donations: [{ type: mongoose.Schema.Types.ObjectId, ref: "Donation" }],
 
     image: [{ type: String }],
     video: [{ type: String }],
     link: [{ type: String }],
+
+    // validator: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    // campaignManager: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    // donations: [{ type: mongoose.Schema.Types.ObjectId, ref: "Donation" }],
 
     createdAt: { type: Date, default: Date.now },
   },

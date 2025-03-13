@@ -2,6 +2,7 @@
 
 const asyncHandler = require("../Middleware/async");
 const ErrorResponse = require("../Utils/errorResponse");
+const Campaign = require("../Models/Campaign");
 
 // @Desc       Display all Campaigns
 // @Route      GET /api/campaigns
@@ -16,9 +17,14 @@ exports.getCampaigns = asyncHandler(async (req, res) => {
 // @Desc       Display single Campaigns
 // @Route      GET /api/campaign
 // @Access     Public
-exports.getCampaign = asyncHandler(async (req, res) => {
+exports.getCampaign = asyncHandler(async (req, res, next) => {
   const id = req.params.id;
   const campaign = await Campaign.findById(id);
+  if (!campaign) {
+    return next(
+      new ErrorResponse(`Campaign with an id of ${id} isn't found!`, 404)
+    );
+  }
   res.status(200).json({ success: true, data: campaign });
 });
 
@@ -33,12 +39,17 @@ exports.postCampaign = asyncHandler(async (req, res) => {
 // @Desc       Update Campaign
 // @Route      PUT /api/campaign
 // @Access     Private
-exports.putCampaign = asyncHandler(async (req, res) => {
+exports.putCampaign = asyncHandler(async (req, res, next) => {
   const id = req.params.id;
   const campaign = await Campaign.findByIdAndUpdate(id, req.body, {
     new: true,
     runValidators: true,
   });
+  if (!campaign) {
+    return next(
+      new ErrorResponse(`Campaign with an id of ${id} isn't found!`, 404)
+    );
+  }
   res.status(200).json({ success: true, data: campaign });
 });
 

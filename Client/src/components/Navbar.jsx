@@ -36,7 +36,7 @@ const Navbar = () => {
 
   const handleStartCampaign = () => {
     if (isSignedIn) {
-      navigate("/campaignCreation");
+      navigate("/campaign_creation");
     } else {
       openSignIn(); // Opens Clerk sign-in modal
     }
@@ -137,7 +137,7 @@ const Navbar = () => {
           <motion.a className="text-lg font-medium text-gray-700 py-2 hover:text-orange-500 cursor-pointer">
             Impact
           </motion.a>
-          <div className="flex gap-3">
+          <div className="flex justify-center items-center  gap-3">
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
@@ -157,10 +157,12 @@ const Navbar = () => {
                 </motion.button>
               </SignInButton>
             </SignedOut>
+            <div className="hidden">
+              <SignedIn>
+                <UserButton />
+              </SignedIn>
+            </div>
           </div>
-          <SignedIn>
-            <UserButton />
-          </SignedIn>
         </motion.div>
       )}
     </motion.div>
