@@ -11,6 +11,7 @@ const campaignSchema = new mongoose.Schema(
       default: "pending",
     },
     category: { type: String, required: true },
+    featured: { type: Boolean, default: false },
     creator: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
