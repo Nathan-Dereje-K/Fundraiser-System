@@ -47,7 +47,7 @@ const Navbar = () => {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="sticky top-0 z-50 w-full bg-white/35 backdrop-blur-md shadow-lg"
+      className="sticky top-0 z-50 w-full bg-white/35 backdrop-blur-md shadow-md"
     >
       <nav className="flex justify-between items-center px-8 md:px-12 py-4">
         {/* Logo & Title */}

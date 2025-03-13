@@ -77,9 +77,11 @@ const CampaignCreation = () => {
                     {...register("category")}
                     className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                   >
-                    <option>Health</option>
                     <option>Education</option>
-                    <option>Disaster Relief</option>
+                    <option>Medical</option>
+                    <option>Individual</option>
+                    <option>Religious</option>
+                    <option>Other</option>
                   </select>
                 </div>
 
@@ -122,13 +124,13 @@ const CampaignCreation = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Campaign Duration (days)
+                    Campaign Duration in days
                   </label>
                   <input
                     {...register("duration")}
                     type="number"
                     className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                    placeholder="Enter duration"
+                    placeholder="Eg. 120 Days"
                     required
                   />
                 </div>
