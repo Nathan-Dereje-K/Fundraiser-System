@@ -94,6 +94,12 @@ const Home = () => {
                   title="Religious"
                 />
               </motion.div>
+              <motion.div variants={categoryVariants}>
+                <Categories
+                  img="https://images.pexels.com/photos/208512/pexels-photo-208512.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                  title="Other"
+                />
+              </motion.div>
             </div>
           </motion.div>
 
@@ -103,8 +109,8 @@ const Home = () => {
             animate="animate"
             variants={staggerContainer}
           >
-            <h1 className="font-bold py-12 text-3xl">Featured Campaigns</h1>
-            <div className="flex flex-col gap-10">
+            <h1 className="font-bold py-4 text-3xl">Featured Campaigns</h1>
+            <div className="flex flex-col py-7 gap-10">
               <motion.div
                 id="featured-campaign"
                 variants={featuredCampaignVariants}
