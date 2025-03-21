@@ -74,9 +74,9 @@ const campaignSchema = new mongoose.Schema(
 );
 
 // Virtual to count donations
-campaignSchema.virtual("donationCount").get(function () {
-  return this.donations.length;
-});
+// campaignSchema.virtual("donationCount").get(function () {
+//   return this.donations.length;
+// });
 
 // Pre-save hook to generate slug
 campaignSchema.pre("save", function (next) {

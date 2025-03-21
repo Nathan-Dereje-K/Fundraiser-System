@@ -1,10 +1,8 @@
 const express = require("express");
 const app = express();
 const dotenv = require("dotenv");
-const { ClerkExpressWithAuth } = require("@clerk/clerk-sdk-node");
 
 const campaignRouter = require("./Routes/campaigns");
-const userRouter = require("./Routes/users");
 const cors = require("cors");
 
 require("colors");
@@ -22,13 +20,11 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 
-app.use(ClerkExpressWithAuth());
 app.use(cors());
 app.use(express.json());
 
 // Routes
 app.use("/api/campaigns", campaignRouter);
-app.use("/api/users", userRouter);
 
 app.use(errorHandler);
 

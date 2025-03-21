@@ -19,7 +19,7 @@ exports.getCampaigns = asyncHandler(async (req, res) => {
     /\b(gt|gte|lt|lte|in)\b/g,
     (match) => `$${match}`
   );
-  query = Campaign.find(JSON.parse(queryStr)).populate("creator", "name email");
+  query = Campaign.find(JSON.parse(queryStr));
 
   // Selecting specific fields
   if (req.query.select) {
@@ -56,15 +56,9 @@ exports.getCampaigns = asyncHandler(async (req, res) => {
 exports.getCampaign = asyncHandler(async (req, res, next) => {
   let campaign;
   if (req.params.idOrSlug.match(/^[0-9a-fA-F]{24}$/)) {
-    campaign = await Campaign.findById(req.params.idOrSlug).populate(
-      "creator",
-      "name email"
-    );
+    campaign = await Campaign.findById(req.params.idOrSlug);
   } else {
-    campaign = await Campaign.findOne({ slug: req.params.idOrSlug }).populate(
-      "creator",
-      "name email"
-    );
+    campaign = await Campaign.findOne({ slug: req.params.idOrSlug });
   }
 
   if (!campaign) {
