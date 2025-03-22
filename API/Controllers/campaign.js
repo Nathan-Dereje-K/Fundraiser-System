@@ -51,14 +51,14 @@ exports.getCampaigns = asyncHandler(async (req, res) => {
 });
 
 // @Desc       Display single Campaign by ID or Slug
-// @Route      GET /api/campaign/:idOrSlug
+// @Route      GET /api/campaign/:id
 // @Access     Public
 exports.getCampaign = asyncHandler(async (req, res, next) => {
   let campaign;
-  if (req.params.idOrSlug.match(/^[0-9a-fA-F]{24}$/)) {
-    campaign = await Campaign.findById(req.params.idOrSlug);
+  if (req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+    campaign = await Campaign.findById(req.params.id);
   } else {
-    campaign = await Campaign.findOne({ slug: req.params.idOrSlug });
+    campaign = await Campaign.findOne({ slug: req.params.id });
   }
 
   if (!campaign) {
