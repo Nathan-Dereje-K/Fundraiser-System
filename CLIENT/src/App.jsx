@@ -7,6 +7,8 @@ import { UserProvider } from "./context/UserContext";
 import Layout from "./components/layout/Layout";
 import Dashboard from "./pages/Dashboard";
 import UserManagement from "./pages/UserManagement";
+import CampaignPanel from "./pages/Campaign/CampaignPanel";
+import CampaignCreation from "./pages/Campaign/CampaignCreation";
 import ProfileManagement from "./pages/ProfileManagement";
 import Settings from "./pages/Settings";
 import ForgetPassword from "./pages/auth/ForgetPassword";
@@ -25,6 +27,8 @@ function App() {
             <Route path="/forgotpassword" element={<ForgetPassword />} />
             <Route path="/resetpassword" element={<ResetPassword />} />
             <Route path="/verifyemail" element={<VerifyEmail />} />
+            <Route path="/campaign_panel" element={<CampaignPanel />} />
+            <Route path="/campaign_creation" element={<CampaignCreation />} />
             <Route
               path="/dashboard"
               element={

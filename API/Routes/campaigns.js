@@ -1,7 +1,36 @@
 const express = require("express");
-const { getCampaigns } = require("../Controllers/campaign");
+const {
+  getCampaigns,
+  postCampaign,
+  putCampaign,
+  deleteCampaign,
+  getCampaign,
+} = require("../Controllers/campaign");
+const { upload } = require("../Config/multerConfig");
+
 const router = express.Router();
 
-router.route("/").get(getCampaigns);
+router
+  .route("/")
+  .get(getCampaigns)
+  .post(
+    upload.fields([
+      { name: "image", maxCount: 5 },
+      { name: "video", maxCount: 3 },
+    ]),
+    postCampaign
+  );
+
+router
+  .route("/:id")
+  .get(getCampaign)
+  .put(
+    upload.fields([
+      { name: "image", maxCount: 5 },
+      { name: "video", maxCount: 3 },
+    ]),
+    putCampaign
+  )
+  .delete(deleteCampaign);
 
 module.exports = router;

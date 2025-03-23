@@ -38,6 +38,7 @@ exports.getLoggedInUser = asyncHandler(async (req, res) => {
 
   res.json(user);
 });
+
 //update user by id role,block,name,email,password
 exports.updateUser = asyncHandler(async (req, res) => {
   const id = req.params.id;

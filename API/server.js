@@ -1,4 +1,4 @@
-require("dotenv").config();
+require("dotenv").config({ path: "./Config/config.env" });
 const express = require("express");
 const app = express();
 const campaignRouter = require("./Routes/campaigns");
@@ -6,15 +6,17 @@ const authRouter = require("./Routes/auth");
 const userRouter = require("./Routes/user");
 const utilRouter = require("./Routes/util");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
 
 require("colors");
-const cors = require("cors");
 
 // Connect to MongoDB
 const connectDB = require("./Config/db");
 const morgan = require("morgan");
 const errorHandler = require("./Middleware/error");
+
 connectDB();
+
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
