@@ -1,323 +1,373 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
+/* eslint-disable react/prop-types */
+/* eslint-disable no-unused-vars */
+import { useState, useEffect } from "react";
+import axios from "axios";
 import { useForm } from "react-hook-form";
-import { ChevronRight, ChevronLeft } from "lucide-react";
-
-const steps = [
-  "Campaign Info",
-  "Funding & Media",
-  "Documents & Details",
-  "Review & Submit",
-];
+import { motion } from "framer-motion";
+import { useDropzone } from "react-dropzone";
+import { useNavigate } from "react-router-dom";
 
 const CampaignCreation = () => {
-  const [step, setStep] = useState(0);
-  const { register, handleSubmit, watch, reset } = useForm();
-  const [loading, setLoading] = useState(false);
-
-  const nextStep = () =>
-    setStep((prev) => Math.min(prev + 1, steps.length - 1));
-  const prevStep = () => setStep((prev) => Math.max(prev - 1, 0));
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    trigger,
+    setError,
+    clearErrors,
+  } = useForm();
+  const [imageFiles, setImageFiles] = useState([]);
+  const [videoFile, setVideoFile] = useState(null);
+  const [documentFiles, setDocumentFiles] = useState([]);
+  const [step, setStep] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const onSubmit = async (data) => {
-    setLoading(true);
+    if (step < 4) return;
 
-    // Prepare form data to be sent to the backend
-    const formData = new FormData();
-    formData.append("name", data.name);
-    formData.append("category", data.category);
-    formData.append("description", data.description);
-    formData.append("target", data.target);
-    formData.append("duration", data.duration);
-
-    // Add video file (this will be handled by your backend)
-    if (data.video && data.video.length > 0) {
-      formData.append("video", data.video[0]);
-    }
-
-    // Add image file
-    if (data.image && data.image.length > 0) {
-      formData.append("image", data.image[0]);
-    }
-
-    // Add document files (if any)
-    if (data.documents && data.documents.length > 0) {
-      Array.from(data.documents).forEach((file) => {
-        formData.append("documents", file);
+    // Manual validation for files
+    if (imageFiles.length === 0) {
+      setError("files", {
+        type: "manual",
+        message: "At least one image is required",
       });
+      return;
     }
+    clearErrors("files");
+
+    setIsLoading(true);
+    const formData = new FormData();
+    formData.append("title", data.title);
+    formData.append("description", data.description);
+    formData.append("goalAmount", data.goalAmount);
+    formData.append("category", data.category);
+    formData.append("startDate", data.startDate);
+    formData.append("endDate", data.endDate);
+
+    imageFiles.forEach((file) => formData.append("image", file));
+    if (videoFile) formData.append("video", videoFile);
+    documentFiles.forEach((file) => formData.append("document", file));
 
     try {
-      // Send the form data to the backend
-      const response = await fetch("http://localhost:5000/api/campaigns", {
-        method: "POST",
-        body: formData,
+      await axios.post("http://localhost:5000/api/campaigns", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        alert("Campaign submitted successfully!");
-        reset(); // Reset form
-        setStep(0); // Go back to the first step
-      } else {
-        alert(`Error: ${result.message}`);
-      }
+      alert("Campaign created successfully!");
+      navigate("/campaign_panel");
     } catch (error) {
-      alert("Something went wrong. Please try again.");
+      alert("Failed to create campaign. " + error.message);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-gray-100">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="bg-white p-8 rounded-xl shadow-lg max-w-4xl w-full"
-      >
-        <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-          {steps[step]}
-        </h2>
+  const handleNext = async () => {
+    let isValid = false;
+    switch (step) {
+      case 1:
+        isValid = await trigger(["title", "description"]);
+        break;
+      case 2:
+        isValid = await trigger(["goalAmount", "category"]);
+        break;
+      case 3:
+        isValid = await trigger(["startDate", "endDate"]);
+        break;
+      default:
+        isValid = true;
+    }
+    if (isValid) setStep((prev) => Math.min(prev + 1, 4));
+  };
 
-        {/* Progress Bar */}
-        <div className="flex items-center mb-8">
-          {steps.map((label, index) => (
-            <div key={index} className="flex-1 flex items-center">
-              <div
-                className={`w-full h-2 rounded-full ${
-                  index <= step ? "bg-orange-500" : "bg-gray-300"
-                }`}
-              />
-              {index < steps.length - 1 && <div className="w-2" />}
-            </div>
-          ))}
+  const handlePrevious = () => setStep((prev) => Math.max(prev - 1, 1));
+
+  const handleImageChange = (acceptedFiles) => {
+    setImageFiles(acceptedFiles);
+    if (acceptedFiles.length > 0) clearErrors("files");
+  };
+
+  const handleVideoChange = (acceptedFiles) => setVideoFile(acceptedFiles[0]);
+  const handleDocumentChange = (acceptedFiles) =>
+    setDocumentFiles(acceptedFiles);
+
+  const FilePreview = ({ files }) => (
+    <div className="mt-2">
+      {files.map((file, index) => (
+        <p key={index} className="text-gray-600 text-sm">
+          {file.name}
+        </p>
+      ))}
+    </div>
+  );
+
+  const DropzoneWrapper = ({ onDrop, multiple, label, error, name }) => {
+    const { getRootProps, getInputProps } = useDropzone({
+      onDrop: (acceptedFiles) => {
+        onDrop(acceptedFiles);
+        if (name === "images" && acceptedFiles.length > 0) clearErrors("files");
+      },
+      multiple,
+    });
+
+    return (
+      <div className="mt-6">
+        <label className="block text-gray-700 font-medium mb-2">{label}</label>
+        <div
+          {...getRootProps()}
+          className={`w-full p-8 border-2 border-dashed rounded-lg transition-colors cursor-pointer text-center ${
+            error ? "border-red-500" : "border-gray-300 hover:border-cyan-400"
+          }`}
+        >
+          <input {...getInputProps()} />
+          <p className="text-gray-600">
+            Drag and drop files here, or click to select
+          </p>
+          <p className="text-sm text-gray-500 mt-1">
+            {multiple ? "Multiple files allowed" : "Single file only"}
+          </p>
         </div>
+        {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+      </div>
+    );
+  };
 
-        <form onSubmit={handleSubmit(onSubmit)}>
-          {/* Step 1: Campaign Info */}
-          {step === 0 && (
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Campaign Name
-                  </label>
-                  <input
-                    {...register("name")}
-                    className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                    placeholder="Enter campaign name"
-                    required
-                  />
-                </div>
+  return (
+    <div className="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto">
+        <div className="bg-white rounded-3xl shadow-xl p-8 sm:p-12">
+          <h1 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+            Create a New Campaign
+          </h1>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Category
-                  </label>
-                  <select
-                    {...register("category")}
-                    className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+            <div className="flex items-center justify-center mb-8">
+              {[1, 2, 3, 4].map((num) => (
+                <div key={num} className="flex items-center">
+                  <div
+                    className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                      step >= num
+                        ? "bg-cyan-500 text-white"
+                        : "bg-gray-200 text-gray-500"
+                    }`}
                   >
-                    <option>Education</option>
-                    <option>Medical</option>
-                    <option>Individual</option>
-                    <option>Religious</option>
-                    <option>Other</option>
-                  </select>
+                    {num}
+                  </div>
+                  {num < 4 && (
+                    <div
+                      className={`w-16 h-1 ${
+                        step > num ? "bg-cyan-500" : "bg-gray-200"
+                      }`}
+                    />
+                  )}
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Description
-                  </label>
-                  <textarea
-                    {...register("description")}
-                    className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                    rows="4"
-                    placeholder="Describe your campaign"
-                    required
-                  />
-                </div>
-              </div>
-            </motion.div>
-          )}
-
-          {/* Step 2: Funding & Media */}
-          {step === 1 && (
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Target Amount ($)
-                  </label>
-                  <input
-                    {...register("target")}
-                    type="number"
-                    className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                    placeholder="Enter target amount"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Campaign Duration in days
-                  </label>
-                  <input
-                    {...register("duration")}
-                    type="number"
-                    className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                    placeholder="Eg. 120 Days"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Upload Campaign Image
-                  </label>
-                  <input
-                    type="file"
-                    {...register("image")}
-                    className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                    accept="image/*"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Campaign Video (Link or Upload)
-                  </label>
-                  <input
-                    type="file"
-                    {...register("video")}
-                    className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                    accept="video/*"
-                  />
-                </div>
-              </div>
-            </motion.div>
-          )}
-
-          {/* Step 3: Documents & Details */}
-          {step === 2 && (
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Upload Documents (PDF, Word, etc.)
-                  </label>
-                  <input
-                    type="file"
-                    {...register("documents")}
-                    className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                    accept=".pdf,.doc,.docx"
-                    multiple
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Additional Details
-                  </label>
-                  <textarea
-                    {...register("details")}
-                    className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                    rows="4"
-                    placeholder="Provide additional details about your campaign"
-                  />
-                </div>
-              </div>
-            </motion.div>
-          )}
-
-          {/* Step 4: Review & Submit */}
-          {step === 3 && (
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <div className="space-y-4">
-                <h3 className="text-xl font-semibold text-gray-800 mb-4">
-                  Review Your Campaign
-                </h3>
-                <p className="text-gray-700">
-                  <strong>Name:</strong> {watch("name")}
-                </p>
-                <p className="text-gray-700">
-                  <strong>Category:</strong> {watch("category")}
-                </p>
-                <p className="text-gray-700">
-                  <strong>Description:</strong> {watch("description")}
-                </p>
-                <p className="text-gray-700">
-                  <strong>Target Amount:</strong> ${watch("target")}
-                </p>
-                <p className="text-gray-700">
-                  <strong>Duration:</strong> {watch("duration")} days
-                </p>
-                <p className="text-gray-700">
-                  <strong>Video:</strong>{" "}
-                  {watch("video") ? "Uploaded" : "Not uploaded"}
-                </p>
-                <p className="text-gray-700">
-                  <strong>Additional Details:</strong> {watch("details")}
-                </p>
-              </div>
-            </motion.div>
-          )}
-
-          {/* Navigation Buttons */}
-          <div className="flex justify-between mt-8">
-            {step > 0 && (
-              <button
-                type="button"
-                className="px-6 py-2 bg-gray-300 text-gray-800 rounded-lg flex items-center hover:bg-gray-400 transition-all"
-                onClick={prevStep}
-              >
-                <ChevronLeft size={18} className="mr-2" />
-                Back
-              </button>
-            )}
-            <div>
-              {step < steps.length - 1 ? (
-                <button
-                  type="button"
-                  className="px-6 py-2 bg-orange-500 text-white rounded-lg flex items-center hover:bg-orange-600 transition-all"
-                  onClick={nextStep}
-                >
-                  Next
-                  <ChevronRight size={18} className="ml-2" />
-                </button>
-              ) : (
-                <button
-                  type="submit"
-                  className="px-6 py-2 bg-orange-500 text-white rounded-lg flex items-center hover:bg-orange-600 transition-all"
-                  disabled={loading}
-                >
-                  {loading ? "Submitting..." : "Submit"}
-                </button>
-              )}
+              ))}
             </div>
-          </div>
-        </form>
-      </motion.div>
+
+            <motion.div
+              key={step}
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-6"
+            >
+              {step === 1 && (
+                <>
+                  <div>
+                    <label className="block text-gray-700 font-medium mb-2">
+                      Campaign Title
+                    </label>
+                    <input
+                      className={`w-full px-4 py-3 rounded-lg border ${
+                        errors.title ? "border-red-500" : "border-gray-300"
+                      } focus:ring-2 focus:ring-cyan-400 focus:border-transparent`}
+                      {...register("title", { required: "Title is required" })}
+                    />
+                    {errors.title && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.title.message}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-gray-700 font-medium mb-2">
+                      Description
+                    </label>
+                    <textarea
+                      rows={4}
+                      className={`w-full px-4 py-3 rounded-lg border ${
+                        errors.description
+                          ? "border-red-500"
+                          : "border-gray-300"
+                      } focus:ring-2 focus:ring-cyan-400 focus:border-transparent`}
+                      {...register("description", {
+                        required: "Description is required",
+                      })}
+                    />
+                    {errors.description && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.description.message}
+                      </p>
+                    )}
+                  </div>
+                </>
+              )}
+
+              {step === 2 && (
+                <>
+                  <div>
+                    <label className="block text-gray-700 font-medium mb-2">
+                      Goal Amount ($)
+                    </label>
+                    <input
+                      type="number"
+                      className={`w-full px-4 py-3 rounded-lg border ${
+                        errors.goalAmount ? "border-red-500" : "border-gray-300"
+                      } focus:ring-2 focus:ring-cyan-400 focus:border-transparent`}
+                      {...register("goalAmount", {
+                        required: "Goal amount is required",
+                        min: { value: 1, message: "Amount must be positive" },
+                      })}
+                    />
+                    {errors.goalAmount && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.goalAmount.message}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-gray-700 font-medium mb-2">
+                      Category
+                    </label>
+                    <select
+                      className={`w-full px-4 py-3 rounded-lg border ${
+                        errors.category ? "border-red-500" : "border-gray-300"
+                      } focus:ring-2 focus:ring-cyan-400 focus:border-transparent`}
+                      {...register("category", {
+                        required: "Category is required",
+                      })}
+                    >
+                      <option value="">Select a category</option>
+                      <option value="Education">Education</option>
+                      <option value="Technology">Technology</option>
+                      <option value="Healthcare">Healthcare</option>
+                      <option value="Environment">Environment</option>
+                    </select>
+                    {errors.category && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.category.message}
+                      </p>
+                    )}
+                  </div>
+                </>
+              )}
+
+              {step === 3 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-gray-700 font-medium mb-2">
+                      Start Date
+                    </label>
+                    <input
+                      type="date"
+                      className={`w-full px-4 py-3 rounded-lg border ${
+                        errors.startDate ? "border-red-500" : "border-gray-300"
+                      } focus:ring-2 focus:ring-cyan-400 focus:border-transparent`}
+                      {...register("startDate", {
+                        required: "Start date is required",
+                      })}
+                    />
+                    {errors.startDate && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.startDate.message}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-gray-700 font-medium mb-2">
+                      End Date
+                    </label>
+                    <input
+                      type="date"
+                      className={`w-full px-4 py-3 rounded-lg border ${
+                        errors.endDate ? "border-red-500" : "border-gray-300"
+                      } focus:ring-2 focus:ring-cyan-400 focus:border-transparent`}
+                      {...register("endDate", {
+                        required: "End date is required",
+                      })}
+                    />
+                    {errors.endDate && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.endDate.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {step === 4 && (
+                <>
+                  <DropzoneWrapper
+                    onDrop={handleImageChange}
+                    multiple
+                    label="Campaign Images (Multiple allowed)"
+                    error={errors.files?.message}
+                    name="images"
+                  />
+                  <FilePreview files={imageFiles} />
+                  <DropzoneWrapper
+                    onDrop={handleVideoChange}
+                    multiple={false}
+                    label="Promotional Video (Optional)"
+                  />
+                  {videoFile && <FilePreview files={[videoFile]} />}
+                  <DropzoneWrapper
+                    onDrop={handleDocumentChange}
+                    multiple
+                    label="Supporting Documents (Multiple allowed)"
+                  />
+                  <FilePreview files={documentFiles} />
+                </>
+              )}
+            </motion.div>
+
+            <div className="flex justify-between mt-8">
+              <div>
+                {step > 1 && (
+                  <button
+                    type="button"
+                    onClick={handlePrevious}
+                    className="px-6 py-2.5 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors"
+                  >
+                    Previous
+                  </button>
+                )}
+              </div>
+              <div>
+                {step < 4 ? (
+                  <button
+                    type="button"
+                    onClick={handleNext}
+                    className="px-6 py-2.5 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-colors"
+                  >
+                    Next
+                  </button>
+                ) : (
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="px-6 py-2.5 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+                  >
+                    {isLoading ? "Creating Campaign..." : "Submit Campaign"}
+                  </button>
+                )}
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   );
 };

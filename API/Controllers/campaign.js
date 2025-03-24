@@ -69,10 +69,9 @@ exports.getCampaign = asyncHandler(async (req, res, next) => {
 exports.postCampaign = asyncHandler(async (req, res) => {
   const { title, description, goalAmount, category, link } = req.body;
 
-  console.log("Received files:", req.files); // Debugging log
-
   const imageUrls = req.files?.image?.map((file) => file.path) || [];
   const videoUrls = req.files?.video?.map((file) => file.path) || [];
+  const documentUrls = req.files?.document?.map((file) => file.path) || [];
   const linkArray = Array.isArray(link) ? link : link ? [link] : [];
 
   const campaign = await Campaign.create({
@@ -82,6 +81,7 @@ exports.postCampaign = asyncHandler(async (req, res) => {
     category,
     image: imageUrls,
     video: videoUrls,
+    document: documentUrls,
     link: linkArray,
   });
 
@@ -94,6 +94,7 @@ exports.postCampaign = asyncHandler(async (req, res) => {
 exports.putCampaign = asyncHandler(async (req, res, next) => {
   const imageUrls = (req.files?.image || []).map((file) => file.path);
   const videoUrls = (req.files?.video || []).map((file) => file.path);
+  const documentUrls = (req.files?.document || []).map((file) => file.path);
   const linkArray = Array.isArray(req.body.link)
     ? req.body.link
     : req.body.link
@@ -104,6 +105,7 @@ exports.putCampaign = asyncHandler(async (req, res, next) => {
 
   if (imageUrls.length > 0) updatedData.image = imageUrls;
   if (videoUrls.length > 0) updatedData.video = videoUrls;
+  if (documentUrls.length > 0) updatedData.document = documentUrls;
   if (req.body.link !== undefined) updatedData.link = linkArray;
 
   const campaign = await Campaign.findByIdAndUpdate(

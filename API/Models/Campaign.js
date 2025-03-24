@@ -5,7 +5,7 @@ const campaignSchema = new mongoose.Schema(
     title: {
       type: String,
       required: [true, "Campaign title is required"],
-      // trim: true,
+      trim: true,
       maxlength: [100, "Title cannot exceed 100 characters"],
       unique: true,
     },
@@ -15,12 +15,12 @@ const campaignSchema = new mongoose.Schema(
     },
     description: {
       type: String,
-      // required: [true, "Please add a campaign description"],
+      required: [true, "Please add a campaign description"],
       trim: true,
     },
     goalAmount: {
       type: Number,
-      // required: [true, "Goal amount is required"],
+      required: [true, "Goal amount is required"],
       min: [1, "Goal amount must be greater than zero"],
     },
     raisedAmount: {
@@ -36,7 +36,7 @@ const campaignSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      // required: true,
+      required: true,
       trim: true,
     },
     featured: {
@@ -66,6 +66,7 @@ const campaignSchema = new mongoose.Schema(
     // ],
     image: [{ type: String }],
     video: [{ type: String }],
+    document: [{ type: String }],
     link: [{ type: String }],
 
     createdAt: { type: Date, default: Date.now },

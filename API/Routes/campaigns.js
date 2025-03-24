@@ -17,6 +17,7 @@ router
     upload.fields([
       { name: "image", maxCount: 5 },
       { name: "video", maxCount: 3 },
+      { name: "document", maxCount: 5 },
     ]),
     postCampaign
   );
@@ -28,6 +29,7 @@ router
     upload.fields([
       { name: "image", maxCount: 5 },
       { name: "video", maxCount: 3 },
+      { name: "document", maxCount: 5 },
     ]),
     putCampaign
   )
