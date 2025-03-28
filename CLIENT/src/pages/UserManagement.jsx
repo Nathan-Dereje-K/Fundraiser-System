@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+/* eslint-disable no-unused-vars */
+import { useState, useEffect } from "react";
 import { useUsers } from "../hooks/useUsers";
 import { NUMBER_OF_USERS_PER_PAGE } from "../constants";
 import Button from "../components/ui/Button";

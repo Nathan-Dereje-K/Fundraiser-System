@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { User, Settings, Users, LogOut, Menu, X } from "lucide-react";
@@ -31,10 +32,10 @@ const Navbar = () => {
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
               <Link to="/" className="text-xl font-bold text-blue-600">
-                AccountManager
+                DashBoard
               </Link>
             </div>
-            <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+            {/* <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
               {navLinks.map((link) => (
                 <Link
                   key={link.path}
@@ -49,7 +50,7 @@ const Navbar = () => {
                   {link.label}
                 </Link>
               ))}
-            </div>
+            </div> */}
           </div>
 
           <div className="flex items-center">
@@ -79,14 +80,6 @@ const Navbar = () => {
                     <User className="mr-2 h-4 w-4" />
                     Profile
                   </Link>
-                  {/* <Link
-                    to="/settings"
-                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    role="menuitem"
-                  >
-                    <Settings className="mr-2 h-4 w-4" />
-                    Settings
-                  </Link> */}
                   <button
                     onClick={handleLogout}
                     className="flex w-full items-center px-4 py-2 text-sm text-red-700 hover:bg-red-50"
@@ -162,13 +155,6 @@ const Navbar = () => {
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Profile
-                </Link>
-                <Link
-                  to="/settings"
-                  className="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Settings
                 </Link>
                 <button
                   onClick={() => {

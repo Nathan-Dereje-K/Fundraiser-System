@@ -20,6 +20,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { motion, AnimatePresence } from "framer-motion";
+import { Link } from "react-router-dom";
 
 const CampaignDashboard = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -185,15 +186,16 @@ const CampaignDashboard = () => {
             className="flex justify-between items-center mb-6"
           >
             <h1 className="text-2xl font-bold">Campaign Management</h1>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-orange-500 text-white px-4 py-2 rounded-lg flex items-center space-x-2"
-              to="/campaign_creation"
-            >
-              <Plus size={20} />
-              <span>New Campaign</span>
-            </motion.button>
+            <Link to="/campaign_creation">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-orange-500 text-white px-4 py-2 rounded-lg flex items-center space-x-2"
+              >
+                <Plus size={20} />
+                <span>New Campaign</span>
+              </motion.button>
+            </Link>
           </motion.div>
 
           {/* Campaign Cards */}

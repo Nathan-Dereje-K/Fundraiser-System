@@ -1,14 +1,34 @@
+/* eslint-disable no-unused-vars */
 import { motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
-import { Menu, X } from "lucide-react";
 import { useAuth } from "../../../hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useUser } from "../../../context/UserContext";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import {
+  User,
+  Settings,
+  Users,
+  LogOut,
+  Menu,
+  X,
+  LayoutDashboardIcon,
+} from "lucide-react";
+import Avatar from "../../ui/Avatar";
+import Dropdown from "../../ui/Dropdown";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
   const navigate = useNavigate();
   const { user, handleLogout } = useAuth();
+  const { user: currentUser } = useUser();
+  // const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // useEffect(() => {
+  //   if (currentUser) {
+  //     console.log(currentUser);
+  //   }
+  // }, [currentUser]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -79,18 +99,54 @@ const Navbar = () => {
           {/* Authentication */}
           <li>
             {user ? (
-              <div className="flex items-center gap-4">
-                <span className="text-gray-800">{user.userId}</span>
-                <button
-                  onClick={handleLogout}
-                  className="px-4 py-2 bg-gray-300 text-gray-800 rounded-full shadow-sm"
-                >
-                  Logout
-                </button>
+              <div className="hidden sm:ml-6 sm:flex sm:items-center">
+                {currentUser && (
+                  <Dropdown
+                    trigger={
+                      <div className="flex items-center cursor-pointer">
+                        <span className="text-sm font-medium text-gray-700 mr-2 hidden lg:block">
+                          {currentUser.name}
+                        </span>
+                        <Avatar
+                          src={currentUser.avatar}
+                          alt={currentUser.name}
+                          size="sm"
+                        />
+                      </div>
+                    }
+                    align="right"
+                    className="w-48"
+                  >
+                    <Link
+                      to="/profile"
+                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      role="menuitem"
+                    >
+                      <User className="mr-2 h-4 w-4" />
+                      Profile
+                    </Link>
+                    <Link
+                      to="/dashboard"
+                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      role="menuitem"
+                    >
+                      <LayoutDashboardIcon className="mr-2 h-4 w-4" />
+                      Dashboard
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="flex w-full items-center px-4 py-2 text-sm text-red-700 hover:bg-red-50"
+                      role="menuitem"
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Logout
+                    </button>
+                  </Dropdown>
+                )}
               </div>
             ) : (
               <a
-                href="/signup"
+                href="/signin"
                 className="px-5 py-2 bg-gray-300 text-gray-800 rounded-full shadow-sm"
               >
                 Log in
@@ -150,7 +206,7 @@ const Navbar = () => {
               </button>
             ) : (
               <a
-                href="/signup"
+                href="/signin"
                 className="mt-3 px-5 py-2 bg-gray-300 text-gray-800 rounded-full shadow-md"
               >
                 Log in

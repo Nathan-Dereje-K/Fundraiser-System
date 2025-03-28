@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useGoogleLogin } from "@react-oauth/google";
 import googleIcon from "../../assets/google-icon.png";
 import API from "../../api/api";

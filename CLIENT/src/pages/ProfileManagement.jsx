@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+/* eslint-disable no-unused-vars */
+import { useState, useEffect } from "react";
 import { useUser } from "../context/UserContext";
 import { useUpdateUser } from "../hooks/useUsers";
 import { useVerifyEmail } from "../hooks/useAuth";
