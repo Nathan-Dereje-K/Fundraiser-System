@@ -79,6 +79,8 @@ exports.postCampaign = asyncHandler(async (req, res) => {
     description,
     goalAmount,
     category,
+    startDate,
+    endDate,
     image: imageUrls,
     video: videoUrls,
     document: documentUrls,

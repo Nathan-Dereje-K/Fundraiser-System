@@ -47,17 +47,32 @@ const campaignSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    startDate: {
+      type: Date,
+      required: true,
+      validate: {
+        validator: function (value) {
+          return value >= new Date();
+        },
+        message: "Start date cannot be in the past.",
+      },
+    },
+    endDate: {
+      type: Date,
+      required: true,
+      validate: {
+        validator: function (value) {
+          return value > this.startDate;
+        },
+        message: "End date must be after the start date.",
+      },
+    },
     // creator: {
     //   type: mongoose.Schema.Types.ObjectId,
     //   ref: "User",
     //   required: true,
     // },
-    // validators: [
-    //   {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: "User",
-    //   },
-    // ],
+
     // donations: [
     //   {
     //     type: mongoose.Schema.Types.ObjectId,
