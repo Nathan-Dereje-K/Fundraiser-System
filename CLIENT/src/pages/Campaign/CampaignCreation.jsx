@@ -1,6 +1,5 @@
 /* eslint-disable react/prop-types */
-/* eslint-disable no-unused-vars */
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
@@ -13,52 +12,42 @@ const CampaignCreation = () => {
     handleSubmit,
     formState: { errors },
     trigger,
-    setError,
-    clearErrors,
+    getValues,
   } = useForm();
   const [imageFiles, setImageFiles] = useState([]);
-  const [videoFile, setVideoFile] = useState(null);
+  const [videoFiles, setVideoFiles] = useState([]);
   const [documentFiles, setDocumentFiles] = useState([]);
+  const [links, setLinks] = useState([]);
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const onSubmit = async (data) => {
-    if (step < 4) return;
-
-    // Manual validation for files
-    if (imageFiles.length === 0) {
-      setError("files", {
-        type: "manual",
-        message: "At least one image is required",
-      });
-      return;
-    }
-    clearErrors("files");
-
     setIsLoading(true);
     const formData = new FormData();
-    formData.append("title", data.title);
-    formData.append("description", data.description);
-    formData.append("goalAmount", data.goalAmount);
-    formData.append("category", data.category);
-    formData.append("startDate", data.startDate);
-    formData.append("endDate", data.endDate);
 
+    // Append basic fields
+    Object.entries(data).forEach(([key, value]) => {
+      if (value instanceof Date) {
+        formData.append(key, value.toISOString());
+      } else {
+        formData.append(key, value);
+      }
+    });
+
+    // Append files and links
     imageFiles.forEach((file) => formData.append("image", file));
-    if (videoFile) formData.append("video", videoFile);
+    videoFiles.forEach((file) => formData.append("video", file));
     documentFiles.forEach((file) => formData.append("document", file));
+    links.forEach((link) => formData.append("link", link));
 
     try {
       await axios.post("http://localhost:5000/api/campaigns", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       });
-      alert("Campaign created successfully!");
       navigate("/campaign_panel");
     } catch (error) {
-      alert("Failed to create campaign. " + error.message);
+      alert(`Error: ${error.response?.data?.message || error.message}`);
     } finally {
       setIsLoading(false);
     }
@@ -76,22 +65,33 @@ const CampaignCreation = () => {
       case 3:
         isValid = await trigger(["startDate", "endDate"]);
         break;
-      default:
+      case 4:
+        // Final validation before submission
         isValid = true;
+        break;
+      default:
+        isValid = false;
     }
-    if (isValid) setStep((prev) => Math.min(prev + 1, 4));
+
+    if (isValid && step < 4) {
+      setStep((prev) => prev + 1);
+    } else if (step === 4) {
+      handleSubmit(onSubmit)();
+    }
   };
 
-  const handlePrevious = () => setStep((prev) => Math.max(prev - 1, 1));
-
-  const handleImageChange = (acceptedFiles) => {
-    setImageFiles(acceptedFiles);
-    if (acceptedFiles.length > 0) clearErrors("files");
+  const handlePrevious = () => {
+    if (step > 1) setStep((prev) => prev - 1);
   };
 
-  const handleVideoChange = (acceptedFiles) => setVideoFile(acceptedFiles[0]);
-  const handleDocumentChange = (acceptedFiles) =>
-    setDocumentFiles(acceptedFiles);
+  // Link management functions
+  const addLink = () => setLinks([...links, ""]);
+  const removeLink = (index) => setLinks(links.filter((_, i) => i !== index));
+  const handleLinkChange = (index, value) => {
+    const newLinks = [...links];
+    newLinks[index] = value;
+    setLinks(newLinks);
+  };
 
   const FilePreview = ({ files }) => (
     <div className="mt-2">
@@ -103,13 +103,11 @@ const CampaignCreation = () => {
     </div>
   );
 
-  const DropzoneWrapper = ({ onDrop, multiple, label, error, name }) => {
+  const DropzoneWrapper = ({ onDrop, multiple, label, accept }) => {
     const { getRootProps, getInputProps } = useDropzone({
-      onDrop: (acceptedFiles) => {
-        onDrop(acceptedFiles);
-        if (name === "images" && acceptedFiles.length > 0) clearErrors("files");
-      },
+      onDrop,
       multiple,
+      accept,
     });
 
     return (
@@ -117,9 +115,7 @@ const CampaignCreation = () => {
         <label className="block text-gray-700 font-medium mb-2">{label}</label>
         <div
           {...getRootProps()}
-          className={`w-full p-8 border-2 border-dashed rounded-lg transition-colors cursor-pointer text-center ${
-            error ? "border-red-500" : "border-gray-300 hover:border-cyan-400"
-          }`}
+          className="w-full p-8 border-2 border-dashed border-gray-300 rounded-lg transition-colors cursor-pointer text-center hover:border-cyan-400"
         >
           <input {...getInputProps()} />
           <p className="text-gray-600">
@@ -129,7 +125,6 @@ const CampaignCreation = () => {
             {multiple ? "Multiple files allowed" : "Single file only"}
           </p>
         </div>
-        {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
       </div>
     );
   };
@@ -183,7 +178,13 @@ const CampaignCreation = () => {
                       className={`w-full px-4 py-3 rounded-lg border ${
                         errors.title ? "border-red-500" : "border-gray-300"
                       } focus:ring-2 focus:ring-cyan-400 focus:border-transparent`}
-                      {...register("title", { required: "Title is required" })}
+                      {...register("title", {
+                        required: "Title is required",
+                        maxLength: {
+                          value: 100,
+                          message: "Title cannot exceed 100 characters",
+                        },
+                      })}
                     />
                     {errors.title && (
                       <p className="text-red-500 text-sm mt-1">
@@ -251,9 +252,10 @@ const CampaignCreation = () => {
                     >
                       <option value="">Select a category</option>
                       <option value="Education">Education</option>
-                      <option value="Technology">Technology</option>
-                      <option value="Healthcare">Healthcare</option>
-                      <option value="Environment">Environment</option>
+                      <option value="Medical">Medical</option>
+                      <option value="Individual">Individual</option>
+                      <option value="Religious">Religious</option>
+                      <option value="Other">Other</option>
                     </select>
                     {errors.category && (
                       <p className="text-red-500 text-sm mt-1">
@@ -272,11 +274,14 @@ const CampaignCreation = () => {
                     </label>
                     <input
                       type="date"
+                      min={new Date().toISOString().split("T")[0]}
                       className={`w-full px-4 py-3 rounded-lg border ${
                         errors.startDate ? "border-red-500" : "border-gray-300"
                       } focus:ring-2 focus:ring-cyan-400 focus:border-transparent`}
                       {...register("startDate", {
                         required: "Start date is required",
+                        validate: (value) =>
+                          new Date(value) >= new Date() || "Cannot be in past",
                       })}
                     />
                     {errors.startDate && (
@@ -296,6 +301,11 @@ const CampaignCreation = () => {
                       } focus:ring-2 focus:ring-cyan-400 focus:border-transparent`}
                       {...register("endDate", {
                         required: "End date is required",
+                        validate: (value) => {
+                          const start = new Date(getValues("startDate"));
+                          const end = new Date(value);
+                          return end > start || "Must be after start date";
+                        },
                       })}
                     />
                     {errors.endDate && (
@@ -310,25 +320,61 @@ const CampaignCreation = () => {
               {step === 4 && (
                 <>
                   <DropzoneWrapper
-                    onDrop={handleImageChange}
-                    multiple
+                    onDrop={setImageFiles}
+                    multiple={true}
                     label="Campaign Images (Multiple allowed)"
-                    error={errors.files?.message}
-                    name="images"
+                    accept="image/*"
                   />
                   <FilePreview files={imageFiles} />
+
                   <DropzoneWrapper
-                    onDrop={handleVideoChange}
-                    multiple={false}
-                    label="Promotional Video (Optional)"
+                    onDrop={setVideoFiles}
+                    multiple={true}
+                    label="Promotional Videos (Optional)"
+                    accept="video/*"
                   />
-                  {videoFile && <FilePreview files={[videoFile]} />}
+                  <FilePreview files={videoFiles} />
+
                   <DropzoneWrapper
-                    onDrop={handleDocumentChange}
-                    multiple
+                    onDrop={setDocumentFiles}
+                    multiple={true}
                     label="Supporting Documents (Multiple allowed)"
+                    accept=".pdf,.doc,.docx"
                   />
                   <FilePreview files={documentFiles} />
+
+                  <div className="mt-6">
+                    <label className="block text-gray-700 font-medium mb-2">
+                      Related Links
+                    </label>
+                    {links.map((link, index) => (
+                      <div key={index} className="flex gap-2 mb-2">
+                        <input
+                          type="url"
+                          value={link}
+                          onChange={(e) =>
+                            handleLinkChange(index, e.target.value)
+                          }
+                          className="w-full px-4 py-2 rounded-lg border border-gray-300"
+                          placeholder="https://example.com"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeLink(index)}
+                          className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={addLink}
+                      className="mt-2 px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600"
+                    >
+                      Add Link
+                    </button>
+                  </div>
                 </>
               )}
             </motion.div>
@@ -346,23 +392,22 @@ const CampaignCreation = () => {
                 )}
               </div>
               <div>
-                {step < 4 ? (
-                  <button
-                    type="button"
-                    onClick={handleNext}
-                    className="px-6 py-2.5 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-colors"
-                  >
-                    Next
-                  </button>
-                ) : (
-                  <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="px-6 py-2.5 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
-                  >
-                    {isLoading ? "Creating Campaign..." : "Submit Campaign"}
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  disabled={isLoading}
+                  className={`px-6 py-2.5 text-white rounded-lg focus:outline-none focus:ring-2 transition-colors ${
+                    step === 4
+                      ? "bg-green-500 hover:bg-green-600 focus:ring-green-400"
+                      : "bg-cyan-500 hover:bg-cyan-600 focus:ring-cyan-400"
+                  } disabled:opacity-70 disabled:cursor-not-allowed`}
+                >
+                  {isLoading
+                    ? "Processing..."
+                    : step === 4
+                    ? "Submit Campaign"
+                    : "Next"}
+                </button>
               </div>
             </div>
           </form>
