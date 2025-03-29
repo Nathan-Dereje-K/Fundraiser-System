@@ -67,7 +67,8 @@ exports.getCampaign = asyncHandler(async (req, res, next) => {
 // @Route      POST /api/campaign
 // @Access     Private
 exports.postCampaign = asyncHandler(async (req, res) => {
-  const { title, description, goalAmount, category, link } = req.body;
+  const { title, description, goalAmount, startDate, endDate, category, link } =
+    req.body;
 
   const imageUrls = req.files?.image?.map((file) => file.path) || [];
   const videoUrls = req.files?.video?.map((file) => file.path) || [];
