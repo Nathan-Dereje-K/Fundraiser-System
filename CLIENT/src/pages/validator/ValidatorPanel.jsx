@@ -18,6 +18,7 @@ import {
   Laptop,
   AlertCircle,
 } from "lucide-react";
+import Loader from "../../components/ui/Loader";
 
 const categoryIcons = {
   Medical: HeartPulse,
@@ -27,11 +28,11 @@ const categoryIcons = {
   default: Folder,
 };
 
-const sidebarVariants = {
-  hidden: { opacity: 0, x: -20 },
-  visible: { opacity: 1, x: 0 },
-  exit: { opacity: 0, x: -20 },
-};
+// const sidebarVariants = {
+//   hidden: { opacity: 0, x: -20 },
+//   visible: { opacity: 1, x: 0 },
+//   exit: { opacity: 0, x: -20 },
+// };
 
 const cardVariants = {
   hidden: { opacity: 0, y: 10 },
@@ -142,16 +143,11 @@ const ValidatorPage = () => {
         </motion.div>
 
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-8 space-y-3">
-            {[1, 2, 3].map((i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: i * 0.1 }}
-                className="w-full h-12 bg-gray-200 rounded-xl animate-pulse"
-              />
-            ))}
+          <div>
+            <Loader
+              size={80} // Control overall size
+              color="text-blue-500" // Change main color
+            />
           </div>
         ) : error ? (
           <motion.div
@@ -227,8 +223,8 @@ const ValidatorPage = () => {
                     animate={{ scaleX: 1 }}
                     className="mt-3 flex items-center gap-2 text-sm text-gray-500"
                   >
-                    <DollarSign className="w-4 h-4" />
-                    <span>Goal: ${campaign.goalAmount?.toLocaleString()}</span>
+                    {/* <DollarSign className="w-4 h-4" />
+                    <span>Goal: ${campaign.goalAmount?.toLocaleString()}</span> */}
                   </motion.div>
                 </motion.div>
               ))}
