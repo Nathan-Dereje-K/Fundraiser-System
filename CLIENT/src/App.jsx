@@ -17,6 +17,8 @@ import VerifyEmail from "./pages/auth/VerifyEmail";
 import PageError from "./pages/PageError";
 import Landing from "./pages/User/Landing";
 import ValidatorPanel from "./pages/validator/ValidatorPanel";
+import Category from "./pages/User/Category";
+import CampaignDetails from "./pages/Campaign/CampaignDetails";
 //this page is to request a password reset link
 function App() {
   return (
@@ -36,6 +38,12 @@ function App() {
             <Route path="/campaign_panel" element={<CampaignPanel />} />
             <Route path="/campaign_creation" element={<CampaignCreation />} />
             <Route path="/validator_panel" element={<ValidatorPanel />} />
+            <Route path="/category/:categoryName" element={<Category />} />
+            <Route
+              path="/category/:categoryName/:id"
+              element={<CampaignDetails />}
+            />
+
             <Route path="*" element={<PageError />} />
             <Route
               path="/dashboard"
