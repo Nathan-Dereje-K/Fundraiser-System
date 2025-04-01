@@ -6,9 +6,10 @@ const cloudinary = require("./cloudinaryConfig");
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: async (req, file) => {
-    const fileType = file.mimetype.split("/")[1];
+    // Extract file extension from original name
+    const fileExt = file.originalname.split(".").pop().toLowerCase();
 
-    // Determine file type: image, video, or document
+    // Determine file type using extension
     const isImage = [
       "jpg",
       "jpeg",
@@ -19,7 +20,7 @@ const storage = new CloudinaryStorage({
       "svg",
       "tiff",
       "ico",
-    ].includes(fileType);
+    ].includes(fileExt);
     const isVideo = [
       "mp4",
       "avi",
@@ -31,7 +32,7 @@ const storage = new CloudinaryStorage({
       "3gp",
       "mpeg",
       "mpg",
-    ].includes(fileType);
+    ].includes(fileExt);
     const isDocument = [
       "pdf",
       "doc",
@@ -41,12 +42,11 @@ const storage = new CloudinaryStorage({
       "rtf",
       "xlsx",
       "pptx",
-    ].includes(fileType); // <-- New line
+    ].includes(fileExt);
 
-    // Set Cloudinary folder and resource type
     return {
       folder: "uploads",
-      resource_type: isVideo ? "video" : isDocument ? "raw" : "image", // <-- Updated line
+      resource_type: isVideo ? "video" : isDocument ? "auto" : "image",
       allowed_formats: isVideo
         ? [
             "mp4",
@@ -61,7 +61,7 @@ const storage = new CloudinaryStorage({
             "mpg",
           ]
         : isDocument
-        ? ["pdf", "doc", "docx", "txt", "odt", "rtf", "xlsx", "pptx"] // <-- New line
+        ? ["pdf", "doc", "docx", "txt", "odt", "rtf", "xlsx", "pptx"]
         : ["jpg", "jpeg", "png", "gif", "bmp", "webp", "svg", "tiff", "ico"],
     };
   },
