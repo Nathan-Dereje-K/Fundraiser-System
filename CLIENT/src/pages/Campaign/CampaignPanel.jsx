@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Layout,
   BarChart3,
@@ -15,6 +15,7 @@ import {
   PieChart,
   X,
   Save,
+  ImageIcon,
 } from "lucide-react";
 import {
   BarChart,
@@ -43,17 +44,58 @@ const CampaignDashboard = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const overviewRef = useRef(null);
+  const statisticsRef = useRef(null);
+  const historyRef = useRef(null);
+
   // Animation variants
   const sidebarVariants = {
     expanded: { width: 280 },
     collapsed: { width: 80 },
   };
-
   const cardVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 10 },
     visible: { opacity: 1, y: 0 },
-    hover: { y: -5, transition: { duration: 0.2 } },
   };
+
+  // Function to handle screen resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        setIsSidebarCollapsed(true); // Collapse sidebar on smaller screens
+      } else {
+        setIsSidebarCollapsed(false); // Expand sidebar on larger screens
+      }
+    };
+
+    // Initial check on component mount
+    handleResize();
+
+    // Add event listener for window resize
+    window.addEventListener("resize", handleResize);
+
+    // Cleanup event listener on unmount
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Scroll handler
+  useEffect(() => {
+    const scrollOptions = { behavior: "smooth", block: "start" };
+
+    switch (selectedTab) {
+      case "overview":
+        overviewRef.current?.scrollIntoView(scrollOptions);
+        break;
+      case "statistics":
+        statisticsRef.current?.scrollIntoView(scrollOptions);
+        break;
+      case "history":
+        historyRef.current?.scrollIntoView(scrollOptions);
+        break;
+      default:
+        break;
+    }
+  }, [selectedTab]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -96,9 +138,7 @@ const CampaignDashboard = () => {
           body: JSON.stringify(formData),
         }
       );
-
       if (!response.ok) throw new Error("Update failed");
-
       const updatedCampaign = await response.json();
       setCampaigns(
         campaigns.map((camp) =>
@@ -142,10 +182,7 @@ const CampaignDashboard = () => {
   if (loading) {
     return (
       <div className="flex h-screen bg-gradient-to-br from-gray-50 to-blue-50 items-center justify-center">
-        <Loader
-          size={80} // Control overall size
-          color="text-blue-500" // Change main color
-        />
+        <Loader size={80} color="text-blue-500" />
       </div>
     );
   }
@@ -198,7 +235,6 @@ const CampaignDashboard = () => {
                   <X size={20} />
                 </button>
               </div>
-
               <form onSubmit={handleUpdateCampaign} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -214,7 +250,6 @@ const CampaignDashboard = () => {
                     className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                   />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Description
@@ -227,7 +262,6 @@ const CampaignDashboard = () => {
                     className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-orange-500 h-32"
                   />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Funding Goal ($)
@@ -243,7 +277,6 @@ const CampaignDashboard = () => {
                     className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-orange-500"
                   />
                 </div>
-
                 <div className="flex justify-end gap-3 mt-6">
                   <button
                     type="button"
@@ -272,11 +305,11 @@ const CampaignDashboard = () => {
       </AnimatePresence>
 
       {/* Sidebar */}
-      <motion.div
+      <motion.aside
         initial="expanded"
         animate={isSidebarCollapsed ? "collapsed" : "expanded"}
         variants={sidebarVariants}
-        className="bg-white shadow-2xl overflow-hidden relative"
+        className="bg-white shadow-2xl overflow-hidden relative border-r border-gray-100"
       >
         <div className="p-6 flex justify-between items-center border-b border-gray-100">
           <AnimatePresence>
@@ -300,15 +333,10 @@ const CampaignDashboard = () => {
             {isSidebarCollapsed ? <ChevronRight /> : <ChevronLeft />}
           </motion.button>
         </div>
-
         <nav className="p-4">
           <motion.ul className="space-y-3">
             {["overview", "statistics", "history"].map((tab) => (
-              <motion.li
-                key={tab}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-              >
+              <motion.li key={tab}>
                 <motion.button
                   whileHover={{ x: 5 }}
                   whileTap={{ scale: 0.98 }}
@@ -330,7 +358,7 @@ const CampaignDashboard = () => {
             ))}
           </motion.ul>
         </nav>
-      </motion.div>
+      </motion.aside>
 
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
@@ -341,7 +369,10 @@ const CampaignDashboard = () => {
             className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8"
           >
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              <h1
+                ref={overviewRef}
+                className="text-3xl font-bold text-gray-900 mb-2"
+              >
                 Your Campaigns
               </h1>
               <p className="text-gray-600">
@@ -371,10 +402,9 @@ const CampaignDashboard = () => {
                     variants={cardVariants}
                     initial="hidden"
                     animate="visible"
-                    whileHover="hover"
                     className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow overflow-hidden"
                   >
-                    {campaign.image?.length > 0 && (
+                    {campaign.image?.length > 0 ? (
                       <div className="relative h-48 overflow-hidden group">
                         <img
                           src={campaign.image[0]}
@@ -394,13 +424,26 @@ const CampaignDashboard = () => {
                           </motion.div>
                         </div>
                       </div>
+                    ) : (
+                      <div className="relative h-48 bg-gray-100 flex items-center justify-center">
+                        <ImageIcon className="w-12 h-12 text-gray-400" />
+                        <div className="absolute bottom-0 left-0 right-0 p-4">
+                          <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className={`px-3 py-1 rounded-full text-white text-sm inline-block ${getStatusColor(
+                              campaign.status
+                            )}`}
+                          >
+                            {campaign.status || "pending"}
+                          </motion.div>
+                        </div>
+                      </div>
                     )}
-
                     <div className="p-6">
                       <h3 className="text-xl font-semibold text-gray-900 mb-4">
                         {campaign.title}
                       </h3>
-
                       <div className="space-y-4">
                         <div>
                           <div className="flex justify-between text-sm text-gray-600 mb-2">
@@ -431,7 +474,6 @@ const CampaignDashboard = () => {
                             </motion.div>
                           </div>
                         </div>
-
                         <div className="grid grid-cols-2 gap-4">
                           <div className="p-4 bg-gray-50 rounded-xl">
                             <div className="flex items-center gap-2 mb-1">
@@ -456,7 +498,6 @@ const CampaignDashboard = () => {
                             </div>
                           </div>
                         </div>
-
                         <div className="flex justify-end gap-3 mt-4">
                           <motion.button
                             whileHover={{ scale: 1.1 }}
@@ -486,6 +527,7 @@ const CampaignDashboard = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
+            ref={statisticsRef}
             className="bg-white rounded-2xl shadow-lg p-6 mb-12"
           >
             <div className="flex items-center gap-3 mb-6">
@@ -494,7 +536,6 @@ const CampaignDashboard = () => {
                 Funding Progress Analytics
               </h2>
             </div>
-
             <div className="h-96">
               {campaigns.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">

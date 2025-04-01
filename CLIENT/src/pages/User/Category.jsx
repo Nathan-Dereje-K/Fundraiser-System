@@ -23,7 +23,7 @@ const CategoryPage = () => {
     const fetchCampaigns = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/api/campaigns?category=${categoryName}`
+          `http://localhost:5000/api/campaigns?category=${categoryName}&status=approved`
         );
         setCampaigns(response.data.data);
       } catch (err) {
@@ -39,8 +39,8 @@ const CategoryPage = () => {
 
   if (loading)
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50">
+        <Loader size={80} color="text-blue-500" />
       </div>
     );
 
@@ -49,7 +49,7 @@ const CategoryPage = () => {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="min-h-screen flex flex-col items-center justify-center text-red-500 space-y-4"
+        className="min-h-screen flex flex-col items-center justify-center text-red-500 space-y-4 bg-gradient-to-br from-gray-50 to-blue-50"
       >
         <motion.div
           animate={{ scale: [0.9, 1, 0.9] }}
@@ -65,18 +65,20 @@ const CategoryPage = () => {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="min-h-screen bg-gray-50"
+      className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50"
     >
       <div className="container mx-auto px-4 py-12">
+        {/* Back Button */}
         <motion.div initial={{ x: -20 }} animate={{ x: 0 }} className="mb-8">
           <Link
             to={`/`}
-            className="inline-flex items-center hover:opacity-90 transition-opacity font-medium"
+            className="inline-flex items-center hover:opacity-90 transition-opacity font-medium text-gray-700"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
             Back to Home
           </Link>
         </motion.div>
+
         {/* Header Section */}
         <motion.div
           initial={{ y: 20 }}
@@ -105,7 +107,7 @@ const CategoryPage = () => {
               </div>
               <Link
                 to="/"
-                className="text-emerald-600 hover:text-emerald-700 inline-flex items-center"
+                className="text-orange-600 hover:text-orange-700 inline-flex items-center"
               >
                 Browse all categories <ArrowRight className="w-4 h-4 ml-2" />
               </Link>
@@ -135,7 +137,7 @@ const CategoryPage = () => {
                             loading="lazy"
                           />
                         ) : (
-                          <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
                             <Image className="w-12 h-12 text-gray-400" />
                           </div>
                         )}
@@ -145,7 +147,7 @@ const CategoryPage = () => {
                       {/* Content Section */}
                       <div className="p-6 flex-1 flex flex-col">
                         <div className="flex items-center justify-between mb-4">
-                          <span className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-sm font-medium">
+                          <span className="inline-flex items-center px-3 py-1 rounded-full bg-orange-100 text-orange-800 text-sm font-medium">
                             <Zap className="w-4 h-4 mr-2" />
                             {campaign.status}
                           </span>
@@ -165,7 +167,7 @@ const CategoryPage = () => {
                         {/* Progress Section */}
                         <div className="space-y-3">
                           <div className="flex justify-between text-sm font-medium">
-                            <span className="text-emerald-600">
+                            <span className="text-orange-600">
                               ${campaign.raisedAmount?.toLocaleString()} raised
                             </span>
                             <span className="text-gray-500">
@@ -175,7 +177,7 @@ const CategoryPage = () => {
                           <div className="relative">
                             <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
                               <motion.div
-                                className="h-full bg-gradient-to-r from-emerald-500 to-green-600"
+                                className="h-full bg-gradient-to-r from-orange-500 to-orange-600"
                                 initial={{ width: 0 }}
                                 animate={{
                                   width: `${Math.min(
@@ -188,7 +190,7 @@ const CategoryPage = () => {
                                 transition={{ duration: 0.8 }}
                               />
                             </div>
-                            <div className="text-right text-xs mt-1 text-emerald-600">
+                            <div className="text-right text-xs mt-1 text-orange-600">
                               {Math.round(
                                 (campaign.raisedAmount / campaign.goalAmount) *
                                   100

@@ -36,7 +36,6 @@ const CampaignDetails = () => {
         setLoading(false);
       }
     };
-
     fetchCampaign();
   }, [id]);
 
@@ -46,8 +45,8 @@ const CampaignDetails = () => {
 
   if (loading)
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-8">
-        <Loader />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50">
+        <Loader size={80} color="text-blue-500" />
       </div>
     );
 
@@ -56,7 +55,7 @@ const CampaignDetails = () => {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-8 text-center"
+        className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50 text-center"
       >
         <motion.div
           animate={{ scale: [0.9, 1, 0.9] }}
@@ -68,7 +67,7 @@ const CampaignDetails = () => {
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">{error}</h2>
         <Link
           to="/"
-          className="inline-flex items-center text-emerald-600 hover:text-emerald-700 transition-colors font-medium"
+          className="inline-flex items-center text-orange-600 hover:text-orange-700 transition-colors font-medium"
         >
           <ArrowLeft className="w-5 h-5 mr-2" />
           Return to Homepage
@@ -83,10 +82,10 @@ const CampaignDetails = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
-      className="min-h-screen bg-gray-50"
+      className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50"
     >
       {/* Campaign Header */}
-      <header className="bg-gradient-to-br from-emerald-700 to-green-600 text-white shadow-xl">
+      <header className="bg-gradient-to-br from-orange-400 to-orange-500 text-white shadow-xl">
         <div className="container mx-auto px-4 py-8">
           <motion.div initial={{ x: -20 }} animate={{ x: 0 }} className="mb-8">
             <Link
@@ -97,7 +96,6 @@ const CampaignDetails = () => {
               Back to {categoryName}
             </Link>
           </motion.div>
-
           <motion.div
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -134,15 +132,14 @@ const CampaignDetails = () => {
                     onClick={() => setActiveMedia(type)}
                     className={`px-5 py-2 rounded-full transition-colors ${
                       activeMedia === type
-                        ? "bg-white text-emerald-600 shadow-sm"
-                        : "text-gray-500 hover:text-emerald-500"
+                        ? "bg-white text-orange-600 shadow-sm"
+                        : "text-gray-500 hover:text-orange-500"
                     }`}
                   >
                     {type.charAt(0).toUpperCase() + type.slice(1)}
                   </button>
                 ))}
               </div>
-
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeMedia}
@@ -172,7 +169,6 @@ const CampaignDetails = () => {
                         </div>
                       </motion.div>
                     ))}
-
                   {activeMedia === "videos" &&
                     campaign.video.map((video, index) => (
                       <motion.div
@@ -201,7 +197,7 @@ const CampaignDetails = () => {
               className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"
             >
               <h2 className="flex items-center text-2xl font-semibold mb-4">
-                <FileText className="w-6 h-6 mr-2 text-emerald-600" />
+                <FileText className="w-6 h-6 mr-2 text-orange-600" />
                 Campaign Story
               </h2>
               <p className="text-gray-600 leading-relaxed">
@@ -218,7 +214,7 @@ const CampaignDetails = () => {
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-5">
                 <div className="mb-4 md:mb-0">
                   <h3 className="flex items-center text-xl font-semibold">
-                    <BadgeDollarSign className="w-6 h-6 mr-2 text-emerald-600" />
+                    <BadgeDollarSign className="w-6 h-6 mr-2 text-orange-600" />
                     Funding Progress
                   </h3>
                   <p className="text-gray-500 text-sm mt-1">
@@ -226,13 +222,13 @@ const CampaignDetails = () => {
                     {campaign.goalAmount.toLocaleString()} goal
                   </p>
                 </div>
-                <span className="text-emerald-600 font-bold text-2xl">
+                <span className="text-orange-600 font-bold text-2xl">
                   {progressPercentage}%
                 </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-3">
                 <div
-                  className="bg-gradient-to-r from-emerald-500 to-green-600 h-3 rounded-full transition-all duration-500"
+                  className="bg-gradient-to-r from-orange-500 to-orange-600 h-3 rounded-full transition-all duration-500"
                   style={{ width: `${progressPercentage}%` }}
                 />
               </div>
@@ -245,7 +241,7 @@ const CampaignDetails = () => {
                 className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"
               >
                 <h2 className="flex items-center text-xl font-semibold mb-4">
-                  <FileText className="w-6 h-6 mr-2 text-emerald-600" />
+                  <FileText className="w-6 h-6 mr-2 text-orange-600" />
                   Supporting Documents
                 </h2>
                 <div className="grid grid-cols-1 gap-2">
@@ -278,14 +274,12 @@ const CampaignDetails = () => {
               <h2 className="text-2xl font-bold text-center mb-6">
                 Support This Cause
               </h2>
-
               <div className="space-y-5">
-                <div className="bg-emerald-50/50 rounded-xl p-4 border border-emerald-100">
-                  <p className="text-center text-emerald-700 font-medium text-sm">
+                <div className="bg-orange-50/50 rounded-xl p-4 border border-orange-100">
+                  <p className="text-center text-orange-700 font-medium text-sm">
                     Your contribution can create real change
                   </p>
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Donation Amount
@@ -298,16 +292,15 @@ const CampaignDetails = () => {
                       type="number"
                       value={donationAmount}
                       onChange={(e) => setDonationAmount(e.target.value)}
-                      className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                      className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                       placeholder="Enter amount"
                     />
                   </div>
                 </div>
-
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full bg-gradient-to-br from-emerald-600 to-green-700 text-white py-4 rounded-xl font-semibold shadow-md hover:shadow-lg transition-shadow"
+                  className="w-full bg-gradient-to-br from-orange-500 to-orange-600 text-white py-4 rounded-xl font-semibold shadow-md hover:shadow-lg transition-shadow"
                   onClick={() => handleDonate(campaign._id)}
                 >
                   <div className="flex items-center justify-center">
@@ -315,7 +308,6 @@ const CampaignDetails = () => {
                     Donate Now
                   </div>
                 </motion.button>
-
                 <div className="pt-4 space-y-3">
                   <div className="flex justify-between items-center text-gray-600">
                     <span className="text-sm">Campaign Goal</span>
@@ -323,7 +315,7 @@ const CampaignDetails = () => {
                       ${campaign.goalAmount.toLocaleString()}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center text-emerald-600">
+                  <div className="flex justify-between items-center text-orange-600">
                     <span className="text-sm">Amount Raised</span>
                     <span className="font-semibold">
                       ${campaign.raisedAmount.toLocaleString()}
