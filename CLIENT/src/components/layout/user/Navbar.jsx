@@ -35,7 +35,7 @@ const Navbar = () => {
   }, [isOpen]);
 
   const handleStartCampaign = () => {
-    if (user) {
+    if (currentUser) {
       navigate("/campaign_creation");
     } else {
       navigate("/signup");
@@ -86,7 +86,7 @@ const Navbar = () => {
           </li>
           {/* Authentication */}
           <li>
-            {user ? (
+            {currentUser ? (
               <Dropdown
                 trigger={
                   <div className="flex items-center cursor-pointer">

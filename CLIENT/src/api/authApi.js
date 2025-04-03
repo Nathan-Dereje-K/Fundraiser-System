@@ -17,12 +17,17 @@ export const registerUser = async (formData) => {
 };
 
 export const fetchLoggedUser = async () => {
-  const response = await API.get("/auth/me");
-  return response.data;
+  try {
+    const response = await API.get("/auth/me");
+    return response?.data;
+  } catch (error) {
+    return null;
+  }
 };
 
 export const logoutUser = async () => {
   await API.post("/auth/logout");
+  window.location.reload();
 };
 
 export const changePassword = async ({

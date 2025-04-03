@@ -7,8 +7,12 @@ export const fetchUsers = async ({ queryKey }) => {
 };
 
 export const fetchCurrentUser = async () => {
-  const { data } = await API.get("/users/me");
-  return data;
+  try {
+    const { data } = await API.get("/users/me");
+    return data;
+  } catch (error) {
+    return null;
+  }
 };
 
 export const updateUser = async ({ userId, userData }) => {

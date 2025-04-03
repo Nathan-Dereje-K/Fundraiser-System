@@ -28,7 +28,7 @@ export const SignInPage = () => {
   };
 
   useEffect(() => {
-    if (user) {
+    if (user && user.userId !== "_") {
       navigate("/");
     }
   }, [user, navigate]);

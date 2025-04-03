@@ -2,9 +2,8 @@ const asyncHandler = require("../Middleware/async");
 const { google } = require("googleapis");
 const User = require("../Models/User");
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 const cloudinary = require("../Utils/cloudinaryConfig");
-const { signToken, getUserFromToken } = require("../Utils/jwt");
+const { signToken, verifyToken } = require("../Utils/jwt");
 const { sendEmail } = require("../Utils/mailer");
 const getOAuthClient = require("../Utils/getOAuthClient");
 const getRandomColor = () => {
@@ -110,13 +109,22 @@ exports.signin = asyncHandler(async (req, res) => {
 
 exports.getMe = asyncHandler(async (req, res) => {
   const token = req.cookies.token;
-  if (!token) return res.status(401).json({ loggedIn: false });
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    res.json({ loggedIn: true, user: decoded });
-  } catch {
-    res.status(401).json({ loggedIn: false });
+  if (!token) {
+    const accessToken = signToken({ _id: "_", role: "guest" });
+    res
+      .cookie("token", accessToken, {
+        httpOnly: true,
+        secure: false,
+        sameSite: "Lax",
+      })
+      .json({ loggedIn: true, user: { userId: "_", role: "guest" } });
+  } else {
+    try {
+      const decoded = verifyToken(token);
+      res.json({ loggedIn: true, user: decoded });
+    } catch {
+      res.status(401).json({ loggedIn: false });
+    }
   }
 });
 exports.forgotPassword = asyncHandler(async (req, res) => {
