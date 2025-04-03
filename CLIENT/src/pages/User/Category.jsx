@@ -40,7 +40,7 @@ const CategoryPage = () => {
   if (loading)
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50">
-        <Loader size={80} color="text-blue-500" />
+        <Loader size={80} color="text-orange-500" />
       </div>
     );
 
@@ -49,15 +49,15 @@ const CategoryPage = () => {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="min-h-screen flex flex-col items-center justify-center text-red-500 space-y-4 bg-gradient-to-br from-gray-50 to-blue-50"
+        className="min-h-screen flex flex-col items-center justify-center text-red-500 space-y-6 bg-gradient-to-br from-gray-50 to-blue-50"
       >
         <motion.div
           animate={{ scale: [0.9, 1, 0.9] }}
           transition={{ duration: 2, repeat: Infinity }}
         >
-          <AlertCircle className="w-16 h-16" />
+          <AlertCircle className="w-20 h-20" />
         </motion.div>
-        <p className="text-xl font-medium">{error}</p>
+        <p className="text-2xl font-semibold">{error}</p>
       </motion.div>
     );
 
@@ -71,7 +71,7 @@ const CategoryPage = () => {
         {/* Back Button */}
         <motion.div initial={{ x: -20 }} animate={{ x: 0 }} className="mb-8">
           <Link
-            to={`/`}
+            to="/"
             className="inline-flex items-center hover:opacity-90 transition-opacity font-medium text-gray-700"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
@@ -85,10 +85,10 @@ const CategoryPage = () => {
           animate={{ y: 0 }}
           className="mb-12 text-center"
         >
-          <h1 className="text-4xl font-bold text-gray-900 mb-3">
+          <h1 className="text-5xl font-bold text-gray-900 mb-3 tracking-tight">
             {categoryName} Causes
           </h1>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+          <p className="text-gray-600 max-w-2xl mx-auto text-lg">
             Support meaningful {categoryName.toLowerCase()} initiatives and make
             a real difference
           </p>
@@ -102,18 +102,18 @@ const CategoryPage = () => {
               animate={{ opacity: 1 }}
               className="text-center py-20"
             >
-              <div className="text-gray-500 text-lg mb-4">
+              <div className="text-gray-500 text-lg mb-6">
                 No active campaigns in this category
               </div>
               <Link
                 to="/"
-                className="text-orange-600 hover:text-orange-700 inline-flex items-center"
+                className="text-orange-600 hover:text-orange-700 inline-flex items-center font-medium"
               >
-                Browse all categories <ArrowRight className="w-4 h-4 ml-2" />
+                Browse all categories <ArrowRight className="w-5 h-5 ml-2" />
               </Link>
             </motion.div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {campaigns.map((campaign, index) => (
                 <motion.div
                   key={campaign._id}
@@ -126,22 +126,22 @@ const CategoryPage = () => {
                     to={`/category/${categoryName}/${campaign._id}`}
                     className="group block h-full"
                   >
-                    <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow h-full overflow-hidden flex flex-col">
+                    <div className="bg-white rounded-3xl shadow-md hover:shadow-lg transition-shadow h-full overflow-hidden flex flex-col">
                       {/* Image Section */}
                       <div className="relative aspect-video overflow-hidden">
                         {campaign.image?.length > 0 ? (
                           <motion.img
                             src={campaign.image[0]}
                             alt={campaign.title}
-                            className="w-full h-full object-cover transform group-hover:scale-105 transition-transform"
+                            className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
                             loading="lazy"
                           />
                         ) : (
                           <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                            <Image className="w-12 h-12 text-gray-400" />
+                            <Image className="w-16 h-16 text-gray-400" />
                           </div>
                         )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/30" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40" />
                       </div>
 
                       {/* Content Section */}
@@ -157,7 +157,7 @@ const CategoryPage = () => {
                           </div>
                         </div>
 
-                        <h2 className="text-xl font-semibold text-gray-900 mb-3 line-clamp-2">
+                        <h2 className="text-2xl font-semibold text-gray-900 mb-3 line-clamp-2">
                           {campaign.title}
                         </h2>
                         <p className="text-gray-600 line-clamp-3 mb-6 flex-1">
@@ -187,7 +187,7 @@ const CategoryPage = () => {
                                     100
                                   )}%`,
                                 }}
-                                transition={{ duration: 0.8 }}
+                                transition={{ duration: 1 }}
                               />
                             </div>
                             <div className="text-right text-xs mt-1 text-orange-600">

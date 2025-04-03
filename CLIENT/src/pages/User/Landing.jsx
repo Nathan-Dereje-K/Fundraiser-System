@@ -1,3 +1,4 @@
+// pages/Landing.jsx
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import Categories from "../../components/ui/Categories";
@@ -5,6 +6,7 @@ import FeaturedCampaign from "../../components/ui/FeaturedCampaign";
 import Footer from "../../components/layout/Footer";
 import Hero from "../../components/ui/Hero";
 import Navbar from "../../components/layout/user/Navbar";
+import AutoMovingCards from "../../components/ui/AutoMovingCards";
 
 const categoryVariants = {
   initial: { opacity: 0, y: 50 },
@@ -24,11 +26,9 @@ const featuredCampaignVariants = {
 };
 
 const Landing = () => {
-  // Refs for detecting visibility
   const categoriesRef = useRef(null);
   const campaignsRef = useRef(null);
 
-  // Use useInView to detect when sections are in view (35% threshold)
   const isCategoriesInView = useInView(categoriesRef, {
     once: true,
     amount: 0.35,
@@ -50,7 +50,7 @@ const Landing = () => {
 
         {/* Categories Section */}
         <motion.div
-          ref={categoriesRef} // Attach the ref to trigger animation on view
+          ref={categoriesRef}
           initial="initial"
           animate={isCategoriesInView ? "animate" : "initial"}
           variants={staggerContainer}
@@ -59,7 +59,7 @@ const Landing = () => {
           <h1 className="font-bold text-3xl sm:text-4xl text-center md:text-left mb-8">
             Explore Categories
           </h1>
-          <div className="flex justify-center md:justify-start flex-wrap gap-8">
+          <div className="flex justify-center py-4 md:justify-start flex-wrap gap-8">
             <motion.div variants={categoryVariants}>
               <Categories
                 img="https://images.pexels.com/photos/1454360/pexels-photo-1454360.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
@@ -95,11 +95,11 @@ const Landing = () => {
 
         {/* Featured Campaigns Section */}
         <motion.div
-          ref={campaignsRef} // Attach the ref to trigger animation on view
+          ref={campaignsRef}
           initial="initial"
           animate={isCampaignsInView ? "animate" : "initial"}
           variants={staggerContainer}
-          className="py-12"
+          className="py-8"
         >
           <h1 className="font-bold text-3xl sm:text-4xl text-center md:text-left mb-8">
             Featured Campaigns
@@ -113,6 +113,9 @@ const Landing = () => {
             </motion.div>
           </div>
         </motion.div>
+
+        {/* Auto Moving Cards Section */}
+        <AutoMovingCards />
       </div>
 
       {/* Footer */}
