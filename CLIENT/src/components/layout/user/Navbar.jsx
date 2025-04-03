@@ -1,39 +1,26 @@
-/* eslint-disable no-unused-vars */
 import { motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../../../hooks/useAuth";
 import { useUser } from "../../../context/UserContext";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import {
-  User,
-  Settings,
-  Users,
-  LogOut,
-  Menu,
-  X,
-  LayoutDashboardIcon,
-} from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { User, LayoutDashboardIcon, LogOut, Menu, X } from "lucide-react";
 import Avatar from "../../ui/Avatar";
 import Dropdown from "../../ui/Dropdown";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const menuRef = useRef(null);
   const navigate = useNavigate();
   const { user, handleLogout } = useAuth();
   const { user: currentUser } = useUser();
-  // const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // useEffect(() => {
-  //   if (currentUser) {
-  //     console.log(currentUser);
-  //   }
-  // }, [currentUser]);
-
+  // Close dropdown if clicked outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         setIsOpen(false);
+        setIsUserMenuOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -42,6 +29,7 @@ const Navbar = () => {
     };
   }, []);
 
+  // Prevent scrolling when mobile menu is open
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "auto";
   }, [isOpen]);
@@ -99,51 +87,47 @@ const Navbar = () => {
           {/* Authentication */}
           <li>
             {user ? (
-              <div className="hidden sm:ml-6 sm:flex sm:items-center">
-                {currentUser && (
-                  <Dropdown
-                    trigger={
-                      <div className="flex items-center cursor-pointer">
-                        <span className="text-sm font-medium text-gray-700 mr-2 hidden lg:block">
-                          {currentUser.name}
-                        </span>
-                        <Avatar
-                          src={currentUser.avatar}
-                          alt={currentUser.name}
-                          size="sm"
-                        />
-                      </div>
-                    }
-                    align="right"
-                    className="w-48"
-                  >
-                    <Link
-                      to="/profile"
-                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      role="menuitem"
-                    >
-                      <User className="mr-2 h-4 w-4" />
-                      Profile
-                    </Link>
-                    <Link
-                      to="/dashboard"
-                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      role="menuitem"
-                    >
-                      <LayoutDashboardIcon className="mr-2 h-4 w-4" />
-                      Dashboard
-                    </Link>
-                    <button
-                      onClick={handleLogout}
-                      className="flex w-full items-center px-4 py-2 text-sm text-red-700 hover:bg-red-50"
-                      role="menuitem"
-                    >
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Logout
-                    </button>
-                  </Dropdown>
-                )}
-              </div>
+              <Dropdown
+                trigger={
+                  <div className="flex items-center cursor-pointer">
+                    <span className="text-sm font-medium text-gray-700 mr-2 hidden lg:block">
+                      {currentUser?.name}
+                    </span>
+                    <Avatar
+                      src={currentUser?.avatar}
+                      alt={currentUser?.name}
+                      size="sm"
+                    />
+                  </div>
+                }
+                align="right"
+                className="w-48"
+              >
+                <Link
+                  to="/profile"
+                  className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  role="menuitem"
+                >
+                  <User className="mr-2 h-4 w-4" />
+                  Profile
+                </Link>
+                <Link
+                  to="/dashboard"
+                  className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  role="menuitem"
+                >
+                  <LayoutDashboardIcon className="mr-2 h-4 w-4" />
+                  Dashboard
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="flex w-full items-center px-4 py-2 text-sm text-red-700 hover:bg-red-50"
+                  role="menuitem"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </button>
+              </Dropdown>
             ) : (
               <a
                 href="/signin"
@@ -174,45 +158,115 @@ const Navbar = () => {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="md:hidden flex flex-col items-center bg-white p-5 shadow-lg"
+          className="md:hidden flex flex-col items-center bg-white p-5 shadow-lg space-y-4"
         >
-          <a className="text-lg font-medium text-gray-700 py-2 hover:text-orange-500 cursor-pointer">
+          <a
+            href="#causes"
+            className="text-lg font-medium text-gray-700 hover:text-orange-500 transition-colors"
+          >
             Causes
           </a>
-          <a className="text-lg font-medium text-gray-700 py-2 hover:text-orange-500 cursor-pointer">
+          <a
+            href="#campaigns"
+            className="text-lg font-medium text-gray-700 hover:text-orange-500 transition-colors"
+          >
             Campaigns
           </a>
-          <a className="text-lg font-medium text-gray-700 py-2 hover:text-orange-500 cursor-pointer">
+          <a
+            href="#about-us"
+            className="text-lg font-medium text-gray-700 hover:text-orange-500 transition-colors"
+          >
             About Us
           </a>
-          <a className="text-lg font-medium text-gray-700 py-2 hover:text-orange-500 cursor-pointer">
+          <a
+            href="#impact"
+            className="text-lg font-medium text-gray-700 hover:text-orange-500 transition-colors"
+          >
             Impact
           </a>
-          <div className="flex justify-center items-center gap-3">
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              className="mt-3 px-5 py-2 bg-orange-500 text-white rounded-full shadow-md"
-              onClick={handleStartCampaign}
-            >
-              Start a Campaign
-            </motion.button>
-            {user ? (
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            className="w-full px-5 py-2 bg-orange-500 text-white rounded-full shadow-md"
+            onClick={handleStartCampaign}
+          >
+            Start a Campaign
+          </motion.button>
+          {user ? (
+            <div className="relative w-full">
               <button
-                onClick={handleLogout}
-                className="mt-3 px-5 py-2 bg-gray-300 text-gray-800 rounded-full shadow-md"
+                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                className="w-full flex items-center justify-between px-4 py-2 bg-gray-100 rounded-full shadow-sm text-gray-700"
               >
-                Logout
+                <div className="flex items-center gap-2">
+                  <Avatar
+                    src={currentUser?.avatar}
+                    alt={currentUser?.name}
+                    size="sm"
+                  />
+                  <span className="text-sm font-medium">
+                    {currentUser?.name}
+                  </span>
+                </div>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className={`h-4 w-4 transition-transform ${
+                    isUserMenuOpen ? "rotate-180" : ""
+                  }`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
               </button>
-            ) : (
-              <a
-                href="/signin"
-                className="mt-3 px-5 py-2 bg-gray-300 text-gray-800 rounded-full shadow-md"
-              >
-                Log in
-              </a>
-            )}
-          </div>
+              {isUserMenuOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute top-full left-0 w-full mt-2 bg-white rounded-lg shadow-lg overflow-hidden"
+                >
+                  <Link
+                    to="/profile"
+                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    role="menuitem"
+                  >
+                    <User className="mr-2 h-4 w-4" />
+                    Profile
+                  </Link>
+                  <Link
+                    to="/dashboard"
+                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    role="menuitem"
+                  >
+                    <LayoutDashboardIcon className="mr-2 h-4 w-4" />
+                    Dashboard
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="flex w-full items-center px-4 py-2 text-sm text-red-700 hover:bg-red-50"
+                    role="menuitem"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Logout
+                  </button>
+                </motion.div>
+              )}
+            </div>
+          ) : (
+            <a
+              href="/signin"
+              className="w-full px-5 py-2 bg-gray-300 text-gray-800 rounded-full shadow-md text-center"
+            >
+              Log in
+            </a>
+          )}
         </motion.div>
       )}
     </motion.div>

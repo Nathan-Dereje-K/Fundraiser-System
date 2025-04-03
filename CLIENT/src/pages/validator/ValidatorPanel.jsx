@@ -117,7 +117,7 @@ const ValidatorPage = () => {
 
   const getCategoryIcon = (category) => {
     const IconComponent = categoryIcons[category] || categoryIcons.default;
-    return <IconComponent className="w-5 h-5 text-blue-600" />;
+    return <IconComponent className="w-5 h-5 text-orange-600" />;
   };
 
   return (
@@ -129,14 +129,14 @@ const ValidatorPage = () => {
         variants={sidebarVariants}
         className="bg-white shadow-2xl overflow-hidden relative border-r border-gray-100"
       >
-        <div className="p-4 flex justify-between items-center border-b border-gray-100">
+        <div className="p-6 flex justify-between items-center border-b border-gray-100">
           <AnimatePresence>
             {!isSidebarCollapsed && (
               <motion.h2
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="font-bold text-2xl bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent"
+                className="font-bold pt-4 pb-4 text-2xl  bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent"
               >
                 Validator Portal
               </motion.h2>
