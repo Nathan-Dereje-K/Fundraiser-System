@@ -1,6 +1,13 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import axios from "axios";
+import { useAuth } from "../../hooks/useAuth";
+import { useTransactionOfUserForCampaign } from "../../hooks/useTransaction";
+import {
+  getTranStatusBraintree,
+  getTranStatusChapa,
+} from "../../api/donateApi";
+import { useCampaign } from "../../hooks/useCampaign";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FileText,
@@ -11,39 +18,36 @@ import {
   Goal,
   Image,
   AlertCircle,
+  RefreshCcw,
 } from "lucide-react";
 import Loader from "../../components/ui/Loader";
+import Donate from "../Donate/Donate";
 
 const CampaignDetails = () => {
   const { categoryName, id } = useParams();
-  const [campaign, setCampaign] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [donationAmount, setDonationAmount] = useState("");
   const [activeMedia, setActiveMedia] = useState("images");
-
-  useEffect(() => {
-    const fetchCampaign = async () => {
-      try {
-        const response = await axios.get(
-          `http://localhost:5000/api/campaigns/${id}`
-        );
-        setCampaign(response.data.data);
-      } catch (err) {
-        setError("Failed to load campaign details");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchCampaign();
-  }, [id]);
-
+  const { user: loggedUser } = useAuth();
+  const {
+    data: campaign,
+    isPending: loading,
+    error,
+  } = useCampaign(id ? id : null);
+  const { data: transactions } = useTransactionOfUserForCampaign(
+    id,
+    loggedUser?.userId
+  );
   const progressPercentage = Math.round(
     (campaign?.raisedAmount / campaign?.goalAmount) * 100
   );
+  const handleRefresh = async (transaction) => {
+    if (transaction?.method === "local") {
+      const data = await getTranStatusChapa(transaction?.transaction_id);
+    } else if (transaction?.method === "international") {
+      const data = await getTranStatusBraintree(transaction?.transaction_id);
+    }
+  };
 
-  if (loading)
+  if (loading || !id)
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50">
         <Loader size={80} color="text-blue-500" />
@@ -102,16 +106,16 @@ const CampaignDetails = () => {
             className="max-w-4xl"
           >
             <h1 className="text-4xl font-bold mb-4 leading-tight">
-              {campaign.title}
+              {campaign?.title}
             </h1>
             <div className="flex flex-wrap gap-4 text-sm font-medium">
               <div className="flex items-center bg-white/10 px-3 py-1 rounded-full">
                 <CalendarCheck className="w-4 h-4 mr-2" />
-                {new Date(campaign.endDate).toLocaleDateString()}
+                {new Date(campaign?.endDate).toLocaleDateString()}
               </div>
               <div className="flex items-center bg-white/10 px-3 py-1 rounded-full">
                 <Goal className="w-4 h-4 mr-2" />
-                {campaign.status.toUpperCase()}
+                {campaign?.status.toUpperCase()}
               </div>
             </div>
           </motion.div>
@@ -149,7 +153,7 @@ const CampaignDetails = () => {
                   className="grid grid-cols-1 md:grid-cols-2 gap-4"
                 >
                   {activeMedia === "images" &&
-                    campaign.image.map((img, index) => (
+                    campaign?.image.map((img, index) => (
                       <motion.div
                         key={`img-${index}`}
                         whileHover={{ scale: 1.02 }}
@@ -170,7 +174,7 @@ const CampaignDetails = () => {
                       </motion.div>
                     ))}
                   {activeMedia === "videos" &&
-                    campaign.video.map((video, index) => (
+                    campaign?.video.map((video, index) => (
                       <motion.div
                         key={`vid-${index}`}
                         whileHover={{ scale: 1.02 }}
@@ -201,7 +205,7 @@ const CampaignDetails = () => {
                 Campaign Story
               </h2>
               <p className="text-gray-600 leading-relaxed">
-                {campaign.description}
+                {campaign?.description}
               </p>
             </motion.div>
 
@@ -218,8 +222,8 @@ const CampaignDetails = () => {
                     Funding Progress
                   </h3>
                   <p className="text-gray-500 text-sm mt-1">
-                    {campaign.raisedAmount.toLocaleString()} raised of{" "}
-                    {campaign.goalAmount.toLocaleString()} goal
+                    {campaign?.raisedAmount.toLocaleString()} raised of{" "}
+                    {campaign?.goalAmount.toLocaleString()} goal
                   </p>
                 </div>
                 <span className="text-orange-600 font-bold text-2xl">
@@ -234,7 +238,7 @@ const CampaignDetails = () => {
               </div>
             </motion.div>
 
-            {campaign.document.length > 0 && (
+            {campaign?.document.length > 0 && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -245,7 +249,7 @@ const CampaignDetails = () => {
                   Supporting Documents
                 </h2>
                 <div className="grid grid-cols-1 gap-2">
-                  {campaign.document.map((doc, index) => (
+                  {campaign?.document.map((doc, index) => (
                     <a
                       key={index}
                       href={doc}
@@ -280,49 +284,60 @@ const CampaignDetails = () => {
                     Your contribution can create real change
                   </p>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Donation Amount
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-                      $
-                    </span>
-                    <input
-                      type="number"
-                      value={donationAmount}
-                      onChange={(e) => setDonationAmount(e.target.value)}
-                      className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                      placeholder="Enter amount"
-                    />
-                  </div>
-                </div>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full bg-gradient-to-br from-orange-500 to-orange-600 text-white py-4 rounded-xl font-semibold shadow-md hover:shadow-lg transition-shadow"
-                  onClick={() => handleDonate(campaign._id)}
-                >
-                  <div className="flex items-center justify-center">
-                    <HeartHandshake className="w-5 h-5 mr-2" />
-                    Donate Now
-                  </div>
-                </motion.button>
+
+                <Donate campaignId={campaign?._id} />
                 <div className="pt-4 space-y-3">
                   <div className="flex justify-between items-center text-gray-600">
                     <span className="text-sm">Campaign Goal</span>
                     <span className="font-medium">
-                      ${campaign.goalAmount.toLocaleString()}
+                      ${campaign?.goalAmount.toLocaleString()}
                     </span>
                   </div>
                   <div className="flex justify-between items-center text-orange-600">
                     <span className="text-sm">Amount Raised</span>
                     <span className="font-semibold">
-                      ${campaign.raisedAmount.toLocaleString()}
+                      ${campaign?.raisedAmount.toLocaleString()}
                     </span>
                   </div>
                 </div>
               </div>
+              {transactions?.length > 0 && (
+                <>
+                  <h2 className="flex items-center mt-2 text-2xl font-semibold mb-4">
+                    <BadgeDollarSign className="w-6 h-6 mr-2 text-orange-600" />
+                    My Transactions
+                  </h2>
+                  <ul className="space-y-4">
+                    {transactions.map((transaction, index) => (
+                      <li
+                        key={index}
+                        className="flex justify-between items-center"
+                      >
+                        <span className="text-gray-600">
+                          {transaction.amount}
+                        </span>
+                        <span
+                          className={`text-${
+                            transaction.status === "pending"
+                              ? "orange"
+                              : transaction.status === "approved"
+                              ? "green"
+                              : "red"
+                          }-600`}
+                        >
+                          {transaction.status}
+                        </span>
+                        <button
+                          className="bg-transparent hover:bg-orange-500 hover:text-white text-orange-500 font-bold py-2 px-4 rounded"
+                          onClick={() => handleRefresh(transaction)}
+                        >
+                          <RefreshCcw className="w-4 h-4" />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
             </motion.div>
           </div>
         </div>
@@ -331,9 +346,9 @@ const CampaignDetails = () => {
   );
 };
 
-const handleDonate = (campaignId) => {
-  // Implement donation logic
-  console.log("Donate to:", campaignId);
-};
+// const handleDonate = (campaignId) => {
+//   // Implement donation logic
+//   console.log("Donate to:", campaignId);
+// };
 
 export default CampaignDetails;

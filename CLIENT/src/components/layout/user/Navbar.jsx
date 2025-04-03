@@ -47,7 +47,7 @@ const Navbar = () => {
   }, [isOpen]);
 
   const handleStartCampaign = () => {
-    if (user) {
+    if (currentUser) {
       navigate("/campaign_creation");
     } else {
       navigate("/signup");
@@ -98,7 +98,7 @@ const Navbar = () => {
           </li>
           {/* Authentication */}
           <li>
-            {user ? (
+            {currentUser ? (
               <div className="hidden sm:ml-6 sm:flex sm:items-center">
                 {currentUser && (
                   <Dropdown
@@ -197,7 +197,7 @@ const Navbar = () => {
             >
               Start a Campaign
             </motion.button>
-            {user ? (
+            {currentUser ? (
               <button
                 onClick={handleLogout}
                 className="mt-3 px-5 py-2 bg-gray-300 text-gray-800 rounded-full shadow-md"

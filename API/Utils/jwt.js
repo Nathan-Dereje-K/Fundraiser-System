@@ -17,6 +17,7 @@ const verifyToken = (token) => {
 const getUserFromToken = async (token) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (!decoded.userId || decoded.userId === "_") return null;
     const user = await User.findOne({ _id: decoded.userId }).select(
       "-password -verifyToken -verifyTokenExpiry -forgotPasswordToken -forgotPasswordTokenExpiry"
     );

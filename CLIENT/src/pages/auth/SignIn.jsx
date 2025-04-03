@@ -24,7 +24,7 @@ export const SignInPage = () => {
     emailLogin({ email, password });
   };
   useEffect(() => {
-    if (user) {
+    if (user && user.userId !== "_") {
       navigate("/");
     }
   }, [user, navigate]);
