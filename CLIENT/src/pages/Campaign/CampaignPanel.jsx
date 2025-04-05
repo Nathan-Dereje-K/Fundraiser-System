@@ -1,4 +1,9 @@
-import { useEffect, useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import {
+  useCampaigns,
+  useUpdateCampaign,
+  useDeleteCampaign,
+} from "../../hooks/useCampaign";
 import {
   Layout,
   BarChart3,
@@ -33,87 +38,52 @@ import { Link } from "react-router-dom";
 const CampaignDashboard = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [selectedTab, setSelectedTab] = useState("overview");
-  const [campaigns, setCampaigns] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [editingCampaign, setEditingCampaign] = useState(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     goalAmount: 0,
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const overviewRef = useRef(null);
   const statisticsRef = useRef(null);
   const historyRef = useRef(null);
 
-  // Animation variants
+  const { data: campaigns, isLoading, isError, error } = useCampaigns();
+  const updateCampaignMutation = useUpdateCampaign();
+  const deleteCampaignMutation = useDeleteCampaign();
+
   const sidebarVariants = {
     expanded: { width: 280 },
     collapsed: { width: 80 },
   };
+
   const cardVariants = {
     hidden: { opacity: 0, y: 10 },
     visible: { opacity: 1, y: 0 },
   };
 
-  // Function to handle screen resize
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 1024) {
-        setIsSidebarCollapsed(true); // Collapse sidebar on smaller screens
-      } else {
-        setIsSidebarCollapsed(false); // Expand sidebar on larger screens
-      }
+      setIsSidebarCollapsed(window.innerWidth < 1024);
     };
 
-    // Initial check on component mount
     handleResize();
-
-    // Add event listener for window resize
     window.addEventListener("resize", handleResize);
-
-    // Cleanup event listener on unmount
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Scroll handler
   useEffect(() => {
-    const scrollOptions = { behavior: "smooth", block: "start" };
-
-    switch (selectedTab) {
-      case "overview":
-        overviewRef.current?.scrollIntoView(scrollOptions);
-        break;
-      case "statistics":
-        statisticsRef.current?.scrollIntoView(scrollOptions);
-        break;
-      case "history":
-        historyRef.current?.scrollIntoView(scrollOptions);
-        break;
-      default:
-        break;
-    }
-  }, [selectedTab]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/api/campaigns");
-        if (!response.ok) throw new Error("Failed to fetch campaigns");
-        const { data } = await response.json();
-        setCampaigns(Array.isArray(data) ? data : [data]);
-      } catch (error) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
+    const refs = {
+      overview: overviewRef,
+      statistics: statisticsRef,
+      history: historyRef,
     };
-    fetchData();
-    const interval = setInterval(fetchData, 30000);
-    return () => clearInterval(interval);
-  }, []);
+    refs[selectedTab]?.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, [selectedTab]);
 
   const handleEditClick = (campaign) => {
     setEditingCampaign(campaign);
@@ -124,43 +94,35 @@ const CampaignDashboard = () => {
     });
   };
 
-  const handleUpdateCampaign = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      const response = await fetch(
-        `http://localhost:5000/api/campaigns/${editingCampaign._id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        }
-      );
-      if (!response.ok) throw new Error("Update failed");
-      const updatedCampaign = await response.json();
-      setCampaigns(
-        campaigns.map((camp) =>
-          camp._id === updatedCampaign.data._id ? updatedCampaign.data : camp
-        )
-      );
-      setEditingCampaign(null);
-    } catch (error) {
-      setError(error.message);
-    } finally {
-      setIsSubmitting(false);
+  const handleDeleteCampaign = (id) => {
+    if (window.confirm("Are you sure you want to delete this campaign?")) {
+      deleteCampaignMutation.mutate(id);
     }
   };
 
-  const chartData = campaigns.map((campaign) => ({
-    name:
-      campaign.title.substring(0, 15) +
-      (campaign.title.length > 15 ? "..." : ""),
-    raised: campaign.raisedAmount || 0,
-    goal: campaign.goalAmount || 0,
-    progress: ((campaign.raisedAmount || 0) / (campaign.goalAmount || 1)) * 100,
-  }));
+  const handleUpdateCampaign = async (e) => {
+    e.preventDefault();
+    try {
+      await updateCampaignMutation.mutateAsync({
+        id: editingCampaign._id,
+        ...formData,
+      });
+      setEditingCampaign(null);
+    } catch (error) {
+      console.error("Update failed:", error);
+    }
+  };
+
+  const chartData =
+    campaigns?.map((campaign) => ({
+      name:
+        campaign.title.substring(0, 15) +
+        (campaign.title.length > 15 ? "..." : ""),
+      raised: campaign.raisedAmount || 0,
+      goal: campaign.goalAmount || 0,
+      progress:
+        ((campaign.raisedAmount || 0) / (campaign.goalAmount || 1)) * 100,
+    })) || [];
 
   const getStatusColor = (status) => {
     switch ((status || "pending").toLowerCase()) {
@@ -179,7 +141,7 @@ const CampaignDashboard = () => {
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex h-screen bg-gradient-to-br from-gray-50 to-blue-50 items-center justify-center">
         <Loader size={80} color="text-blue-500" />
@@ -187,7 +149,7 @@ const CampaignDashboard = () => {
     );
   }
 
-  if (error) {
+  if (isError) {
     return (
       <div className="flex h-screen bg-gradient-to-br from-gray-50 to-blue-50 items-center justify-center">
         <motion.div
@@ -196,7 +158,9 @@ const CampaignDashboard = () => {
           className="bg-white p-8 rounded-2xl shadow-xl text-center space-y-4"
         >
           <div className="text-red-500 text-4xl">⚠️</div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">{error}</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">
+            {error?.message || "Failed to load campaigns"}
+          </h2>
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -212,7 +176,6 @@ const CampaignDashboard = () => {
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-gray-50 to-blue-50">
-      {/* Edit Campaign Modal */}
       <AnimatePresence>
         {editingCampaign && (
           <motion.div
@@ -287,10 +250,10 @@ const CampaignDashboard = () => {
                   </button>
                   <button
                     type="submit"
-                    disabled={isSubmitting}
+                    disabled={updateCampaignMutation.isPending}
                     className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 flex items-center gap-2"
                   >
-                    {isSubmitting ? (
+                    {updateCampaignMutation.isPending ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
                       <Save size={16} />
@@ -304,7 +267,6 @@ const CampaignDashboard = () => {
         )}
       </AnimatePresence>
 
-      {/* Sidebar */}
       <motion.aside
         initial="expanded"
         animate={isSidebarCollapsed ? "collapsed" : "expanded"}
@@ -360,7 +322,6 @@ const CampaignDashboard = () => {
         </nav>
       </motion.aside>
 
-      {/* Main Content */}
       <div className="flex-1 overflow-auto">
         <div className="p-8 max-w-7xl mx-auto">
           <motion.div
@@ -391,11 +352,10 @@ const CampaignDashboard = () => {
             </Link>
           </motion.div>
 
-          {/* Campaign Cards Grid */}
           <LayoutGroup>
             <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
               <AnimatePresence>
-                {campaigns.map((campaign, index) => (
+                {campaigns?.map((campaign, index) => (
                   <motion.div
                     key={campaign._id}
                     layout
@@ -414,8 +374,6 @@ const CampaignDashboard = () => {
                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
                         <div className="absolute bottom-0 left-0 right-0 p-4">
                           <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
                             className={`px-3 py-1 rounded-full text-white text-sm inline-block ${getStatusColor(
                               campaign.status
                             )}`}
@@ -429,8 +387,6 @@ const CampaignDashboard = () => {
                         <ImageIcon className="w-12 h-12 text-gray-400" />
                         <div className="absolute bottom-0 left-0 right-0 p-4">
                           <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
                             className={`px-3 py-1 rounded-full text-white text-sm inline-block ${getStatusColor(
                               campaign.status
                             )}`}
@@ -510,6 +466,7 @@ const CampaignDashboard = () => {
                           <motion.button
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
+                            onClick={() => handleDeleteCampaign(campaign._id)}
                             className="p-2 hover:bg-gray-100 rounded-lg text-gray-600"
                           >
                             <Trash2 size={20} />
@@ -523,7 +480,6 @@ const CampaignDashboard = () => {
             </motion.div>
           </LayoutGroup>
 
-          {/* Analytics Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -537,7 +493,7 @@ const CampaignDashboard = () => {
               </h2>
             </div>
             <div className="h-96">
-              {campaigns.length > 0 ? (
+              {campaigns?.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={chartData}
@@ -558,7 +514,7 @@ const CampaignDashboard = () => {
                     />
                     <Tooltip
                       content={({ active, payload }) => {
-                        if (active && payload && payload.length) {
+                        if (active && payload?.length) {
                           return (
                             <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-200">
                               <p className="font-semibold">
