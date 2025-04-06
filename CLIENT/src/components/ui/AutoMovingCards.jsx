@@ -40,9 +40,6 @@ const AutoMovingCards = () => {
 
   return (
     <div className="relative overflow-hidden py-12">
-      <h1 className="font-bold text-3xl sm:text-4xl text-center md:text-left mb-8">
-        User Stories
-      </h1>
       <motion.div
         className="flex gap-8"
         variants={containerVariants}

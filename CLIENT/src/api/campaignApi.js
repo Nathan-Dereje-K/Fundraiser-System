@@ -10,8 +10,27 @@ export const getCampaign = async (id) => {
   return response.data.data;
 };
 
-export const postCampaign = async (campaignData) => {
-  const response = await API.post("/campaigns", campaignData);
+export const getCategoryCampaign = async (category, status = "approved") => {
+  const response = await API.get("/campaigns", {
+    params: {
+      category: category.toLowerCase(),
+      status,
+    },
+  });
+  return response.data.data;
+};
+
+export const getPendingCampaigns = async () => {
+  const response = await API.get("/campaigns", {
+    params: { status: "pending" },
+  });
+  return response.data.data;
+};
+
+export const postCampaign = async (formData) => {
+  const response = await API.post("/campaigns", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
   return response.data.data;
 };
 

@@ -53,6 +53,31 @@ const CampaignDashboard = () => {
   const updateCampaignMutation = useUpdateCampaign();
   const deleteCampaignMutation = useDeleteCampaign();
 
+  useEffect(() => {
+    const handleAutoComplete = async () => {
+      if (!campaigns) return;
+
+      for (const campaign of campaigns) {
+        const isFunded =
+          (campaign.raisedAmount || 0) >= (campaign.goalAmount || 1);
+        const shouldUpdate = isFunded && campaign.status !== "completed";
+
+        if (shouldUpdate) {
+          try {
+            await updateCampaignMutation.mutateAsync({
+              id: campaign._id,
+              status: "completed",
+            });
+          } catch (error) {
+            console.error("Failed to update status:", error);
+          }
+        }
+      }
+    };
+
+    handleAutoComplete();
+  }, [campaigns]);
+
   const sidebarVariants = {
     expanded: { width: 280 },
     collapsed: { width: 80 },
@@ -114,17 +139,23 @@ const CampaignDashboard = () => {
   };
 
   const chartData =
-    campaigns?.map((campaign) => ({
-      name:
-        campaign.title.substring(0, 15) +
-        (campaign.title.length > 15 ? "..." : ""),
-      raised: campaign.raisedAmount || 0,
-      goal: campaign.goalAmount || 0,
-      progress:
-        ((campaign.raisedAmount || 0) / (campaign.goalAmount || 1)) * 100,
-    })) || [];
+    campaigns?.map((campaign) => {
+      const progress = Math.min(
+        ((campaign.raisedAmount || 0) / (campaign.goalAmount || 1)) * 100, // Added missing closing parenthesis
+        100
+      );
+      return {
+        name:
+          campaign.title.substring(0, 15) +
+          (campaign.title.length > 15 ? "..." : ""),
+        raised: campaign.raisedAmount || 0,
+        goal: campaign.goalAmount || 0,
+        progress,
+      };
+    }) || [];
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status, isFunded) => {
+    if (isFunded) return "bg-gradient-to-r from-green-400 to-green-600";
     switch ((status || "pending").toLowerCase()) {
       case "active":
         return "bg-gradient-to-r from-green-400 to-green-600";
@@ -355,127 +386,139 @@ const CampaignDashboard = () => {
           <LayoutGroup>
             <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
               <AnimatePresence>
-                {campaigns?.map((campaign, index) => (
-                  <motion.div
-                    key={campaign._id}
-                    layout
-                    variants={cardVariants}
-                    initial="hidden"
-                    animate="visible"
-                    className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow overflow-hidden"
-                  >
-                    {campaign.image?.length > 0 ? (
-                      <div className="relative h-48 overflow-hidden group">
-                        <img
-                          src={campaign.image[0]}
-                          alt="Main campaign visual"
-                          className="w-full h-full object-cover transform transition-transform duration-300 group-hover:scale-105"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-                        <div className="absolute bottom-0 left-0 right-0 p-4">
-                          <motion.div
-                            className={`px-3 py-1 rounded-full text-white text-sm inline-block ${getStatusColor(
-                              campaign.status
-                            )}`}
-                          >
-                            {campaign.status || "pending"}
-                          </motion.div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="relative h-48 bg-gray-100 flex items-center justify-center">
-                        <ImageIcon className="w-12 h-12 text-gray-400" />
-                        <div className="absolute bottom-0 left-0 right-0 p-4">
-                          <motion.div
-                            className={`px-3 py-1 rounded-full text-white text-sm inline-block ${getStatusColor(
-                              campaign.status
-                            )}`}
-                          >
-                            {campaign.status || "pending"}
-                          </motion.div>
-                        </div>
-                      </div>
-                    )}
-                    <div className="p-6">
-                      <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                        {campaign.title}
-                      </h3>
-                      <div className="space-y-4">
-                        <div>
-                          <div className="flex justify-between text-sm text-gray-600 mb-2">
-                            <span>Progress</span>
-                            <span>
-                              {Math.round(
-                                ((campaign.raisedAmount || 0) /
-                                  (campaign.goalAmount || 1)) *
-                                  100
-                              )}
-                              %
-                            </span>
-                          </div>
-                          <div className="w-full bg-gray-100 rounded-full h-3">
+                {campaigns?.map((campaign, index) => {
+                  const progressPercentage = Math.round(
+                    ((campaign.raisedAmount || 0) /
+                      (campaign.goalAmount || 1)) *
+                      100
+                  );
+                  const cappedPercentage = Math.min(progressPercentage, 100);
+                  const isFunded = progressPercentage >= 100;
+                  const displayStatus = isFunded
+                    ? "completed"
+                    : campaign.status;
+
+                  return (
+                    <motion.div
+                      key={campaign._id}
+                      layout
+                      variants={cardVariants}
+                      initial="hidden"
+                      animate="visible"
+                      className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow overflow-hidden"
+                    >
+                      {campaign.image?.length > 0 ? (
+                        <div className="relative h-48 overflow-hidden group">
+                          <img
+                            src={campaign.image[0]}
+                            alt="Main campaign visual"
+                            className="w-full h-full object-cover transform transition-transform duration-300 group-hover:scale-105"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                          <div className="absolute bottom-0 left-0 right-0 p-4">
                             <motion.div
-                              initial={{ width: 0 }}
-                              animate={{
-                                width: `${
-                                  ((campaign.raisedAmount || 0) /
-                                    (campaign.goalAmount || 1)) *
-                                  100
-                                }%`,
-                              }}
-                              transition={{ duration: 1, delay: index * 0.1 }}
-                              className="bg-gradient-to-r from-orange-400 to-orange-600 rounded-full h-3 relative overflow-hidden"
+                              className={`px-3 py-1 rounded-full text-white text-sm inline-block ${getStatusColor(
+                                displayStatus,
+                                isFunded
+                              )}`}
                             >
-                              <div className="absolute inset-0 bg-gradient-to-r from-white/30 to-transparent w-1/2" />
+                              {displayStatus}
                             </motion.div>
                           </div>
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="p-4 bg-gray-50 rounded-xl">
-                            <div className="flex items-center gap-2 mb-1">
-                              <DollarSign className="w-5 h-5 text-green-600" />
-                              <span className="text-sm text-gray-600">
-                                Raised
-                              </span>
-                            </div>
-                            <div className="text-lg font-bold text-gray-900">
-                              ${(campaign.raisedAmount || 0).toLocaleString()}
-                            </div>
-                          </div>
-                          <div className="p-4 bg-gray-50 rounded-xl">
-                            <div className="flex items-center gap-2 mb-1">
-                              <Target className="w-5 h-5 text-blue-600" />
-                              <span className="text-sm text-gray-600">
-                                Goal
-                              </span>
-                            </div>
-                            <div className="text-lg font-bold text-gray-900">
-                              ${(campaign.goalAmount || 0).toLocaleString()}
-                            </div>
+                      ) : (
+                        <div className="relative h-48 bg-gray-100 flex items-center justify-center">
+                          <ImageIcon className="w-12 h-12 text-gray-400" />
+                          <div className="absolute bottom-0 left-0 right-0 p-4">
+                            <motion.div
+                              className={`px-3 py-1 rounded-full text-white text-sm inline-block ${getStatusColor(
+                                displayStatus,
+                                isFunded
+                              )}`}
+                            >
+                              {displayStatus}
+                            </motion.div>
                           </div>
                         </div>
-                        <div className="flex justify-end gap-3 mt-4">
-                          <motion.button
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            onClick={() => handleEditClick(campaign)}
-                            className="p-2 hover:bg-gray-100 rounded-lg text-gray-600"
-                          >
-                            <Edit3 size={20} />
-                          </motion.button>
-                          <motion.button
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            onClick={() => handleDeleteCampaign(campaign._id)}
-                            className="p-2 hover:bg-gray-100 rounded-lg text-gray-600"
-                          >
-                            <Trash2 size={20} />
-                          </motion.button>
+                      )}
+                      <div className="p-6">
+                        <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                          {campaign.title}
+                        </h3>
+                        <div className="space-y-4">
+                          <div>
+                            <div className="flex justify-between text-sm text-gray-600 mb-2">
+                              <span>Progress</span>
+                              <span
+                                className={
+                                  isFunded ? "text-green-600 font-semibold" : ""
+                                }
+                              >
+                                {progressPercentage}%{isFunded && " 🎉 Funded!"}
+                              </span>
+                            </div>
+                            <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
+                              <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: `${cappedPercentage}%` }}
+                                transition={{ duration: 1, delay: index * 0.1 }}
+                                className={`h-3 relative ${
+                                  isFunded
+                                    ? "bg-gradient-to-r from-green-400 to-green-600"
+                                    : "bg-gradient-to-r from-orange-400 to-orange-600"
+                                }`}
+                              >
+                                <div className="absolute inset-0 bg-gradient-to-r from-white/30 to-transparent w-1/2" />
+                              </motion.div>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="p-4 bg-gray-50 rounded-xl">
+                              <div className="flex items-center gap-2 mb-1">
+                                <DollarSign className="w-5 h-5 text-green-600" />
+                                <span className="text-sm text-gray-600">
+                                  Raised
+                                </span>
+                              </div>
+                              <div className="text-lg font-bold text-gray-900">
+                                ${(campaign.raisedAmount || 0).toLocaleString()}
+                              </div>
+                            </div>
+                            <div className="p-4 bg-gray-50 rounded-xl">
+                              <div className="flex items-center gap-2 mb-1">
+                                <Target className="w-5 h-5 text-blue-600" />
+                                <span className="text-sm text-gray-600">
+                                  Goal
+                                </span>
+                              </div>
+                              <div className="text-lg font-bold text-gray-900">
+                                ${(campaign.goalAmount || 0).toLocaleString()}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex justify-end gap-3 mt-4">
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                              onClick={() => handleEditClick(campaign)}
+                              className="p-2 hover:bg-gray-100 rounded-lg text-gray-600"
+                            >
+                              <Edit3 size={20} />
+                            </motion.button>
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                              onClick={() => handleDeleteCampaign(campaign._id)}
+                              className="p-2 hover:bg-gray-100 rounded-lg text-gray-600"
+                            >
+                              <Trash2 size={20} />
+                            </motion.button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </motion.div>
-                ))}
+                    </motion.div>
+                  );
+                })}
               </AnimatePresence>
             </motion.div>
           </LayoutGroup>

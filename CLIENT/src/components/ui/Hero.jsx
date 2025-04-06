@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 const Hero = () => {
   return (
-    <div className="relative w-full h-[70vh]">
+    <div className="relative w-full h-[75vh]">
       <div className="absolute mr-10 ml-10 z-10 inset-0 flex justify-center sm:justify-end items-center sm:pr-32 mt-24">
         <div className="flex justify-center items-center flex-col text-center gap-2 sm:text-left">
           <motion.h1
@@ -34,14 +34,14 @@ const Hero = () => {
           infiniteLoop={true}
           interval={2500}
         >
-          <div className="relative  w-full h-[70vh] overflow-hidden">
+          <div className="relative  w-full h-[73vh] overflow-hidden">
             <img
               className="w-full h-full object-cover object-center"
               src="https://images.pexels.com/photos/6613050/pexels-photo-6613050.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
               alt="Image 1"
             />
           </div>
-          <div className="relative w-full h-[70vh] overflow-hidden">
+          <div className="relative w-full h-[73vh] overflow-hidden">
             <img
               className="w-full h-full object-cover object-center"
               src="https://images.pexels.com/photos/7414283/pexels-photo-7414283.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
@@ -49,7 +49,7 @@ const Hero = () => {
             />
           </div>
 
-          <div className="relative w-full h-[70vh] overflow-hidden">
+          <div className="relative w-full h-[73vh] overflow-hidden">
             <img
               className="w-full h-full object-cover object-top"
               src="https://images.pexels.com/photos/271168/pexels-photo-271168.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
@@ -57,7 +57,7 @@ const Hero = () => {
             />
           </div>
 
-          <div className="relative w-full h-[70vh] overflow-hidden">
+          <div className="relative w-full h-[73vh] overflow-hidden">
             <img
               className="w-full h-full object-cover object-center"
               src="https://images.pexels.com/photos/7414111/pexels-photo-7414111.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
