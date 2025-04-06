@@ -14,7 +14,7 @@ import {
 import Loader from "../../components/ui/Loader";
 
 const CategoryPage = () => {
-  const { categoryName } = useParams();
+  const { category_name } = useParams();
   const [campaigns, setCampaigns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -23,7 +23,7 @@ const CategoryPage = () => {
     const fetchCampaigns = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/api/campaigns?category=${categoryName}&status=approved`
+          `http://localhost:5000/api/campaigns?category=${category_name}&status=approved`
         );
         setCampaigns(response.data.data);
       } catch (err) {
@@ -35,7 +35,7 @@ const CategoryPage = () => {
     };
 
     fetchCampaigns();
-  }, [categoryName]);
+  }, [category_name]);
 
   if (loading)
     return (
@@ -86,11 +86,11 @@ const CategoryPage = () => {
           className="mb-12 text-center"
         >
           <h1 className="text-5xl font-bold text-gray-900 mb-3 tracking-tight">
-            {categoryName} Causes
+            {category_name} Causes
           </h1>
           <p className="text-gray-600 max-w-2xl mx-auto text-lg">
-            Support meaningful {categoryName.toLowerCase()} initiatives and make
-            a real difference
+            Support meaningful {category_name.toLowerCase()} initiatives and
+            make a real difference
           </p>
         </motion.div>
 
@@ -123,7 +123,7 @@ const CategoryPage = () => {
                   className="h-full"
                 >
                   <Link
-                    to={`/category/${categoryName}/${campaign._id}`}
+                    to={`/category/${category_name}/${campaign._id}`}
                     className="group block h-full"
                   >
                     <div className="bg-white rounded-3xl shadow-md hover:shadow-lg transition-shadow h-full overflow-hidden flex flex-col">

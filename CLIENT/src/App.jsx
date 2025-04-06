@@ -38,7 +38,7 @@ function App() {
             <Route path="/campaign_panel" element={<CampaignPanel />} />
             <Route path="/campaign_creation" element={<CampaignCreation />} />
             <Route path="/validator_panel" element={<ValidatorPanel />} />
-            <Route path="/category/:categoryName" element={<Category />} />
+            <Route path="/category/:category_name" element={<Category />} />
             <Route
               path="/category/:categoryName/:id"
               element={<CampaignDetails />}
