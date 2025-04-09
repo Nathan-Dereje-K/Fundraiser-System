@@ -145,10 +145,10 @@ const CampaignCreation = () => {
     <>
       <div>
         <label className="block text-gray-700 font-medium mb-2">
-          Goal Amount ($)
+          Goal Amount (ETB)
         </label>
         <input
-          placeholder="Ex: 10,000$"
+          placeholder="Ex: 10,000 Birr"
           type="number"
           className={`w-full px-4 py-3 rounded-lg border ${
             errors.goalAmount ? "border-red-500" : "border-gray-300"

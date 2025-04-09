@@ -168,10 +168,11 @@ const CategoryPage = () => {
                         <div className="space-y-3">
                           <div className="flex justify-between text-sm font-medium">
                             <span className="text-orange-600">
-                              ${campaign.raisedAmount?.toLocaleString()} raised
+                              ETB {campaign.raisedAmount?.toLocaleString()}{" "}
+                              raised
                             </span>
                             <span className="text-gray-500">
-                              ${campaign.goalAmount?.toLocaleString()}
+                              ETB {campaign.goalAmount?.toLocaleString()}
                             </span>
                           </div>
                           <div className="relative">

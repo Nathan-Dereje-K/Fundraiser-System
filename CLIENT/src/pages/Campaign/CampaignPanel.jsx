@@ -42,7 +42,6 @@ const CampaignDashboard = () => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    goalAmount: 0,
   });
 
   const overviewRef = useRef(null);
@@ -256,21 +255,7 @@ const CampaignDashboard = () => {
                     className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-orange-500 h-32"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Funding Goal ($)
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    min="1"
-                    value={formData.goalAmount}
-                    onChange={(e) =>
-                      setFormData({ ...formData, goalAmount: e.target.value })
-                    }
-                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-orange-500"
-                  />
-                </div>
+
                 <div className="flex justify-end gap-3 mt-6">
                   <button
                     type="button"
@@ -481,7 +466,8 @@ const CampaignDashboard = () => {
                                 </span>
                               </div>
                               <div className="text-lg font-bold text-gray-900">
-                                ${(campaign.raisedAmount || 0).toLocaleString()}
+                                ETB{" "}
+                                {(campaign.raisedAmount || 0).toLocaleString()}
                               </div>
                             </div>
                             <div className="p-4 bg-gray-50 rounded-xl">
@@ -492,7 +478,8 @@ const CampaignDashboard = () => {
                                 </span>
                               </div>
                               <div className="text-lg font-bold text-gray-900">
-                                ${(campaign.goalAmount || 0).toLocaleString()}
+                                ETB{" "}
+                                {(campaign.goalAmount || 0).toLocaleString()}
                               </div>
                             </div>
                           </div>
@@ -564,10 +551,10 @@ const CampaignDashboard = () => {
                                 {payload[0].payload.name}
                               </p>
                               <p className="text-orange-600">
-                                Raised: ${payload[0].value.toLocaleString()}
+                                Raised: ETB {payload[0].value.toLocaleString()}
                               </p>
                               <p className="text-blue-600">
-                                Goal: ${payload[1].value.toLocaleString()}
+                                Goal: ETB {payload[1].value.toLocaleString()}
                               </p>
                               <p className="text-sm text-gray-600 mt-2">
                                 Progress:{" "}

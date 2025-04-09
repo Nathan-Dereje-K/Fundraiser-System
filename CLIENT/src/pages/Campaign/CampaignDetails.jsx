@@ -228,8 +228,8 @@ const CampaignDetails = () => {
                     Funding Progress
                   </h3>
                   <p className="text-gray-500 text-sm mt-1">
-                    {campaign.raisedAmount.toLocaleString()} raised of{" "}
-                    {campaign.goalAmount.toLocaleString()} goal
+                    {campaign.raisedAmount.toLocaleString()} ETB raised of{" "}
+                    {campaign.goalAmount.toLocaleString()} ETB goal
                   </p>
                 </div>
                 <span className="text-orange-600 font-bold text-2xl">
@@ -301,13 +301,13 @@ const CampaignDetails = () => {
                   <div className="flex justify-between items-center text-gray-600">
                     <span className="text-sm">Campaign Goal</span>
                     <span className="font-medium">
-                      ${campaign.goalAmount.toLocaleString()}
+                      ETB {campaign.goalAmount.toLocaleString()}
                     </span>
                   </div>
                   <div className="flex justify-between items-center text-orange-600">
                     <span className="text-sm">Amount Raised</span>
                     <span className="font-semibold">
-                      ${campaign.raisedAmount.toLocaleString()}
+                      ETB {campaign.raisedAmount.toLocaleString()}
                     </span>
                   </div>
                 </div>

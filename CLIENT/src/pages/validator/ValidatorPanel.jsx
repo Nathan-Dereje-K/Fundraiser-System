@@ -39,7 +39,7 @@ const cardVariants = {
 
 const sidebarVariants = {
   expanded: { width: 280 },
-  collapsed: { width: 80 },
+  collapsed: { width: 84 },
 };
 
 const ValidatorPage = () => {
@@ -170,11 +170,13 @@ const ValidatorPage = () => {
                     initial="hidden"
                     animate="visible"
                     variants={cardVariants}
-                    className={`group relative p-4 rounded-xl transition-all cursor-pointer ${
+                    className={`group relative p-4 rounded-xl cursor-pointer
+                    border-2 ${
                       selectedCampaign?._id === campaign._id
-                        ? "bg-blue-50 border-2 border-blue-200"
-                        : "bg-white hover:bg-gray-50 border-2 border-transparent"
-                    }`}
+                        ? "border-orange-200 bg-orange-50 shadow-inner"
+                        : "border-transparent bg-white hover:border-orange-100"
+                    }
+                    hover:bg-orange-50 transition-all shadow-sm hover:shadow-md`}
                     onClick={() => setSelectedCampaign(campaign)}
                   >
                     <motion.div
@@ -305,7 +307,7 @@ const ValidatorPage = () => {
                             Funding Goal
                           </p>
                           <p className="text-2xl font-semibold text-gray-900">
-                            ${selectedCampaign.goalAmount?.toLocaleString()}
+                            ETB {selectedCampaign.goalAmount?.toLocaleString()}
                           </p>
                         </div>
                       </div>
