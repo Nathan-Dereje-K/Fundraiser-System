@@ -14,3 +14,10 @@ exports.getTrasactOfUserForCampaign = asyncHandler(async (req, res) => {
   });
   res.json(transactions);
 });
+
+//get transactions for specific user by their id
+exports.getTrasactOfUser = asyncHandler(async (req, res) => {
+  const id = req.params.id;
+  const transactions = await Transaction.find({ userId: id });
+  res.json(transactions);
+});

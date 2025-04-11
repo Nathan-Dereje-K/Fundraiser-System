@@ -12,7 +12,7 @@ const Navbar = () => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const menuRef = useRef(null);
   const navigate = useNavigate();
-  const { user, handleLogout } = useAuth();
+  const { handleLogout } = useAuth();
   const { user: currentUser } = useUser();
 
   // Close dropdown if clicked outside
@@ -192,7 +192,7 @@ const Navbar = () => {
           >
             Start a Campaign
           </motion.button>
-          {user ? (
+          {currentUser ? (
             <div className="relative w-full">
               <button
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}

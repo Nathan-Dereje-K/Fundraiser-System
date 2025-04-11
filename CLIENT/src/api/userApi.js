@@ -1,8 +1,16 @@
 import API from "./api";
 
 export const fetchUsers = async ({ queryKey }) => {
-  const [, page, limit] = queryKey;
-  const { data } = await API.get(`/users?page=${page}&limit=${limit}`);
+  const [, page, limit, search] = queryKey;
+  const { data } = await API.get(
+    `/users?page=${page}&limit=${limit}&search=${search}`
+  );
+  return data;
+};
+
+export const fetchUser = async ({ queryKey }) => {
+  const [, id] = queryKey;
+  const { data } = await API.get(`/users/${id}`);
   return data;
 };
 

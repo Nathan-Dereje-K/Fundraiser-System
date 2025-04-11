@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useUsers } from "../hooks/useUsers";
 import { NUMBER_OF_USERS_PER_PAGE } from "../constants";
 import Button from "../components/ui/Button";
+import Input from "../components/ui/Input";
 import Badge from "../components/ui/Badge";
 import Select from "../components/ui/Select";
 import {
@@ -12,18 +13,23 @@ import {
   ChevronLeft,
   ChevronRight,
   Mail,
+  Search,
 } from "lucide-react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { useUpdateUser } from "../hooks/useUsers";
 
 const UserManagement = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const currentPage = Number(searchParams.get("page")) || 1;
-  const { data } = useUsers(currentPage, NUMBER_OF_USERS_PER_PAGE);
+  const [searchTerm, setSearchTerm] = useState(
+    searchParams.get("search") || ""
+  );
+  const { data } = useUsers(currentPage, NUMBER_OF_USERS_PER_PAGE, searchTerm);
   const users = data?.users || [];
+  const filteredCount = data?.count || 0;
+  const totalPages = data?.totalPages || 1;
   const { mutate: updateUser, isError, isPending, isSuccess } = useUpdateUser();
   const [roleChanges, setRoleChanges] = useState({});
-  const navigate = useNavigate();
 
   const handleRoleChange = (userId, role) => {
     setRoleChanges({
@@ -64,30 +70,50 @@ const UserManagement = () => {
     }
   };
 
-  const totalPages = Math.ceil((data?.count ?? 0) / NUMBER_OF_USERS_PER_PAGE);
-  const indexOfFirstUser = (currentPage - 1) * NUMBER_OF_USERS_PER_PAGE + 1;
-  const indexOfLastUser = Math.min(
-    currentPage * NUMBER_OF_USERS_PER_PAGE,
-    data?.count ?? 0
-  );
-  const currentUsersCount = data?.users?.length ?? 0;
+  const currentUsersCount = users.length;
+  const indexOfFirstUser =
+    currentUsersCount > 0
+      ? (currentPage - 1) * NUMBER_OF_USERS_PER_PAGE + 1
+      : 0;
+  const indexOfLastUser = indexOfFirstUser + currentUsersCount - 1;
+
   const paginate = (pageNumber) => {
     const validPageNumber = Math.max(1, Math.min(pageNumber, totalPages));
-    navigate(`/users?page=${validPageNumber}`);
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set("page", validPageNumber.toString());
+    if (searchTerm) {
+      newParams.set("search", searchTerm);
+    } else {
+      newParams.delete("search");
+    }
+    setSearchParams(newParams);
   };
 
-  useEffect(() => {
-    if (currentPage > totalPages) {
-      paginate(totalPages);
-    } else if (currentPage < 1) {
-      paginate(1);
+  const handleSearch = (value) => {
+    setSearchTerm(value);
+    const newParams = new URLSearchParams(searchParams);
+    if (value) {
+      newParams.set("search", value);
+    } else {
+      newParams.delete("search");
     }
-  }, [currentPage, totalPages]);
+    newParams.set("page", "1");
+    setSearchParams(newParams);
+  };
 
   return (
     <div className="px-2 sm:px-4 py-6">
       <div className="sm:flex sm:items-center sm:justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
+        <div className="relative">
+          <Input
+            placeholder="Search by name or email..."
+            value={searchTerm}
+            onChange={(e) => handleSearch(e.target.value)}
+            className="w-full sm:w-64"
+            icon={<Search className="h-4 w-4 text-gray-400" />}
+          />
+        </div>
       </div>
 
       <div className="bg-white shadow overflow-hidden sm:rounded-lg">
@@ -254,82 +280,127 @@ const UserManagement = () => {
           </table>
         </div>
 
-        <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-          <div className="flex-1 flex justify-between sm:hidden">
-            <Button
-              variant="outline"
-              onClick={() => paginate(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="w-20"
-            >
-              Previous
-            </Button>
-            <span className="mx-4 flex items-center text-sm text-gray-700">
-              Page {currentPage} of {totalPages}
-            </span>
-            <Button
-              variant="outline"
-              onClick={() => paginate(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="w-20"
-            >
-              Next
-            </Button>
-          </div>
-          <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-            <div>
-              <p className="text-sm text-gray-700">
-                Showing{" "}
-                <span className="font-medium">
-                  {currentUsersCount > 0 ? indexOfFirstUser : 0}
-                </span>
-                to{" "}
-                <span className="font-medium">
-                  {currentUsersCount > 0 ? indexOfLastUser : 0}
-                </span>
-                of <span className="font-medium">{data?.count ?? 0}</span>{" "}
-                results
-              </p>
-            </div>
-            <div>
-              <nav
-                className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
-                aria-label="Pagination"
+        {/* Display pagination only if we have results */}
+        {filteredCount > 0 && (
+          <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+            <div className="flex-1 flex justify-between sm:hidden">
+              <Button
+                variant="outline"
+                onClick={() => paginate(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="w-20"
               >
-                <Button
-                  variant="outline"
-                  className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-                  onClick={() => paginate(currentPage - 1)}
-                  disabled={currentPage === 1}
+                Previous
+              </Button>
+              <span className="mx-4 flex items-center text-sm text-gray-700">
+                Page {currentPage} of {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                onClick={() => paginate(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="w-20"
+              >
+                Next
+              </Button>
+            </div>
+            <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm text-gray-700">
+                  Showing{" "}
+                  <span className="font-medium">{indexOfFirstUser}</span> to{" "}
+                  <span className="font-medium">{indexOfLastUser}</span> of{" "}
+                  <span className="font-medium">{filteredCount}</span> results
+                </p>
+              </div>
+              <div>
+                <nav
+                  className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+                  aria-label="Pagination"
                 >
-                  <ChevronLeft className="h-5 w-5" />
-                </Button>
-                {[...Array(totalPages)].map((_, index) => (
                   <Button
-                    key={index + 1}
-                    variant={currentPage === index + 1 ? "primary" : "outline"}
-                    className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                      currentPage === index + 1
-                        ? "z-10 bg-blue-50 border-blue-500 text-blue-600"
-                        : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
-                    }`}
-                    onClick={() => paginate(index + 1)}
+                    variant="outline"
+                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                    onClick={() => paginate(currentPage - 1)}
+                    disabled={currentPage === 1}
                   >
-                    {index + 1}
+                    <ChevronLeft className="h-5 w-5" />
                   </Button>
-                ))}
-                <Button
-                  variant="outline"
-                  className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-                  onClick={() => paginate(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                >
-                  <ChevronRight className="h-5 w-5" />
-                </Button>
-              </nav>
+
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter((pageNum) => {
+                      // Always show first and last page
+                      if (pageNum === 1 || pageNum === totalPages) return true;
+                      // Show pages around current page
+                      if (Math.abs(pageNum - currentPage) <= 1) return true;
+                      // Don't show too many pages
+                      return false;
+                    })
+                    .map((pageNum, idx, array) => {
+                      // Add ellipsis when there are gaps
+                      if (idx > 0 && pageNum - array[idx - 1] > 1) {
+                        return (
+                          <React.Fragment key={`ellipsis-${pageNum}`}>
+                            <span className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                              ...
+                            </span>
+                            <Button
+                              variant={
+                                currentPage === pageNum ? "primary" : "outline"
+                              }
+                              className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                                currentPage === pageNum
+                                  ? "z-10 bg-blue-50 border-blue-500 text-blue-600"
+                                  : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
+                              }`}
+                              onClick={() => paginate(pageNum)}
+                            >
+                              {pageNum}
+                            </Button>
+                          </React.Fragment>
+                        );
+                      }
+
+                      return (
+                        <Button
+                          key={pageNum}
+                          variant={
+                            currentPage === pageNum ? "primary" : "outline"
+                          }
+                          className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                            currentPage === pageNum
+                              ? "z-10 bg-blue-50 border-blue-500 text-blue-600"
+                              : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
+                          }`}
+                          onClick={() => paginate(pageNum)}
+                        >
+                          {pageNum}
+                        </Button>
+                      );
+                    })}
+
+                  <Button
+                    variant="outline"
+                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                    onClick={() => paginate(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </Button>
+                </nav>
+              </div>
             </div>
           </div>
-        </div>
+        )}
+
+        {/* Show a message when no results are found */}
+        {filteredCount === 0 && searchTerm && (
+          <div className="text-center py-8">
+            <p className="text-gray-500">
+              No users found matching "{searchTerm}"
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

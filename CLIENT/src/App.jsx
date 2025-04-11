@@ -19,6 +19,7 @@ import Landing from "./pages/User/Landing";
 import ValidatorPanel from "./pages/validator/ValidatorPanel";
 import Category from "./pages/User/Category";
 import CampaignDetails from "./pages/Campaign/CampaignDetails";
+import DonorProfile from "./pages/User/DonorProfile";
 //this page is to request a password reset link
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
             <Route path="/campaign_creation" element={<CampaignCreation />} />
             <Route path="/validator_panel" element={<ValidatorPanel />} />
             <Route path="/category/:categoryName" element={<Category />} />
+            <Route path="/donor/:donorId" element={<DonorProfile />} />
             <Route
               path="/category/:categoryName/:id"
               element={<CampaignDetails />}
