@@ -1,18 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import axios from "axios";
 import { useAuth } from "../../hooks/useAuth";
 import { useTransactionOfUserForCampaign } from "../../hooks/useTransaction";
-import {
-  getTranStatusBraintree,
-  getTranStatusChapa,
-} from "../../api/donateApi";
 import { useCampaign } from "../../hooks/useCampaign";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FileText,
   ArrowLeft,
-  HeartHandshake,
   BadgeDollarSign,
   CalendarCheck,
   Goal,
@@ -22,39 +16,48 @@ import {
 } from "lucide-react";
 import Loader from "../../components/ui/Loader";
 import Donate from "../Donate/Donate";
+import {
+  getTranStatusBraintree,
+  getTranStatusChapa,
+} from "../../api/donateApi";
 
 const CampaignDetails = () => {
   const { categoryName, id } = useParams();
   const [activeMedia, setActiveMedia] = useState("images");
   const { user: loggedUser } = useAuth();
-  const {
-    data: campaign,
-    isPending: loading,
-    error,
-  } = useCampaign(id ? id : null);
+
+  // React Query hooks
+  const { data: campaign, isLoading, isError, error } = useCampaign(id);
   const { data: transactions } = useTransactionOfUserForCampaign(
     id,
     loggedUser?.userId
   );
-  const progressPercentage = Math.round(
-    (campaign?.raisedAmount / campaign?.goalAmount) * 100
-  );
+
+  const progressPercentage = campaign
+    ? Math.round((campaign.raisedAmount / campaign.goalAmount) * 100)
+    : 0;
+
   const handleRefresh = async (transaction) => {
-    if (transaction?.method === "local") {
-      const data = await getTranStatusChapa(transaction?.transaction_id);
-    } else if (transaction?.method === "international") {
-      const data = await getTranStatusBraintree(transaction?.transaction_id);
+    try {
+      if (transaction?.method === "local") {
+        await getTranStatusChapa(transaction?.transaction_id);
+      } else if (transaction?.method === "international") {
+        await getTranStatusBraintree(transaction?.transaction_id);
+      }
+    } catch (error) {
+      console.error("Transaction refresh failed:", error);
     }
   };
 
-  if (loading || !id)
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50">
         <Loader size={80} color="text-blue-500" />
       </div>
     );
+  }
 
-  if (error)
+  if (isError) {
     return (
       <motion.div
         initial={{ opacity: 0 }}
@@ -68,7 +71,9 @@ const CampaignDetails = () => {
         >
           <AlertCircle className="w-16 h-16" />
         </motion.div>
-        <h2 className="text-2xl font-semibold text-gray-800 mb-4">{error}</h2>
+        <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+          {error?.message || "Failed to load campaign details"}
+        </h2>
         <Link
           to="/"
           className="inline-flex items-center text-orange-600 hover:text-orange-700 transition-colors font-medium"
@@ -78,6 +83,7 @@ const CampaignDetails = () => {
         </Link>
       </motion.div>
     );
+  }
 
   if (!campaign) return null;
 
@@ -106,16 +112,16 @@ const CampaignDetails = () => {
             className="max-w-4xl"
           >
             <h1 className="text-4xl font-bold mb-4 leading-tight">
-              {campaign?.title}
+              {campaign.title}
             </h1>
             <div className="flex flex-wrap gap-4 text-sm font-medium">
               <div className="flex items-center bg-white/10 px-3 py-1 rounded-full">
                 <CalendarCheck className="w-4 h-4 mr-2" />
-                {new Date(campaign?.endDate).toLocaleDateString()}
+                {new Date(campaign.endDate).toLocaleDateString()}
               </div>
               <div className="flex items-center bg-white/10 px-3 py-1 rounded-full">
                 <Goal className="w-4 h-4 mr-2" />
-                {campaign?.status.toUpperCase()}
+                {campaign.status.toUpperCase()}
               </div>
             </div>
           </motion.div>
@@ -153,7 +159,7 @@ const CampaignDetails = () => {
                   className="grid grid-cols-1 md:grid-cols-2 gap-4"
                 >
                   {activeMedia === "images" &&
-                    campaign?.image.map((img, index) => (
+                    campaign.image?.map((img, index) => (
                       <motion.div
                         key={`img-${index}`}
                         whileHover={{ scale: 1.02 }}
@@ -174,7 +180,7 @@ const CampaignDetails = () => {
                       </motion.div>
                     ))}
                   {activeMedia === "videos" &&
-                    campaign?.video.map((video, index) => (
+                    campaign.video?.map((video, index) => (
                       <motion.div
                         key={`vid-${index}`}
                         whileHover={{ scale: 1.02 }}
@@ -205,7 +211,7 @@ const CampaignDetails = () => {
                 Campaign Story
               </h2>
               <p className="text-gray-600 leading-relaxed">
-                {campaign?.description}
+                {campaign.description}
               </p>
             </motion.div>
 
@@ -222,8 +228,8 @@ const CampaignDetails = () => {
                     Funding Progress
                   </h3>
                   <p className="text-gray-500 text-sm mt-1">
-                    {campaign?.raisedAmount.toLocaleString()} raised of{" "}
-                    {campaign?.goalAmount.toLocaleString()} goal
+                    {campaign.raisedAmount.toLocaleString()} ETB raised of{" "}
+                    {campaign.goalAmount.toLocaleString()} ETB goal
                   </p>
                 </div>
                 <span className="text-orange-600 font-bold text-2xl">
@@ -231,14 +237,19 @@ const CampaignDetails = () => {
                 </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-3">
-                <div
-                  className="bg-gradient-to-r from-orange-500 to-orange-600 h-3 rounded-full transition-all duration-500"
-                  style={{ width: `${progressPercentage}%` }}
-                />
+                <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                  <div
+                    className="bg-gradient-to-r from-orange-500 to-orange-600 h-3 rounded-full transition-all duration-500"
+                    style={{
+                      width: `${Math.min(progressPercentage, 100)}%`,
+                      maxWidth: "100%", // Ensure it never exceeds container width
+                    }}
+                  />
+                </div>
               </div>
             </motion.div>
 
-            {campaign?.document.length > 0 && (
+            {campaign.document?.length > 0 && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -249,7 +260,7 @@ const CampaignDetails = () => {
                   Supporting Documents
                 </h2>
                 <div className="grid grid-cols-1 gap-2">
-                  {campaign?.document.map((doc, index) => (
+                  {campaign.document.map((doc, index) => (
                     <a
                       key={index}
                       href={doc}
@@ -285,18 +296,18 @@ const CampaignDetails = () => {
                   </p>
                 </div>
 
-                <Donate campaignId={campaign?._id} />
+                <Donate campaignId={campaign._id} />
                 <div className="pt-4 space-y-3">
                   <div className="flex justify-between items-center text-gray-600">
                     <span className="text-sm">Campaign Goal</span>
                     <span className="font-medium">
-                      ${campaign?.goalAmount.toLocaleString()}
+                      ETB {campaign.goalAmount.toLocaleString()}
                     </span>
                   </div>
                   <div className="flex justify-between items-center text-orange-600">
                     <span className="text-sm">Amount Raised</span>
                     <span className="font-semibold">
-                      ${campaign?.raisedAmount.toLocaleString()}
+                      ETB {campaign.raisedAmount.toLocaleString()}
                     </span>
                   </div>
                 </div>
@@ -345,10 +356,5 @@ const CampaignDetails = () => {
     </motion.div>
   );
 };
-
-// const handleDonate = (campaignId) => {
-//   // Implement donation logic
-//   console.log("Donate to:", campaignId);
-// };
 
 export default CampaignDetails;

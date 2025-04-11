@@ -97,7 +97,7 @@ const Footer = () => {
             href="https://yourwebsite.com"
             className="text-orange-500 hover:underline transition-colors duration-300"
           >
-            Three Nerds !
+            Three Nerds
           </a>
         </div>
       </div>

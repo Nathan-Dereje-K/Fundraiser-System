@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
-import axios from "axios";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CheckCircle,
   XCircle,
@@ -21,6 +21,8 @@ import {
   ChevronRight,
 } from "lucide-react";
 import Loader from "../../components/ui/Loader";
+import { getPendingCampaigns } from "../../api/campaignApi";
+import { useUpdateCampaign } from "../../hooks/useCampaign";
 
 const categoryIcons = {
   Medical: HeartPulse,
@@ -35,65 +37,44 @@ const cardVariants = {
   visible: { opacity: 1, y: 0 },
 };
 
-// Sidebar animation variants
 const sidebarVariants = {
   expanded: { width: 280 },
-  collapsed: { width: 80 },
+  collapsed: { width: 84 },
 };
 
 const ValidatorPage = () => {
-  const [campaigns, setCampaigns] = useState([]);
+  const queryClient = useQueryClient();
   const [selectedCampaign, setSelectedCampaign] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [actionLoading, setActionLoading] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(
-    window.innerWidth < 768 // Collapse sidebar on medium and small screens by default
+    window.innerWidth < 768
   );
 
-  const fetchCampaigns = async () => {
-    setIsLoading(true);
-    try {
-      const response = await axios.get("http://localhost:5000/api/campaigns", {
-        params: { status: "pending" },
-      });
-      setCampaigns(response.data.data || []);
-      setError(null);
-    } catch (err) {
-      console.error("Error fetching campaigns:", err);
-      setError("Failed to load campaigns. Please try again later.");
-    } finally {
-      setIsLoading(false);
+  const {
+    data: campaigns = [],
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["campaigns", "pending"],
+    queryFn: getPendingCampaigns,
+  });
+
+  const updateCampaignMutation = useUpdateCampaign();
+
+  const handleStatusUpdate = async (status, reason = "") => {
+    if (!selectedCampaign) return;
+
+    const payload = { id: selectedCampaign._id, status };
+    if (status === "rejected" && reason) {
+      payload.rejectionReason = reason;
     }
-  };
 
-  useEffect(() => {
-    fetchCampaigns();
-    const handleResize = () => {
-      if (window.innerWidth < 768) {
-        setIsSidebarCollapsed(true); // Automatically collapse on small screens
-      }
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  const handleStatusUpdate = async (id, status, reason = "") => {
-    setActionLoading(true);
     try {
-      const payload = { status };
-      if (status === "rejected" && reason) {
-        payload.rejectionReason = reason;
-      }
-      await axios.put(`http://localhost:5000/api/campaigns/${id}`, payload);
-      await fetchCampaigns();
+      await updateCampaignMutation.mutateAsync(payload);
+      queryClient.invalidateQueries(["campaigns", "pending"]);
       setSelectedCampaign(null);
-      alert(`Campaign ${status} successfully!`);
-    } catch (err) {
-      console.error("Status update error:", err.response?.data);
-      alert(`Action failed: ${err.response?.data?.message || err.message}`);
-    } finally {
-      setActionLoading(false);
+    } catch (error) {
+      console.error("Update failed:", error);
+      alert(`Action failed: ${error.message}`);
     }
   };
 
@@ -136,7 +117,7 @@ const ValidatorPage = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="font-bold pt-4 pb-4 text-2xl  bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent"
+                className="font-bold pt-4 pb-4 text-2xl bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent"
               >
                 Validator Portal
               </motion.h2>
@@ -151,7 +132,8 @@ const ValidatorPage = () => {
             {isSidebarCollapsed ? <ChevronRight /> : <ChevronLeft />}
           </motion.button>
         </div>
-        <nav className="p-4  max-h-[calc(100vh-64px)]">
+
+        <nav className="p-4 max-h-[calc(100vh-64px)]">
           <LayoutGroup>
             <motion.div className="space-y-3">
               {isLoading ? (
@@ -165,7 +147,9 @@ const ValidatorPage = () => {
                   className="p-4 bg-red-50 rounded-lg flex items-start gap-3"
                 >
                   <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
-                  <p className="text-red-600 text-sm">{error}</p>
+                  <p className="text-red-600 text-sm">
+                    {error.response?.data?.message || error.message}
+                  </p>
                 </motion.div>
               ) : campaigns.length === 0 ? (
                 <motion.div
@@ -179,19 +163,20 @@ const ValidatorPage = () => {
                   </p>
                 </motion.div>
               ) : (
-                campaigns.map((campaign, index) => (
+                campaigns.map((campaign) => (
                   <motion.div
                     key={campaign._id}
                     layout
                     initial="hidden"
                     animate="visible"
                     variants={cardVariants}
-                    transition={{ delay: index * 0.05, type: "spring" }}
-                    className={`group relative p-4 rounded-xl transition-all cursor-pointer ${
+                    className={`group relative p-4 rounded-xl cursor-pointer
+                    border-2 ${
                       selectedCampaign?._id === campaign._id
-                        ? "bg-blue-50 border-2 border-blue-200"
-                        : "bg-white hover:bg-gray-50 border-2 border-transparent"
-                    }`}
+                        ? "border-orange-200 bg-orange-50 shadow-inner"
+                        : "border-transparent bg-white hover:border-orange-100"
+                    }
+                    hover:bg-orange-50 transition-all shadow-sm hover:shadow-md`}
                     onClick={() => setSelectedCampaign(campaign)}
                   >
                     <motion.div
@@ -276,23 +261,17 @@ const ValidatorPage = () => {
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-gray-100">
                   <div>
-                    <motion.h1
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="text-3xl font-bold text-gray-900"
-                    >
+                    <h1 className="text-3xl font-bold text-gray-900">
                       {selectedCampaign.title}
-                    </motion.h1>
+                    </h1>
                     <div className="mt-2 flex items-center gap-3">
-                      <motion.span
-                        initial={{ scale: 0.9 }}
-                        animate={{ scale: 1 }}
+                      <span
                         className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusStyle(
                           selectedCampaign.status
                         )}`}
                       >
                         {selectedCampaign.status.toUpperCase()}
-                      </motion.span>
+                      </span>
                       <span className="text-sm text-gray-500">
                         Created {formatDate(selectedCampaign.createdAt)}
                       </span>
@@ -318,11 +297,9 @@ const ValidatorPage = () => {
                         "No description provided"}
                     </p>
                   </div>
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <motion.div
-                      whileHover={{ y: -5 }}
-                      className="p-5 bg-gray-50 rounded-xl"
-                    >
+                    <div className="p-5 bg-gray-50 rounded-xl">
                       <div className="flex items-center gap-3 mb-3">
                         <DollarSign className="w-6 h-6 text-blue-600" />
                         <div>
@@ -330,15 +307,12 @@ const ValidatorPage = () => {
                             Funding Goal
                           </p>
                           <p className="text-2xl font-semibold text-gray-900">
-                            ${selectedCampaign.goalAmount?.toLocaleString()}
+                            ETB {selectedCampaign.goalAmount?.toLocaleString()}
                           </p>
                         </div>
                       </div>
-                    </motion.div>
-                    <motion.div
-                      whileHover={{ y: -5 }}
-                      className="p-5 bg-gray-50 rounded-xl"
-                    >
+                    </div>
+                    <div className="p-5 bg-gray-50 rounded-xl">
                       <div className="flex items-center gap-3 mb-3">
                         <Calendar className="w-6 h-6 text-green-600" />
                         <div>
@@ -351,16 +325,11 @@ const ValidatorPage = () => {
                           </p>
                         </div>
                       </div>
-                    </motion.div>
+                    </div>
                   </div>
 
-                  {/* Media Sections */}
                   {selectedCampaign.image?.length > 0 && (
-                    <motion.section
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="space-y-4"
-                    >
+                    <section className="space-y-4">
                       <div className="flex items-center gap-3">
                         <ImageIcon className="w-6 h-6 text-purple-600" />
                         <h3 className="text-lg font-semibold text-gray-900">
@@ -369,27 +338,23 @@ const ValidatorPage = () => {
                       </div>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                         {selectedCampaign.image.map((img, index) => (
-                          <motion.div
+                          <div
                             key={index}
-                            whileHover={{ scale: 1.05 }}
-                            className="relative group aspect-square rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                            className="relative group aspect-square rounded-xl overflow-hidden shadow-sm"
                           >
                             <img
                               src={img}
                               alt={`Campaign visual ${index + 1}`}
-                              className="w-full h-full object-cover transform transition-transform group-hover:scale-105"
+                              className="w-full h-full object-cover"
                             />
-                          </motion.div>
+                          </div>
                         ))}
                       </div>
-                    </motion.section>
+                    </section>
                   )}
+
                   {selectedCampaign.video?.length > 0 && (
-                    <motion.section
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="space-y-4"
-                    >
+                    <section className="space-y-4">
                       <div className="flex items-center gap-3">
                         <VideoIcon className="w-6 h-6 text-red-600" />
                         <h3 className="text-lg font-semibold text-gray-900">
@@ -398,9 +363,8 @@ const ValidatorPage = () => {
                       </div>
                       <div className="grid grid-cols-1 gap-4">
                         {selectedCampaign.video.map((video, index) => (
-                          <motion.div
+                          <div
                             key={index}
-                            whileHover={{ scale: 1.02 }}
                             className="relative bg-black rounded-xl overflow-hidden shadow-lg"
                           >
                             <video
@@ -411,18 +375,15 @@ const ValidatorPage = () => {
                               <source src={`${video}#t=0.5`} type="video/mp4" />
                               Your browser does not support the video tag.
                             </video>
-                          </motion.div>
+                          </div>
                         ))}
                       </div>
-                    </motion.section>
+                    </section>
                   )}
+
                   {(selectedCampaign.document?.length > 0 ||
                     selectedCampaign.link?.length > 0) && (
-                    <motion.section
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="space-y-4"
-                    >
+                    <section className="space-y-4">
                       <div className="flex items-center gap-3">
                         <FileText className="w-6 h-6 text-amber-600" />
                         <h3 className="text-lg font-semibold text-gray-900">
@@ -431,9 +392,8 @@ const ValidatorPage = () => {
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {selectedCampaign.document?.map((doc, index) => (
-                          <motion.a
+                          <a
                             key={`doc-${index}`}
-                            whileHover={{ y: -3 }}
                             href={doc}
                             target="_blank"
                             rel="noopener noreferrer"
@@ -450,12 +410,11 @@ const ValidatorPage = () => {
                                 {doc}
                               </p>
                             </div>
-                          </motion.a>
+                          </a>
                         ))}
                         {selectedCampaign.link?.map((link, index) => (
-                          <motion.a
+                          <a
                             key={`link-${index}`}
-                            whileHover={{ y: -3 }}
                             href={link}
                             target="_blank"
                             rel="noopener noreferrer"
@@ -472,61 +431,51 @@ const ValidatorPage = () => {
                                 {link}
                               </p>
                             </div>
-                          </motion.a>
+                          </a>
                         ))}
                       </div>
-                    </motion.section>
+                    </section>
                   )}
                 </div>
 
-                {/* Action Section */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="pt-6 border-t border-gray-100"
-                >
+                {/* Action Buttons */}
+                <div className="pt-6 border-t border-gray-100">
                   <div className="flex flex-col-reverse sm:flex-row justify-between gap-4">
                     <div className="text-sm text-gray-500">
                       Campaign ID: {selectedCampaign._id}
                     </div>
                     <div className="flex gap-3">
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
+                      <button
                         onClick={async () => {
                           const reason = prompt(
-                            "Please provide rejection reason:",
-                            "Does not meet our community guidelines"
+                            "Rejection reason:",
+                            "Does not meet community guidelines"
                           );
                           if (reason) {
-                            await handleStatusUpdate(
-                              selectedCampaign._id,
-                              "rejected",
-                              reason
-                            );
+                            await handleStatusUpdate("rejected", reason);
                           }
                         }}
-                        disabled={actionLoading}
-                        className="px-6 py-3 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        disabled={updateCampaignMutation.isLoading}
+                        className="px-6 py-3 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
                       >
                         <XCircle className="w-5 h-5" />
-                        {actionLoading ? "Rejecting..." : "Reject Campaign"}
-                      </motion.button>
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() =>
-                          handleStatusUpdate(selectedCampaign._id, "approved")
-                        }
-                        disabled={actionLoading}
-                        className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        {updateCampaignMutation.isLoading
+                          ? "Processing..."
+                          : "Reject"}
+                      </button>
+                      <button
+                        onClick={() => handleStatusUpdate("approved")}
+                        disabled={updateCampaignMutation.isLoading}
+                        className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
                       >
                         <CheckCircle className="w-5 h-5" />
-                        {actionLoading ? "Approving..." : "Approve Campaign"}
-                      </motion.button>
+                        {updateCampaignMutation.isLoading
+                          ? "Processing..."
+                          : "Approve"}
+                      </button>
                     </div>
                   </div>
-                </motion.div>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>

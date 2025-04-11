@@ -1,133 +1,211 @@
-import { useState, useEffect } from "react";
-import { motion, useAnimation } from "framer-motion";
+import { useRef } from "react";
+import { motion, useInView } from "framer-motion";
 import Categories from "../../components/ui/Categories";
 import FeaturedCampaign from "../../components/ui/FeaturedCampaign";
 import Footer from "../../components/layout/Footer";
 import Hero from "../../components/ui/Hero";
 import Navbar from "../../components/layout/user/Navbar";
+import AutoMovingCards from "../../components/ui/AutoMovingCards";
 
+// Existing category animation variants
 const categoryVariants = {
-  initial: { opacity: 0, y: 100 },
-  animate: { opacity: 1, y: 0 },
+  initial: { opacity: 0, y: 50 },
+  animate: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: "easeOut" },
+  },
 };
 
 const staggerContainer = {
   initial: {},
   animate: {
-    transition: { staggerChildren: 0.4, delayChildren: 0.3 },
+    transition: {
+      staggerChildren: 0.3,
+      delayChildren: 0.2,
+    },
   },
 };
 
 const featuredCampaignVariants = {
-  initial: { opacity: 0, y: 100 },
-  animate: { opacity: 1, y: 0 },
+  initial: { opacity: 0, y: 50 },
+  animate: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: "easeOut" },
+  },
+};
+
+const textVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: "easeOut",
+      staggerChildren: 0.15,
+    },
+  },
 };
 
 const Landing = () => {
-  const controls = useAnimation();
-  const [inView, setInView] = useState(false);
+  const categoriesRef = useRef(null);
+  const campaignsRef = useRef(null);
+  const storiesRef = useRef(null);
 
-  const checkInView = () => {
-    const campaignElement = document.getElementById("featured-campaign");
-    const rect = campaignElement.getBoundingClientRect();
-    if (rect.top <= window.innerHeight && rect.bottom >= 0) {
-      setInView(true);
-    } else {
-      setInView(false);
-    }
-  };
+  const isCategoriesInView = useInView(categoriesRef, {
+    once: true,
+    amount: 0.35,
+  });
 
-  useEffect(() => {
-    window.addEventListener("scroll", checkInView);
-    checkInView(); // Check if it's in view on initial load
+  const isCampaignsInView = useInView(campaignsRef, {
+    once: true,
+    amount: 0.35,
+  });
 
-    return () => {
-      window.removeEventListener("scroll", checkInView);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (inView) {
-      controls.start("animate");
-    } else {
-      controls.start("initial");
-    }
-  }, [inView, controls]);
+  const isStoriesInView = useInView(storiesRef, {
+    once: true,
+    amount: 0.35,
+  });
 
   return (
-    <>
-      <div>
-        <Navbar />
-        <div className="ml-6 mr-6 md:mr-14 md:ml-14 lg:mr-20 lg:ml-20 mb-10">
-          <Hero />
-
-          {/* Categories with Staggered Animation */}
-          <motion.div
-            initial="initial"
-            animate="animate"
-            variants={staggerContainer}
-            className="py-7"
-          >
-            <h1 className="font-bold text-3xl">Categories</h1>
-            <div className="flex justify-center md:justify-start flex-wrap py-7 gap-9">
-              <motion.div variants={categoryVariants}>
-                <Categories
-                  img="https://images.pexels.com/photos/1454360/pexels-photo-1454360.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-                  title="Education"
-                />
-              </motion.div>
-              <motion.div variants={categoryVariants}>
-                <Categories
-                  img="https://images.pexels.com/photos/208512/pexels-photo-208512.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-                  title="Medical"
-                />
-              </motion.div>
-              <motion.div variants={categoryVariants}>
-                <Categories
-                  img="https://images.pexels.com/photos/31115077/pexels-photo-31115077/free-photo-of-stylish-young-man-in-modern-cafe-interior.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-                  title="Individual"
-                />
-              </motion.div>
-              <motion.div variants={categoryVariants}>
-                <Categories
-                  img="https://images.pexels.com/photos/2917381/pexels-photo-2917381.jpeg?auto=compress&cs=tinysrgb&w=600"
-                  title="Religious"
-                />
-              </motion.div>
-              <motion.div variants={categoryVariants}>
-                <Categories
-                  img="https://images.pexels.com/photos/208512/pexels-photo-208512.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-                  title="Other"
-                />
-              </motion.div>
-            </div>
-          </motion.div>
-
-          {/* Featured Campaigns with Staggered Animation */}
-          <motion.div
-            initial="initial"
-            animate="animate"
-            variants={staggerContainer}
-          >
-            <h1 className="font-bold py-4 text-3xl">Featured Campaigns</h1>
-            <div className="flex flex-col py-7 gap-10">
-              <motion.div
-                id="featured-campaign"
-                variants={featuredCampaignVariants}
-                animate={controls}
-                transition={{ ease: "easeOut", duration: 0.6 }}
-              >
-                <FeaturedCampaign />
-              </motion.div>
-              <motion.div variants={featuredCampaignVariants}>
-                <FeaturedCampaign />
-              </motion.div>
-            </div>
-          </motion.div>
-        </div>
-        <Footer />
+    <div className="relative min-h-screen bg-gray-50">
+      <Navbar />
+      <div className="m-2">
+        <Hero />
       </div>
-    </>
+
+      <div className="container mx-auto px-6 md:px-14 lg:px-20 ">
+        {/* Categories Section */}
+        <motion.div
+          ref={categoriesRef}
+          initial="initial"
+          animate={isCategoriesInView ? "animate" : "initial"}
+          variants={staggerContainer}
+          className="py-8"
+        >
+          {/* Enhanced "Discover Causes" heading */}
+          <motion.h1
+            className="font-bold text-3xl sm:text-4xl mb-6 md:mb-8"
+            variants={textVariants}
+            initial="hidden"
+            animate={isCategoriesInView ? "visible" : "visible"}
+          >
+            {["Discover", "Categories"].map((word, index) => (
+              <motion.span
+                key={index}
+                className="inline-block mr-2 last:mr-0"
+                variants={textVariants}
+              >
+                {word}
+              </motion.span>
+            ))}
+          </motion.h1>
+
+          {/* Category cards with reduced spacing */}
+          <div className="flex justify-center py-4 md:py-6 md:justify-start flex-wrap gap-6 md:gap-8">
+            <motion.div variants={categoryVariants}>
+              <Categories
+                img="https://images.pexels.com/photos/1454360/pexels-photo-1454360.jpeg"
+                title="Education"
+              />
+            </motion.div>
+            <motion.div variants={categoryVariants}>
+              <Categories
+                img="https://images.pexels.com/photos/208512/pexels-photo-208512.jpeg"
+                title="Medical"
+              />
+            </motion.div>
+            <motion.div variants={categoryVariants}>
+              <Categories
+                img="https://images.pexels.com/photos/31115077/pexels-photo-31115077.jpeg"
+                title="Individual"
+              />
+            </motion.div>
+            <motion.div variants={categoryVariants}>
+              <Categories
+                img="https://images.pexels.com/photos/2917381/pexels-photo-2917381.jpeg"
+                title="Religious"
+              />
+            </motion.div>
+            <motion.div variants={categoryVariants}>
+              <Categories
+                img="https://images.pexels.com/photos/208512/pexels-photo-208512.jpeg"
+                title="Other"
+              />
+            </motion.div>
+          </div>
+        </motion.div>
+
+        {/* Featured Campaigns Section */}
+        <motion.div
+          ref={campaignsRef}
+          initial="initial"
+          animate={isCampaignsInView ? "animate" : "initial"}
+          variants={staggerContainer}
+          className="py-6 md:py-8"
+        >
+          {/* Enhanced "Spotlight Initiatives" heading */}
+          <motion.h1
+            className="font-bold text-3xl sm:text-4xl mb-6 md:mb-8"
+            variants={textVariants}
+            initial="hidden"
+            animate={isCampaignsInView ? "visible" : "hidden"}
+          >
+            {["Spotlight", "Initiatives"].map((word, index) => (
+              <motion.span
+                key={index}
+                className="inline-block mr-2 last:mr-0"
+                variants={textVariants}
+              >
+                {word}
+              </motion.span>
+            ))}
+          </motion.h1>
+
+          <div className="flex flex-col gap-8 md:gap-10">
+            <motion.div variants={featuredCampaignVariants}>
+              <FeaturedCampaign />
+            </motion.div>
+            <motion.div variants={featuredCampaignVariants}>
+              <FeaturedCampaign />
+            </motion.div>
+          </div>
+        </motion.div>
+
+        {/* User Stories Section */}
+        <motion.div
+          ref={storiesRef}
+          initial="hidden"
+          animate={isStoriesInView ? "visible" : "hidden"}
+          variants={textVariants}
+          className="py-6 md:py-8"
+        >
+          {/* Enhanced "Impact Chronicles" heading */}
+          <motion.h1
+            className="font-bold text-3xl sm:text-4xl mb-6 md:mb-8"
+            variants={textVariants}
+            initial="hidden"
+            animate={isStoriesInView ? "visible" : "hidden"}
+          >
+            {["Impact", "Chronicles"].map((word, index) => (
+              <motion.span
+                key={index}
+                className="inline-block mr-2 last:mr-0"
+                variants={textVariants}
+              >
+                {word}
+              </motion.span>
+            ))}
+          </motion.h1>
+
+          <AutoMovingCards />
+        </motion.div>
+      </div>
+
+      <Footer />
+    </div>
   );
 };
 

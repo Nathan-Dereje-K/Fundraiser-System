@@ -181,6 +181,7 @@ export const SignUpPage = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
+                autoComplete="new-password"
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all duration-300"
               />
               <button
@@ -205,6 +206,7 @@ export const SignUpPage = () => {
                 placeholder="Confirm Password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
+                autoComplete="new-password"
                 className={`w-full px-4 py-3 rounded-lg border ${
                   confirmPassword && confirmPassword !== password
                     ? "border-red-500 focus:ring-red-500"

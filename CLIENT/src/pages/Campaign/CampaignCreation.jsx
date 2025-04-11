@@ -1,9 +1,10 @@
 /* eslint-disable react/prop-types */
 import { useState } from "react";
-import axios from "axios";
 import { useForm } from "react-hook-form";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
+import { postCampaign } from "../../api/campaignApi";
 import Loader from "../../components/ui/Loader";
 import Step4Content from "./Step4Content";
 
@@ -16,7 +17,6 @@ const CampaignCreation = () => {
   const [documentFiles, setDocumentFiles] = useState([]);
   const [links, setLinks] = useState([]);
   const [step, setStep] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   function isValidLink(url) {
     try {
@@ -27,8 +27,18 @@ const CampaignCreation = () => {
     }
   }
 
+  const createCampaignMutation = useMutation({
+    mutationFn: (formData) => postCampaign(formData),
+    onSuccess: () => {
+      navigate("/campaign_panel");
+    },
+    onError: (error) => {
+      const message = error.response?.data?.message || error.message;
+      alert(`Error: ${message}`);
+    },
+  });
+
   const handleFormSubmit = async (data) => {
-    setIsLoading(true);
     const formData = new FormData();
 
     formData.append("title", data.title);
@@ -48,17 +58,7 @@ const CampaignCreation = () => {
       formData.append("link", link);
     });
 
-    try {
-      await axios.post("http://localhost:5000/api/campaigns", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      navigate("/campaign_panel");
-    } catch (error) {
-      const message = error.response?.data?.message || error.message;
-      alert(`Error: ${message}`);
-    } finally {
-      setIsLoading(false);
-    }
+    createCampaignMutation.mutate(formData);
   };
 
   const validateStep = async () => {
@@ -127,10 +127,10 @@ const CampaignCreation = () => {
     <>
       <div>
         <label className="block text-gray-700 font-medium mb-2">
-          Goal Amount ($)
+          Goal Amount (ETB)
         </label>
         <input
-          placeholder="Ex: 10,000$"
+          placeholder="Ex: 10,000 Birr"
           type="number"
           className={`w-full px-4 py-3 rounded-lg border ${
             errors.goalAmount ? "border-red-500" : "border-gray-300"
@@ -219,7 +219,7 @@ const CampaignCreation = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-8 px-4 sm:px-6 lg:px-8">
       <AnimatePresence>
-        {isLoading && (
+        {createCampaignMutation.isPending && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -303,14 +303,14 @@ const CampaignCreation = () => {
                 onClick={
                   step === 4 ? handleSubmit(handleFormSubmit) : handleNext
                 }
-                disabled={isLoading}
+                disabled={createCampaignMutation.isPending}
                 className={`px-6 py-2.5 text-white rounded-lg focus:ring-2 ${
                   step === 4
                     ? "bg-green-500 hover:bg-green-600 focus:ring-green-400"
                     : "bg-orange-500 hover:bg-orange-600 focus:ring-orange-400"
                 } disabled:opacity-70 disabled:cursor-not-allowed`}
               >
-                {isLoading
+                {createCampaignMutation.isPending
                   ? "Processing..."
                   : step === 4
                   ? "Submit Campaign"
