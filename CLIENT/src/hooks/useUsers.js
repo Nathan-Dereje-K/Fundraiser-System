@@ -1,5 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchCurrentUser, fetchUsers, updateUser } from "../api/userApi";
+import {
+  fetchCurrentUser,
+  fetchUsers,
+  updateUser,
+  fetchUser,
+} from "../api/userApi";
 
 export const useCurrentUser = () => {
   return useQuery({
@@ -10,13 +15,20 @@ export const useCurrentUser = () => {
   });
 };
 
-export const useUsers = (page = 1, limit = 10) => {
+export const useUsers = (page = 1, limit = 10, search = "") => {
+  console.log(page, limit, search);
+
   return useQuery({
-    queryKey: ["users", page, limit],
+    queryKey: ["users", page, limit, search],
     queryFn: fetchUsers,
   });
 };
-
+export const useUser = (id) => {
+  return useQuery({
+    queryKey: ["user", id],
+    queryFn: fetchUser,
+  });
+};
 export const useUpdateUser = () => {
   const queryClient = useQueryClient();
 

@@ -16,18 +16,34 @@ exports.getUser = asyncHandler(async (req, res) => {
 exports.getUsers = asyncHandler(async (req, res) => {
   const page = req.query.page || 1;
   const limit = req.query.limit || 10;
+  const search = req.query.search || "";
   const skip = (page - 1) * limit;
 
-  const users = await User.find()
+  const query = {};
+  if (search) {
+    query.$or = [
+      { name: { $regex: search, $options: "i" } },
+      { email: { $regex: search, $options: "i" } },
+    ];
+  }
+
+  const users = await User.find(query)
     .skip(skip)
     .limit(limit)
     .select(
       "-password -verifyToken -verifyTokenExpiry -forgotPasswordToken -forgotPasswordTokenExpiry"
     );
 
-  const count = await User.countDocuments();
+  // Get total count of matching users
+  const filteredCount = await User.countDocuments(query);
 
-  res.json({ users, count, page, limit });
+  res.json({
+    users,
+    count: filteredCount,
+    page,
+    totalPages: Math.ceil(filteredCount / limit),
+    limit,
+  });
 });
 exports.getLoggedInUser = asyncHandler(async (req, res) => {
   const token = req.cookies.token;

@@ -2,11 +2,11 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { motion, AnimatePresence } from "framer-motion";
-import { useDropzone } from "react-dropzone";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { postCampaign } from "../../api/campaignApi";
 import Loader from "../../components/ui/Loader";
+import Step4Content from "./Step4Content";
 
 const CampaignCreation = () => {
   const form = useForm();
@@ -15,8 +15,17 @@ const CampaignCreation = () => {
   const [imageFiles, setImageFiles] = useState([]);
   const [videoFiles, setVideoFiles] = useState([]);
   const [documentFiles, setDocumentFiles] = useState([]);
+  const [links, setLinks] = useState([]);
   const [step, setStep] = useState(1);
   const navigate = useNavigate();
+  function isValidLink(url) {
+    try {
+      new URL(url);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 
   const createCampaignMutation = useMutation({
     mutationFn: (formData) => postCampaign(formData),
@@ -38,11 +47,16 @@ const CampaignCreation = () => {
     formData.append("category", data.category);
     formData.append("startDate", data.startDate);
     formData.append("endDate", data.endDate);
-    formData.append("link", data.link || "");
 
     imageFiles.forEach((file) => formData.append("image", file));
     videoFiles.forEach((file) => formData.append("video", file));
     documentFiles.forEach((file) => formData.append("document", file));
+    const validLinks = links.filter((link) => {
+      return link && isValidLink(link);
+    });
+    validLinks.forEach((link) => {
+      formData.append("link", link);
+    });
 
     createCampaignMutation.mutate(formData);
   };
@@ -67,38 +81,6 @@ const CampaignCreation = () => {
 
   const handleNext = () => handleStepNavigation("next");
   const handlePrevious = () => handleStepNavigation("previous");
-
-  const FilePreview = ({ files }) => (
-    <div className="mt-2">
-      {files.map((file, index) => (
-        <p key={index} className="text-gray-600 text-sm">
-          {file.name}
-        </p>
-      ))}
-    </div>
-  );
-
-  const Dropzone = ({ onDrop, multiple, label, accept }) => {
-    const dropzone = useDropzone({ onDrop, multiple, accept });
-
-    return (
-      <div className="mt-6">
-        <label className="block text-gray-700 font-medium mb-2">{label}</label>
-        <div
-          {...dropzone.getRootProps()}
-          className="w-full p-8 border-2 border-dashed border-gray-300 rounded-lg transition-colors cursor-pointer text-center hover:border-orange-400"
-        >
-          <input {...dropzone.getInputProps()} />
-          <p className="text-gray-600">
-            Drag and drop files here, or click to select
-          </p>
-          <p className="text-sm text-gray-500 mt-1">
-            {multiple ? "Multiple files allowed" : "Single file only"}
-          </p>
-        </div>
-      </div>
-    );
-  };
 
   const Step1Content = () => (
     <>
@@ -234,55 +216,6 @@ const CampaignCreation = () => {
     );
   };
 
-  const Step4Content = () => (
-    <>
-      <Dropzone
-        onDrop={setImageFiles}
-        multiple={true}
-        label="Campaign Images (Multiple allowed)"
-        accept="image/*"
-      />
-      <FilePreview files={imageFiles} />
-      <Dropzone
-        onDrop={setVideoFiles}
-        multiple={true}
-        label="Promotional Videos (Optional)"
-        accept="video/*"
-      />
-      <FilePreview files={videoFiles} />
-      <Dropzone
-        onDrop={setDocumentFiles}
-        multiple={true}
-        label="Supporting Documents (Multiple allowed)"
-        accept=".pdf,.doc,.docx"
-      />
-      <FilePreview files={documentFiles} />
-
-      <div>
-        <label className="block text-gray-700 font-medium mb-2">
-          External Link (Optional)
-        </label>
-        <input
-          placeholder="https://example.com"
-          type="url"
-          className={`w-full px-4 py-3 rounded-lg border ${
-            errors.link ? "border-red-500" : "border-gray-300"
-          } focus:ring-2 focus:ring-orange-500 focus:border-transparent`}
-          {...register("link", {
-            pattern: {
-              value:
-                /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/,
-              message: "Please enter a valid URL",
-            },
-          })}
-        />
-        {errors.link && (
-          <p className="text-red-500 text-sm mt-1">{errors.link.message}</p>
-        )}
-      </div>
-    </>
-  );
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-8 px-4 sm:px-6 lg:px-8">
       <AnimatePresence>
@@ -340,7 +273,18 @@ const CampaignCreation = () => {
               {step === 1 && <Step1Content />}
               {step === 2 && <Step2Content />}
               {step === 3 && <Step3Content />}
-              {step === 4 && <Step4Content />}
+              {step === 4 && (
+                <Step4Content
+                  imageFiles={imageFiles}
+                  setImageFiles={setImageFiles}
+                  videoFiles={videoFiles}
+                  setVideoFiles={setVideoFiles}
+                  documentFiles={documentFiles}
+                  setDocumentFiles={setDocumentFiles}
+                  links={links}
+                  setLinks={setLinks}
+                />
+              )}
             </motion.div>
             <div className="flex justify-between mt-8">
               <div>
