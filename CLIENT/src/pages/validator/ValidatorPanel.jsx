@@ -23,6 +23,7 @@ import {
 import Loader from "../../components/ui/Loader";
 import { getPendingCampaigns } from "../../api/campaignApi";
 import { useUpdateCampaign } from "../../hooks/useCampaign";
+import { toast } from "react-toastify";
 
 const categoryIcons = {
   Medical: HeartPulse,
@@ -72,9 +73,10 @@ const ValidatorPage = () => {
       await updateCampaignMutation.mutateAsync(payload);
       queryClient.invalidateQueries(["campaigns", "pending"]);
       setSelectedCampaign(null);
+      toast.success(`Campaign ${status} successfully.`);
     } catch (error) {
       console.error("Update failed:", error);
-      alert(`Action failed: ${error.message}`);
+      toast.error(`Action failed: ${error.message}`);
     }
   };
 
@@ -158,9 +160,13 @@ const ValidatorPage = () => {
                   className="p-6 bg-gray-50 rounded-xl text-center"
                 >
                   <Clock className="w-8 h-8 text-gray-400 mx-auto" />
-                  <p className="text-gray-500 mt-2">
-                    No campaigns awaiting review
-                  </p>
+                  {isSidebarCollapsed ? (
+                    ""
+                  ) : (
+                    <p className="text-gray-500 mt-2">
+                      No campaigns awaiting review
+                    </p>
+                  )}
                 </motion.div>
               ) : (
                 campaigns.map((campaign) => (

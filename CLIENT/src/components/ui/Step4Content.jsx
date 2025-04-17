@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useDropzone } from "react-dropzone";
 import { X } from "lucide-react";
 

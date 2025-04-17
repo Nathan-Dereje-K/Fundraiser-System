@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import Loader from "../../components/ui/Loader";
+import { toast } from "react-toastify";
 
 const CampaignManager = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -48,7 +49,15 @@ const CampaignManager = () => {
         id: campaign._id,
         status: newStatus,
       });
+      toast.success(
+        `Campaign ${
+          newStatus === "approved" ? "approved" : "rejected"
+        } successfully!`
+      );
     } catch (error) {
+      toast.error(
+        `Failed to ${newStatus === "approved" ? "approve" : "reject"} campaign.`
+      );
       console.error("Status update failed:", error);
     }
   };
@@ -63,7 +72,9 @@ const CampaignManager = () => {
         endDate: new Date(formData.endDate).toISOString(),
       });
       setEditingCampaign(null);
+      toast.success("Campaign updated successfully!");
     } catch (error) {
+      toast.error("Failed to update campaign.");
       console.error("Update failed:", error);
     }
   };
@@ -377,15 +388,43 @@ const CampaignManager = () => {
                                       whileHover={{ scale: 1.05 }}
                                       whileTap={{ scale: 0.95 }}
                                       onClick={() => {
-                                        if (
-                                          window.confirm(
-                                            "Permanently delete this campaign?"
-                                          )
-                                        ) {
-                                          deleteCampaignMutation.mutate(
-                                            campaign._id
-                                          );
-                                        }
+                                        toast.info(
+                                          ({ closeToast }) => (
+                                            <div>
+                                              <p className="text-sm text-gray-800">
+                                                Permanently delete this
+                                                campaign?
+                                              </p>
+                                              <div className="flex gap-3 mt-3">
+                                                <button
+                                                  onClick={() => {
+                                                    deleteCampaignMutation.mutate(
+                                                      campaign._id
+                                                    );
+                                                    toast.dismiss();
+                                                    toast.success(
+                                                      "Campaign deleted successfully!"
+                                                    );
+                                                  }}
+                                                  className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm"
+                                                >
+                                                  Yes
+                                                </button>
+                                                <button
+                                                  onClick={closeToast}
+                                                  className="px-3 py-1 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 text-sm"
+                                                >
+                                                  No
+                                                </button>
+                                              </div>
+                                            </div>
+                                          ),
+                                          {
+                                            autoClose: false,
+                                            closeOnClick: false,
+                                            draggable: false,
+                                          }
+                                        );
                                       }}
                                       className="px-4 py-2 bg-red-100 text-red-800 rounded-lg hover:bg-red-200 flex items-center gap-2"
                                     >
