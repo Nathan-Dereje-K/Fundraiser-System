@@ -1,0 +1,43 @@
+/* Heartbeat animation */
+@keyframes heartbeat {
+    0%, 100% {
+      transform: scale(1);
+    }
+    25% {
+      transform: scale(1.1);
+    }
+    50% {
+      transform: scale(0.9);
+    }
+  }
+  
+  @keyframes fillScreen {
+    0% {
+      background-color: rgba(255, 0, 0, 0);
+    }
+    100% {
+      background-color: red; 
+    }
+  }
+  
+  /* Heart styles */
+  .heart {
+    width: 100px;
+    height: 100px;
+    background-color: red;
+    margin: auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    clip-path: polygon(
+      50% 0%, 61% 18%, 80% 18%, 90% 33%, 84% 63%, 50% 100%, 16% 63%, 10% 33%,
+      20% 18%, 39% 18%
+    );
+    animation: heartbeat 1s ease-in-out infinite;
+  }
+  
+  .fill-screen {
+    animation: fillScreen 1s forwards;
+  }
+  
