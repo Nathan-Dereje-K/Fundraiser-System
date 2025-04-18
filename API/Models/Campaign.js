@@ -49,11 +49,12 @@ const campaignSchema = new mongoose.Schema(
     },
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
-    // creator: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   ref: "User",
-    //   required: true,
-    // },
+    
+    creator: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
 
     // donations: [
     //   {
