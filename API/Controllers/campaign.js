@@ -55,7 +55,7 @@ exports.getCampaign = asyncHandler(async (req, res, next) => {
       { _id: req.params.id.match(/^[0-9a-fA-F]{24}$/) ? req.params.id : null },
       { slug: req.params.id },
     ],
-  });
+  }).populate("userId", "name email");
 
   if (!campaign) {
     return next(new ErrorResponse(`Campaign not found!`, 404));
@@ -77,7 +77,7 @@ exports.postCampaign = asyncHandler(async (req, res) => {
   const documentUrls = req.files?.document?.map((file) => file.path) || [];
   const linkArray = Array.isArray(link) ? link : link ? [link] : [];
 
-  const campaign = await Campaign.create({
+  let campaign = await Campaign.create({
     userId,
     title,
     description,
@@ -90,6 +90,9 @@ exports.postCampaign = asyncHandler(async (req, res) => {
     document: documentUrls,
     link: linkArray,
   });
+
+  // Populate user info in the created campaign
+  campaign = await campaign.populate("userId", "name email");
 
   res.status(201).json({ success: true, data: campaign });
 });
@@ -114,11 +117,7 @@ exports.putCampaign = asyncHandler(async (req, res, next) => {
   if (documentUrls.length > 0) updatedData.document = documentUrls;
   if (req.body.link !== undefined) updatedData.link = linkArray;
 
-  const campaign = await Campaign.findByIdAndUpdate(
-    req.params.id,
-    updatedData,
-    { new: true, runValidators: true }
-  );
+  const campaign = await Campaign.findById(req.params.id);
 
   if (!campaign) {
     return next(new ErrorResponse(`Campaign not found!`, 404));
@@ -130,7 +129,13 @@ exports.putCampaign = asyncHandler(async (req, res, next) => {
     );
   }
 
-  res.status(200).json({ success: true, data: campaign });
+  const updatedCampaign = await Campaign.findByIdAndUpdate(
+    req.params.id,
+    updatedData,
+    { new: true, runValidators: true }
+  ).populate("userId", "name email");
+
+  res.status(200).json({ success: true, data: updatedCampaign });
 });
 
 // @Desc       Delete Campaign
@@ -162,6 +167,7 @@ exports.getMyCampaigns = asyncHandler(async (req, res) => {
   const skip = (page - 1) * limit;
 
   const campaigns = await Campaign.find({ userId: req.user.id })
+    .populate("userId", "name email")
     .skip(skip)
     .limit(limit);
 
