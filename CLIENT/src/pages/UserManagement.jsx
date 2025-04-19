@@ -65,6 +65,8 @@ const UserManagement = () => {
         return "danger";
       case "validator":
         return "warning";
+      case "manager":
+        return "warning";
       default:
         return "default";
     }
@@ -191,6 +193,7 @@ const UserManagement = () => {
                         <Select
                           options={[
                             { value: "admin", label: "Admin" },
+                            { value: "manager", label: "Manager" },
                             { value: "validator", label: "Validator" },
                             { value: "user", label: "User" },
                           ]}
