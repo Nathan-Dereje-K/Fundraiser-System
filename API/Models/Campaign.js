@@ -53,7 +53,7 @@ const campaignSchema = new mongoose.Schema(
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      // required: true,
+      required: true,
     },
 
     // donations: [
@@ -80,7 +80,9 @@ const campaignSchema = new mongoose.Schema(
 
 // Pre-save hook to generate slug
 campaignSchema.pre("save", function (next) {
-  this.slug = this.title.toLowerCase().replace(/ /g, "-");
+  if (this.isModified("title")) {
+    this.slug = this.title.toLowerCase().replace(/ /g, "-");
+  }
   next();
 });
 
