@@ -69,6 +69,7 @@ exports.getCampaign = asyncHandler(async (req, res, next) => {
 // @Access     Private
 exports.postCampaign = asyncHandler(async (req, res) => {
   const userId = req.user.id;
+  console.log(userId);
   const { title, description, goalAmount, startDate, endDate, category, link } =
     req.body;
 
