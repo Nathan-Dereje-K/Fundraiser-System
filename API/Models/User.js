@@ -8,7 +8,11 @@ const userSchema = new mongoose.Schema({
   provider: { type: String, enum: ["google", "email"], required: true },
   verified: { type: Boolean, default: false },
   blocked: { type: Boolean, default: false },
-  role: { type: String, enum: ["user", "admin", "validator"], default: "user" },
+  role: {
+    type: String,
+    enum: ["user", "admin", "validator", "manager"],
+    default: "user",
+  },
   releasedMoney: { type: Number, default: 0 },
   bio: String,
   createdAt: { type: Date, default: Date.now },

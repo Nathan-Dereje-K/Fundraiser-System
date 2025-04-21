@@ -1,28 +1,36 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/authContext";
-// import Home from "./pages/Home";
 import { SignInPage } from "./pages/auth/SignIn";
 import { SignUpPage } from "./pages/auth/SignUp";
 import { UserProvider } from "./context/UserContext";
+
 import Layout from "./components/layout/Layout";
 import Dashboard from "./pages/Dashboard";
 import UserManagement from "./pages/UserManagement";
-import CampaignPanel from "./pages/Campaign/CampaignPanel";
-import CampaignCreation from "./pages/Campaign/CampaignCreation";
 import ProfileManagement from "./pages/ProfileManagement";
 import Settings from "./pages/Settings";
 import ForgetPassword from "./pages/auth/ForgetPassword";
 import ResetPassword from "./pages/auth/ResetPassword";
 import VerifyEmail from "./pages/auth/VerifyEmail";
 import PageError from "./pages/PageError";
-import Landing from "./pages/User/Landing";
-import ValidatorPanel from "./pages/validator/ValidatorPanel";
-import Category from "./pages/User/Category";
-import CampaignDetails from "./pages/Campaign/CampaignDetails";
-import DonorProfile from "./pages/User/DonorProfile";
 import CampaignManager from "./pages/Manager/CampaignManager";
 import WithdrawPage from "./pages/Withdraw/WithdrawPage";
-//this page is to request a password reset link
+import ValidatorPanel from "./pages/validator/ValidatorPanel";
+
+// User pages
+import Landing from "./pages/User/Landing";
+import Category from "./pages/User/Category";
+import DonorProfile from "./pages/User/DonorProfile";
+
+// Campaign pages
+import CampaignCreation from "./pages/Campaign/CampaignCreation";
+import CampaignDetails from "./pages/Campaign/CampaignDetails";
+import CampaignPanel from "./pages/Campaign/CampaignPanel";
+
+// ✅ Toastify imports
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 const userRoutes = [
   {
     path: "/dashboard",
@@ -45,6 +53,7 @@ const userRoutes = [
     component: WithdrawPage,
   },
 ];
+
 function App() {
   return (
     <AuthProvider>
@@ -83,39 +92,19 @@ function App() {
                 }
               />
             ))}
-            {/* <Route
-              path="/dashboard"
-              element={
-                <Layout>
-                  <Dashboard />
-                </Layout>
-              }
-            />
-            <Route
-              path="/users"
-              element={
-                <Layout>
-                  <UserManagement />
-                </Layout>
-              }
-            />
-            <Route
-              path="/profile"
-              element={
-                <Layout>
-                  <ProfileManagement />
-                </Layout>
-              }
-            />
-            <Route
-              path="/settings"
-              element={
-                <Layout>
-                  <Settings />
-                </Layout>
-              }
-            /> */}
           </Routes>
+          <ToastContainer
+            position="bottom-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="colored"
+          />
         </Router>
       </UserProvider>
     </AuthProvider>

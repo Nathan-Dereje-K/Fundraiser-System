@@ -6,7 +6,8 @@ import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { postCampaign } from "../../api/campaignApi";
 import Loader from "../../components/ui/Loader";
-import Step4Content from "./Step4Content";
+import Step4Content from "../../components/ui/Step4Content";
+import { toast } from "react-toastify";
 
 const CampaignCreation = () => {
   const form = useForm();
@@ -22,6 +23,7 @@ const CampaignCreation = () => {
     try {
       new URL(url);
       return true;
+      // eslint-disable-next-line no-unused-vars
     } catch (e) {
       return false;
     }
@@ -30,11 +32,12 @@ const CampaignCreation = () => {
   const createCampaignMutation = useMutation({
     mutationFn: (formData) => postCampaign(formData),
     onSuccess: () => {
+      toast.success("Campaign created successfully!");
       navigate("/campaign_panel");
     },
     onError: (error) => {
       const message = error.response?.data?.message || error.message;
-      alert(`Error: ${message}`);
+      toast.error(`Oops! ${message}`);
     },
   });
 
@@ -130,7 +133,7 @@ const CampaignCreation = () => {
           Goal Amount (ETB)
         </label>
         <input
-          placeholder="Ex: 10,000 Birr"
+          placeholder="Eg: 10,000 Birr"
           type="number"
           className={`w-full px-4 py-3 rounded-lg border ${
             errors.goalAmount ? "border-red-500" : "border-gray-300"

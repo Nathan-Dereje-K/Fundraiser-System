@@ -31,6 +31,15 @@ export const SignInPage = () => {
     if (user && user.userId !== "_") {
       navigate("/");
     }
+    if (user && user.role === "admin") {
+      navigate("/dashboard");
+    }
+    if (user && user.role === "validator") {
+      navigate("/validator_panel");
+    }
+    if (user && user.role === "manager") {
+      navigate("/campaign_manager");
+    }
   }, [user, navigate]);
 
   return (

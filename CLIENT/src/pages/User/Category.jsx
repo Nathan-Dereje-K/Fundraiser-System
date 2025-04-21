@@ -65,9 +65,9 @@ const CategoryPage = () => {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50"
+      className="min-h-screen w-full bg-gradient-to-br from-gray-50 to-blue-50 flex flex-col"
     >
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 py-12 flex-1">
         {/* Back Button */}
         <motion.div initial={{ x: -20 }} animate={{ x: 0 }} className="mb-8">
           <Link
@@ -113,7 +113,7 @@ const CategoryPage = () => {
               </Link>
             </motion.div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mx-16">
               {campaigns.map((campaign, index) => (
                 <motion.div
                   key={campaign._id}

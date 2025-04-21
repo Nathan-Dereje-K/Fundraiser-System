@@ -34,6 +34,7 @@ import {
 import Loader from "../../components/ui/Loader";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const CampaignDashboard = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -132,9 +133,38 @@ const CampaignDashboard = () => {
   };
 
   const handleDeleteCampaign = (id) => {
-    if (window.confirm("Are you sure you want to delete this campaign?")) {
-      deleteCampaignMutation.mutate(id);
-    }
+    toast.info(
+      ({ closeToast }) => (
+        <div>
+          <p className="text-sm font-medium text-gray-800">
+            Are you sure you want to delete this campaign?
+          </p>
+          <div className="flex gap-3 mt-3">
+            <button
+              onClick={() => {
+                deleteCampaignMutation.mutate(id);
+                toast.dismiss();
+                toast.success("Campaign deleted successfully!");
+              }}
+              className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+            >
+              Yes
+            </button>
+            <button
+              onClick={closeToast}
+              className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              No
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        autoClose: false,
+        closeOnClick: false,
+        draggable: false,
+      }
+    );
   };
 
   const handleUpdateCampaign = async (e) => {
@@ -144,8 +174,10 @@ const CampaignDashboard = () => {
         id: editingCampaign._id,
         ...formData,
       });
+      toast.success("Campaign is updated successfully!");
       setEditingCampaign(null);
     } catch (error) {
+      toast.error("Failed to update campaign. Please try again.");
       console.error("Update failed:", error);
     }
   };

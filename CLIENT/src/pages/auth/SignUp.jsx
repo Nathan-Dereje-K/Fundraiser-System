@@ -4,14 +4,15 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import GoogleAuth from "./GoogleAuth";
 import { signUpSchema } from "../../schemas/authSchema";
-import { useAuth, useRegister } from "../../hooks/useAuth";
+import { useRegister } from "../../hooks/useAuth";
+import { useUsers } from "../../hooks/useUsers";
 import { Eye, EyeOff } from "lucide-react";
 import { motion } from "framer-motion";
 
 export const SignUpPage = () => {
   const navigate = useNavigate();
   const [googleLoading, setLoading] = useState(false);
-  const { user } = useAuth();
+  const { user } = useUsers();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword1, setShowPassword1] = useState(false);

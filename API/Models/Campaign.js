@@ -61,11 +61,12 @@ const campaignSchema = new mongoose.Schema(
     },
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
-    // creator: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   ref: "User",
-    //   required: true,
-    // },
+
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
 
     // donations: [
     //   {
@@ -73,6 +74,7 @@ const campaignSchema = new mongoose.Schema(
     //     ref: "Donation",
     //   },
     // ],
+
     image: [{ type: String }],
     video: [{ type: String }],
     document: [{ type: String }],
@@ -90,7 +92,9 @@ const campaignSchema = new mongoose.Schema(
 
 // Pre-save hook to generate slug
 campaignSchema.pre("save", function (next) {
-  this.slug = this.title.toLowerCase().replace(/ /g, "-");
+  if (this.isModified("title")) {
+    this.slug = this.title.toLowerCase().replace(/ /g, "-");
+  }
   next();
 });
 
