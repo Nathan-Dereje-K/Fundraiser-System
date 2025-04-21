@@ -31,7 +31,7 @@ const AutoMovingCards = () => {
     animate: {
       x: [0, -1600], // Adjust based on card width and number of cards
       transition: {
-        duration: 20, // Slower animation (20 seconds per loop)
+        duration: 40, // Slower animation (20 seconds per loop)
         ease: "linear",
         repeat: Infinity,
       },

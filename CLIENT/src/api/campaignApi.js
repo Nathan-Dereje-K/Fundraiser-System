@@ -43,3 +43,10 @@ export const deleteCampaign = async (id) => {
   const response = await API.delete(`/campaigns/${id}`);
   return response.data.data;
 };
+
+export const getMyCampaigns = async (userId) => {
+  const response = await API.get("/campaigns/me", {
+    params: { userId },
+  });
+  return response.data.data;
+};
