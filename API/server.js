@@ -7,6 +7,7 @@ const userRouter = require("./Routes/user");
 const utilRouter = require("./Routes/util");
 const donateRouter = require("./Routes/donate");
 const transactionRouter = require("./Routes/transaction");
+const releaseRouter = require("./Routes/release");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
@@ -34,6 +35,7 @@ app.use("/api/users", userRouter);
 app.use("/api/util", utilRouter);
 app.use("/api/donate", donateRouter);
 app.use("/api/transaction", transactionRouter);
+app.use("/api/release", releaseRouter);
 
 app.use(errorHandler);
 

@@ -5,6 +5,7 @@ const {
   putCampaign,
   deleteCampaign,
   getCampaign,
+  getActiveCampaigns,
 } = require("../Controllers/campaign");
 const { upload } = require("../Config/multerConfig");
 
@@ -34,5 +35,6 @@ router
     putCampaign
   )
   .delete(deleteCampaign);
+router.route("/active/:id").get(getActiveCampaigns);
 
 module.exports = router;

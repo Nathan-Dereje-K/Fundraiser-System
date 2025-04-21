@@ -21,7 +21,30 @@ import Category from "./pages/User/Category";
 import CampaignDetails from "./pages/Campaign/CampaignDetails";
 import DonorProfile from "./pages/User/DonorProfile";
 import CampaignManager from "./pages/Manager/CampaignManager";
+import WithdrawPage from "./pages/Withdraw/WithdrawPage";
 //this page is to request a password reset link
+const userRoutes = [
+  {
+    path: "/dashboard",
+    component: Dashboard,
+  },
+  {
+    path: "/users",
+    component: UserManagement,
+  },
+  {
+    path: "/profile",
+    component: ProfileManagement,
+  },
+  {
+    path: "/settings",
+    component: Settings,
+  },
+  {
+    path: "/withdraw",
+    component: WithdrawPage,
+  },
+];
 function App() {
   return (
     <AuthProvider>
@@ -49,7 +72,18 @@ function App() {
             />
 
             <Route path="*" element={<PageError />} />
-            <Route
+            {userRoutes.map(({ path, component: Component }) => (
+              <Route
+                key={path}
+                path={path}
+                element={
+                  <Layout>
+                    <Component />
+                  </Layout>
+                }
+              />
+            ))}
+            {/* <Route
               path="/dashboard"
               element={
                 <Layout>
@@ -80,7 +114,7 @@ function App() {
                   <Settings />
                 </Layout>
               }
-            />
+            /> */}
           </Routes>
         </Router>
       </UserProvider>

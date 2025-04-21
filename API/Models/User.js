@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema({
   verified: { type: Boolean, default: false },
   blocked: { type: Boolean, default: false },
   role: { type: String, enum: ["user", "admin", "validator"], default: "user" },
+  releasedMoney: { type: Number, default: 0 },
   bio: String,
   createdAt: { type: Date, default: Date.now },
   avatar: String,

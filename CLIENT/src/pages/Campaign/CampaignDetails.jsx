@@ -16,12 +16,17 @@ import {
 } from "lucide-react";
 import Loader from "../../components/ui/Loader";
 import Donate from "../Donate/Donate";
+import DonationHistory from "./DonationHistory";
 import {
   getTranStatusBraintree,
   getTranStatusChapa,
 } from "../../api/donateApi";
 
 const CampaignDetails = () => {
+  const isOwner = false;
+  const [activeTab, setActiveTab] = useState(
+    isOwner ? "transactions" : "donate"
+  );
   const { categoryName, id } = useParams();
   const [activeMedia, setActiveMedia] = useState("images");
   const { user: loggedUser } = useAuth();
@@ -289,65 +294,98 @@ const CampaignDetails = () => {
               <h2 className="text-2xl font-bold text-center mb-6">
                 Support This Cause
               </h2>
-              <div className="space-y-5">
-                <div className="bg-orange-50/50 rounded-xl p-4 border border-orange-100">
-                  <p className="text-center text-orange-700 font-medium text-sm">
-                    Your contribution can create real change
-                  </p>
-                </div>
-
-                <Donate campaignId={campaign._id} />
-                <div className="pt-4 space-y-3">
-                  <div className="flex justify-between items-center text-gray-600">
-                    <span className="text-sm">Campaign Goal</span>
-                    <span className="font-medium">
-                      ETB {campaign.goalAmount.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center text-orange-600">
-                    <span className="text-sm">Amount Raised</span>
-                    <span className="font-semibold">
-                      ETB {campaign.raisedAmount.toLocaleString()}
-                    </span>
-                  </div>
-                </div>
+              {/* Tab Navigation */}
+              <div className="flex border-b border-gray-200 mb-6">
+                {!isOwner && (
+                  <button
+                    onClick={() => setActiveTab("donate")}
+                    className={`flex-1 py-2 font-medium text-center ${
+                      activeTab === "donate"
+                        ? "text-orange-500 border-b-2 border-orange-500"
+                        : "text-gray-500 hover:text-gray-700"
+                    }`}
+                  >
+                    Donate
+                  </button>
+                )}
+                <button
+                  onClick={() => setActiveTab("transactions")}
+                  className={`flex-1 py-2 font-medium text-center ${
+                    activeTab === "transactions"
+                      ? "text-orange-500 border-b-2 border-orange-500"
+                      : "text-gray-500 hover:text-gray-700"
+                  }`}
+                >
+                  Transaction History
+                </button>
               </div>
-              {transactions?.length > 0 && (
+              {activeTab === "donate" && (
                 <>
-                  <h2 className="flex items-center mt-2 text-2xl font-semibold mb-4">
-                    <BadgeDollarSign className="w-6 h-6 mr-2 text-orange-600" />
-                    My Transactions
-                  </h2>
-                  <ul className="space-y-4">
-                    {transactions.map((transaction, index) => (
-                      <li
-                        key={index}
-                        className="flex justify-between items-center"
-                      >
-                        <span className="text-gray-600">
-                          {transaction.amount}
+                  <div className="space-y-5">
+                    <div className="bg-orange-50/50 rounded-xl p-4 border border-orange-100">
+                      <p className="text-center text-orange-700 font-medium text-sm">
+                        Your contribution can create real change
+                      </p>
+                    </div>
+
+                    <Donate campaignId={campaign._id} />
+                    <div className="pt-4 space-y-3">
+                      <div className="flex justify-between items-center text-gray-600">
+                        <span className="text-sm">Campaign Goal</span>
+                        <span className="font-medium">
+                          ETB {campaign.goalAmount.toLocaleString()}
                         </span>
-                        <span
-                          className={`text-${
-                            transaction.status === "pending"
-                              ? "orange"
-                              : transaction.status === "approved"
-                              ? "green"
-                              : "red"
-                          }-600`}
-                        >
-                          {transaction.status}
+                      </div>
+                      <div className="flex justify-between items-center text-orange-600">
+                        <span className="text-sm">Amount Raised</span>
+                        <span className="font-semibold">
+                          ETB {campaign.raisedAmount.toLocaleString()}
                         </span>
-                        <button
-                          className="bg-transparent hover:bg-orange-500 hover:text-white text-orange-500 font-bold py-2 px-4 rounded"
-                          onClick={() => handleRefresh(transaction)}
-                        >
-                          <RefreshCcw className="w-4 h-4" />
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
+                      </div>
+                    </div>
+                  </div>
+                  {transactions?.length > 0 && (
+                    <>
+                      <h2 className="flex items-center mt-2 text-2xl font-semibold mb-4">
+                        <BadgeDollarSign className="w-6 h-6 mr-2 text-orange-600" />
+                        My Transactions
+                      </h2>
+                      <ul className="space-y-4">
+                        {transactions.map((transaction, index) => (
+                          <li
+                            key={index}
+                            className="flex justify-between items-center"
+                          >
+                            <span className="text-gray-600">
+                              {transaction.amount}
+                            </span>
+                            <span
+                              className={`text-${
+                                transaction.status === "pending"
+                                  ? "orange"
+                                  : transaction.status === "approved"
+                                  ? "green"
+                                  : "red"
+                              }-600`}
+                            >
+                              {transaction.status}
+                            </span>
+                            <button
+                              className="bg-transparent hover:bg-orange-500 hover:text-white text-orange-500 font-bold py-2 px-4 rounded"
+                              onClick={() => handleRefresh(transaction)}
+                            >
+                              <RefreshCcw className="w-4 h-4" />
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
                 </>
+              )}
+
+              {activeTab === "transactions" && (
+                <DonationHistory campaignName={campaign.name} />
               )}
             </motion.div>
           </div>

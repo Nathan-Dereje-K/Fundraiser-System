@@ -1,4 +1,9 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  QueryClient,
+} from "@tanstack/react-query";
 import {
   fetchCurrentUser,
   fetchUsers,
@@ -40,5 +45,11 @@ export const useUpdateUser = () => {
     onError: (error) => {
       console.error("Update failed:", error);
     },
+  });
+};
+export const refreshCurrentUser = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: queryClient.invalidateQueries(["currentUser"]),
   });
 };

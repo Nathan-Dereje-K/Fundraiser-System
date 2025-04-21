@@ -4,6 +4,7 @@ import {
   useUpdateCampaign,
   useDeleteCampaign,
 } from "../../hooks/useCampaign";
+import { useReleaseMoney } from "../../hooks/useRelease";
 import {
   LayoutGrid,
   Flag,
@@ -19,9 +20,12 @@ import {
   CalendarDays,
   Target,
   X,
+  DollarSign,
+  PauseCircle,
 } from "lucide-react";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import Loader from "../../components/ui/Loader";
+import SuspendCampaignModal from "./SuspendCampaignModal";
 
 const CampaignManager = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -36,10 +40,18 @@ const CampaignManager = () => {
     startDate: "",
     endDate: "",
   });
+  const [isSuspendModalOpen, setIsSuspendModalOpen] = useState(false);
+  const [selectedCampaign, setSelectedCampaign] = useState(null);
+
+  const handleSuspendClick = (campaign) => {
+    setSelectedCampaign(campaign);
+    setIsSuspendModalOpen(true);
+  };
 
   const { data: campaigns, isLoading, isError, error } = useCampaigns();
   const updateCampaignMutation = useUpdateCampaign();
   const deleteCampaignMutation = useDeleteCampaign();
+  const releaseMoneyMutation = useReleaseMoney();
 
   const handleStatusToggle = async (campaign) => {
     const newStatus = campaign.status === "approved" ? "rejected" : "approved";
@@ -65,6 +77,15 @@ const CampaignManager = () => {
       setEditingCampaign(null);
     } catch (error) {
       console.error("Update failed:", error);
+    }
+  };
+  const handleReleaseCampaign = async (campaign) => {
+    if (window.confirm("Are you sure you want to release this campaign?")) {
+      try {
+        await releaseMoneyMutation.mutateAsync(campaign._id);
+      } catch (error) {
+        console.error("Release failed:", error);
+      }
     }
   };
 
@@ -115,6 +136,24 @@ const CampaignManager = () => {
             {status}
           </div>
         );
+    }
+  };
+
+  const getReleaseStatus = (status) => {
+    if (status === "requested") {
+      return (
+        <span className="bg-yellow-100 text-yellow-800 text-sm mr-2 px-2.5 py-0.5 rounded-full dark:bg-yellow-900 dark:text-yellow-300 flex items-center gap-1">
+          <DollarSign size={14} />
+          Release Requested
+        </span>
+      );
+    } else if (status === "released") {
+      return (
+        <span className="bg-green-500 text-white text-sm mr-2 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+          <DollarSign size={14} />
+          Released
+        </span>
+      );
     }
   };
 
@@ -248,6 +287,7 @@ const CampaignManager = () => {
                                 {campaign.title}
                               </h3>
                               {getStatusBadge(campaign.status)}
+                              {getReleaseStatus(campaign.releaseStatus)}
                             </div>
 
                             <div className="flex items-center gap-4 text-sm text-gray-600">
@@ -261,7 +301,16 @@ const CampaignManager = () => {
                               <div className="flex items-center gap-1">
                                 <Target size={16} />
                                 <span>
-                                  Goal: ${campaign.goalAmount?.toLocaleString()}
+                                  Goal: {campaign.goalAmount?.toLocaleString()}{" "}
+                                  Birr
+                                </span>
+                              </div>
+                              {/* raised money */}
+                              <div className="flex items-center gap-1">
+                                <DollarSign size={16} />
+                                <span>
+                                  Raised:{" "}
+                                  {campaign.raisedAmount?.toLocaleString()} Birr
                                 </span>
                               </div>
                             </div>
@@ -351,7 +400,30 @@ const CampaignManager = () => {
                                         ? "Reject Campaign"
                                         : "Approve Campaign"}
                                     </motion.button>
-
+                                    {campaign.releaseStatus !== "released" && (
+                                      <motion.button
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={() =>
+                                          handleReleaseCampaign(campaign)
+                                        }
+                                        className={`px-4 py-2 rounded-lg flex items-center gap-2 bg-red-100 text-red-800 hover:bg-red-200 `}
+                                      >
+                                        <DollarSign size={16} />
+                                        Release
+                                      </motion.button>
+                                    )}
+                                    <motion.button
+                                      whileHover={{ scale: 1.05 }}
+                                      whileTap={{ scale: 0.95 }}
+                                      onClick={() =>
+                                        handleSuspendClick(campaign)
+                                      }
+                                      className={`px-4 py-2 rounded-lg flex items-center gap-2 bg-green-100 text-green-800 hover:bg-green-200 `}
+                                    >
+                                      <PauseCircle size={16} />
+                                      Suspend
+                                    </motion.button>
                                     <motion.button
                                       whileHover={{ scale: 1.05 }}
                                       whileTap={{ scale: 0.95 }}
@@ -580,6 +652,12 @@ const CampaignManager = () => {
           )}
         </AnimatePresence>
       </div>
+      {/* Suspend and Reallocate Modal */}
+      <SuspendCampaignModal
+        isOpen={isSuspendModalOpen}
+        onClose={() => setIsSuspendModalOpen(false)}
+        campaignToSuspend={selectedCampaign}
+      />
     </div>
   );
 };

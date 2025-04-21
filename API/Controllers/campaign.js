@@ -136,3 +136,14 @@ exports.deleteCampaign = asyncHandler(async (req, res) => {
 
   res.status(200).json({ success: true, data: {} });
 });
+
+// @Desc       Get All Active Campaigns except the one being suspended by ID
+// @Route      GET /api/campaign/active/:id
+// @Access     Private
+exports.getActiveCampaigns = asyncHandler(async (req, res) => {
+  const activeCampaigns = await Campaign.find({
+    status: "approved",
+    _id: { $ne: req.params.id },
+  });
+  res.status(200).json({ success: true, data: activeCampaigns });
+});
