@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { useTransactionOfUserForCampaign } from "../../hooks/useTransaction";
@@ -10,7 +10,7 @@ import {
   BadgeDollarSign,
   CalendarCheck,
   Goal,
-  Image,
+  Image as ImageIcon,
   AlertCircle,
   RefreshCcw,
 } from "lucide-react";
@@ -20,19 +20,27 @@ import {
   getTranStatusBraintree,
   getTranStatusChapa,
 } from "../../api/donateApi";
+import axios from "axios";
 
 const CampaignDetails = () => {
   const { categoryName, id } = useParams();
   const [activeMedia, setActiveMedia] = useState("images");
-  const { user: loggedUser } = useAuth();
+  const { user } = useAuth();
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [reportReason, setReportReason] = useState("");
+  const [imageFile, setImageFile] = useState(null);
+  const [videoFile, setVideoFile] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   // React Query hooks
   const { data: campaign, isLoading, isError, error } = useCampaign(id);
   const { data: transactions } = useTransactionOfUserForCampaign(
     id,
-    loggedUser?.userId
+    user?.userId // Using user from useAuth
   );
-
+  useEffect(() => {
+    console.log(user);
+  }, []);
   const progressPercentage = campaign
     ? Math.round((campaign.raisedAmount / campaign.goalAmount) * 100)
     : 0;
@@ -46,6 +54,37 @@ const CampaignDetails = () => {
       }
     } catch (error) {
       console.error("Transaction refresh failed:", error);
+    }
+  };
+
+  const handleSubmitReport = async (e) => {
+    e.preventDefault();
+    if (!reportReason.trim()) {
+      alert("Please provide a reason for reporting.");
+      return;
+    }
+    setLoading(true);
+    const formData = new FormData();
+    formData.append("campaignId", id);
+    formData.append("reason", reportReason);
+    if (imageFile) formData.append("image", imageFile);
+    if (videoFile) formData.append("video", videoFile);
+
+    try {
+      await axios.post("http://localhost:5000/api/reports", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+        withCredentials: true,
+      });
+      alert("Report submitted successfully!");
+      setIsReportModalOpen(false);
+      setReportReason("");
+      setImageFile(null);
+      setVideoFile(null);
+    } catch (error) {
+      console.error("Error submitting report:", error);
+      alert("Failed to submit the report. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -123,6 +162,24 @@ const CampaignDetails = () => {
                 <Goal className="w-4 h-4 mr-2" />
                 {campaign.status.toUpperCase()}
               </div>
+              {/* Report Button or Sign In Prompt */}
+              {user.role === "user" ? (
+                <button
+                  onClick={() => setIsReportModalOpen(true)}
+                  className="flex items-center bg-white/10 px-3 py-1 rounded-full text-red-500 hover:bg-white/20 transition-colors"
+                >
+                  <AlertCircle className="w-4 h-4 mr-2" />
+                  Report Campaign
+                </button>
+              ) : (
+                <Link
+                  to="/signin"
+                  className="flex items-center bg-white/10 px-3 py-1 rounded-full text-red-500 hover:bg-white/20 transition-colors"
+                >
+                  <AlertCircle className="w-4 h-4 mr-2" />
+                  Sign In to Report
+                </Link>
+              )}
             </div>
           </motion.div>
         </div>
@@ -173,7 +230,7 @@ const CampaignDetails = () => {
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 flex items-end p-4">
                           <span className="text-white font-medium">
-                            <Image className="w-5 h-5 mr-2 inline" />
+                            <ImageIcon className="w-5 h-5 mr-2 inline" />
                             Image {index + 1}
                           </span>
                         </div>
@@ -242,7 +299,7 @@ const CampaignDetails = () => {
                     className="bg-gradient-to-r from-orange-500 to-orange-600 h-3 rounded-full transition-all duration-500"
                     style={{
                       width: `${Math.min(progressPercentage, 100)}%`,
-                      maxWidth: "100%", // Ensure it never exceeds container width
+                      maxWidth: "100%",
                     }}
                   />
                 </div>
@@ -295,7 +352,6 @@ const CampaignDetails = () => {
                     Your contribution can create real change
                   </p>
                 </div>
-
                 <Donate campaignId={campaign._id} />
                 <div className="pt-4 space-y-3">
                   <div className="flex justify-between items-center text-gray-600">
@@ -353,6 +409,77 @@ const CampaignDetails = () => {
           </div>
         </div>
       </main>
+
+      {/* Report Modal */}
+      <AnimatePresence>
+        {isReportModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          >
+            <motion.div
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.9 }}
+              className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg"
+            >
+              <h2 className="text-xl font-semibold mb-4">Report Campaign</h2>
+              <form onSubmit={handleSubmitReport}>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Reason for Reporting*
+                  </label>
+                  <textarea
+                    value={reportReason}
+                    onChange={(e) => setReportReason(e.target.value)}
+                    placeholder="Describe why you are reporting this campaign..."
+                    className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    rows="3"
+                    required
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Upload Evidence (Optional)
+                  </label>
+                  <div className="space-y-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => setImageFile(e.target.files[0])}
+                      className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    />
+                    <input
+                      type="file"
+                      accept="video/*"
+                      onChange={(e) => setVideoFile(e.target.files[0])}
+                      className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end space-x-4">
+                  <button
+                    type="button"
+                    onClick={() => setIsReportModalOpen(false)}
+                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors disabled:bg-red-300"
+                  >
+                    {loading ? "Submitting..." : "Submit Report"}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };

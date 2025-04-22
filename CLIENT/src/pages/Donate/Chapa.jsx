@@ -32,6 +32,7 @@ function Chapa({ campaignId }) {
             type="text"
             value={donationAmount}
             onChange={(e) => setDonationAmount(e.target.value)}
+            required
             className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
             placeholder="Enter amount"
           />
