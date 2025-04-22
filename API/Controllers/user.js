@@ -58,7 +58,7 @@ exports.getLoggedInUser = asyncHandler(async (req, res) => {
 //update user by id role,block,name,email,password
 exports.updateUser = asyncHandler(async (req, res) => {
   const id = req.params.id;
-  const { role, avatar, name, email, blocked, bio } = req.body;
+  const { role, avatar, name, email, blocked, bio, releasedMoney } = req.body;
   const user = await User.findById(id);
   if (!user) return res.status(404).json({ error: "User not found" });
   if (String(blocked)) user.blocked = Boolean(blocked);
@@ -67,6 +67,7 @@ exports.updateUser = asyncHandler(async (req, res) => {
   if (avatar) user.avatar = avatar;
   if (role) user.role = role;
   if (bio) user.bio = bio;
+  if (releasedMoney) user.releasedMoney = releasedMoney;
   await user.save();
 
   res.json({ message: "User updated" });

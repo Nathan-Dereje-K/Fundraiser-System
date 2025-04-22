@@ -9,20 +9,20 @@ const transactionSchema = new mongoose.Schema({
   campaignId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Campaign",
-    required: true,
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    requiredq: true,
+    required: true,
   },
+  usersName: { type: String, default: "Anonymes" },
   amount: {
     type: Number,
     required: true,
   },
   transactionType: {
     type: String,
-    enum: ["donation", "withdrawal"],
+    enum: ["donation", "withdrawal", "reallocation"],
     default: "donation",
   },
   method: {

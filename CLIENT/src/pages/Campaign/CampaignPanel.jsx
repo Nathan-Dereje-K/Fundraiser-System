@@ -119,6 +119,19 @@ const CampaignDashboard = () => {
     });
   };
 
+  const handleReleaseClick = (campaign) => {
+    if (
+      window.confirm(
+        "Are you sure you want to request a release for this campaign?"
+      )
+    ) {
+      updateCampaignMutation.mutate({
+        id: campaign._id,
+        releaseStatus: "requested",
+      });
+    }
+  };
+
   const handleDeleteCampaign = (id) => {
     toast.info(
       ({ closeToast }) => (
@@ -516,6 +529,20 @@ const CampaignDashboard = () => {
                             </div>
                           </div>
                           <div className="flex justify-end gap-3 mt-4">
+                            {campaign.releaseStatus === "initial" && (
+                              <motion.button
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                                onClick={() => handleReleaseClick(campaign)}
+                                className={`flex items-center p-2 hover:bg-gray-100 rounded-lg text-gray-600 ${
+                                  isFunded
+                                    ? "bg-green-600 text-white hover:bg-green-700"
+                                    : ""
+                                }`}
+                              >
+                                <DollarSign size={14} /> Release
+                              </motion.button>
+                            )}
                             <motion.button
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}

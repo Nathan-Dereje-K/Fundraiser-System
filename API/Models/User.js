@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema({
     enum: ["user", "admin", "validator", "manager"],
     default: "user",
   },
+  releasedMoney: { type: Number, default: 0 },
   bio: String,
   createdAt: { type: Date, default: Date.now },
   avatar: String,

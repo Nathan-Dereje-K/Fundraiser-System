@@ -30,7 +30,14 @@ const campaignSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "active", "approved", "rejected", "completed"],
+      enum: [
+        "pending",
+        "active",
+        "approved",
+        "rejected",
+        "completed",
+        "suspended",
+      ],
       default: "pending",
       index: true,
     },
@@ -46,6 +53,11 @@ const campaignSchema = new mongoose.Schema(
     reported: {
       type: Boolean,
       default: false,
+    },
+    releaseStatus: {
+      type: String,
+      enum: ["initial", "requested", "released", "rejected", "suspended"],
+      default: "initial",
     },
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },

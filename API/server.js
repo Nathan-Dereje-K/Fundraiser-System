@@ -10,7 +10,11 @@ const userRouter = require("./Routes/user");
 const utilRouter = require("./Routes/util");
 const donateRouter = require("./Routes/donate");
 const transactionRouter = require("./Routes/transaction");
+<<<<<<< HEAD
 const notificationRouter = require("./Routes/NotificationRoutes"); // New
+=======
+const releaseRouter = require("./Routes/release");
+>>>>>>> ab06d2609e88bd9ec84a95d1a64ae951d0f5cff3
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
@@ -42,7 +46,10 @@ app.use("/api/users", userRouter);
 app.use("/api/util", utilRouter);
 app.use("/api/donate", donateRouter);
 app.use("/api/transaction", transactionRouter);
+
 app.use("/api/notifications", notificationRouter); // New
+
+app.use("/api/release", releaseRouter);
 
 app.use(errorHandler);
 

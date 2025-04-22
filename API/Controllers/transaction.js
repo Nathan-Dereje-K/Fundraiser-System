@@ -21,3 +21,10 @@ exports.getTrasactOfUser = asyncHandler(async (req, res) => {
   const transactions = await Transaction.find({ userId: id });
   res.json(transactions);
 });
+
+//get transactions for specific campaign by their id
+exports.getTrasactOfCampaign = asyncHandler(async (req, res) => {
+  const id = req.params.id;
+  const transactions = await Transaction.find({ campaignId: id });
+  res.json(transactions);
+});
