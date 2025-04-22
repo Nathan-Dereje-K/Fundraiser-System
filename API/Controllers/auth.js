@@ -117,7 +117,7 @@ exports.getMe = asyncHandler(async (req, res) => {
         secure: false,
         sameSite: "Lax",
       })
-      .json({ loggedIn: true, user: { userId: "_", role: "guest" } });
+      .json({ loggedIn: false, user: { userId: "_", role: "guest" } });
   } else {
     try {
       const decoded = verifyToken(token);

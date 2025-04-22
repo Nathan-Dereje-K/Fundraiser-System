@@ -13,6 +13,7 @@ import {
   verifyEmail,
   verifyEmailToken,
 } from "../api/authApi";
+import { useNavigate } from "react-router-dom";
 
 export const useEmailLogin = () => {
   return useMutation({
@@ -49,6 +50,7 @@ export const useChangePassword = () => {
 };
 
 export const useAuth = () => {
+  const navigate = useNavigate();
   const { user, setUser, isLoading } = useContext(AuthContext);
   const { mutate: logout } = useLogout();
 
@@ -56,6 +58,7 @@ export const useAuth = () => {
     logout();
     googleLogout();
     setUser(null);
+    navigate("/");
   };
 
   return { user, handleLogout, isLoading };
