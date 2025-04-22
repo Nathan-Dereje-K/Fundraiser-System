@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { User, LayoutDashboardIcon, LogOut, Menu, X } from "lucide-react";
 import Avatar from "../../ui/Avatar";
 import Dropdown from "../../ui/Dropdown";
+import NotificationBar from "../../../pages/Notification/NotificationBar";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -74,6 +75,10 @@ const Navbar = () => {
           <li className="hover:text-orange-500 cursor-pointer transition-colors">
             Impact
           </li>
+          <li className="hover:text-orange-500 cursor-pointer transition-colors">
+            <NotificationBar />
+          </li>
+          
           <li>
             <motion.button
               whileHover={{ scale: 1.1 }}

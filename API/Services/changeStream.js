@@ -27,13 +27,13 @@ module.exports = function setupChangeStreams(dbConnection) {
           return;
         }
         
-        if (!campaign.creator) {
+        if (!campaign.userId) {
           console.log("❌ Campaign has no creator:", campaign._id);
           return;
         }
 
         const notification = await Notification.create({
-          userId: campaign.creator,
+          userId: campaign.userId,
           campaignId: campaign._id,
           notificationType: 'validation',
           message: `Your campaign "${campaign.title}" status changed to ${change.updateDescription.updatedFields.status}`,

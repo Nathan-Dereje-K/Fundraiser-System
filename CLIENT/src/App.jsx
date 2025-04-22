@@ -30,6 +30,8 @@ import CampaignPanel from "./pages/Campaign/CampaignPanel";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+import NotificationPage from "./pages/Notification/Notification";
+
 function App() {
   return (
     <AuthProvider>
@@ -44,7 +46,7 @@ function App() {
             <Route path="/forgotpassword" element={<ForgetPassword />} />
             <Route path="/resetpassword" element={<ResetPassword />} />
             <Route path="/verifyemail" element={<VerifyEmail />} />
-
+            <Route path="/Notification" element={<NotificationPage />} />
             <Route path="/campaign_panel" element={<CampaignPanel />} />
             <Route path="/campaign_creation" element={<CampaignCreation />} />
             <Route path="/validator_panel" element={<ValidatorPanel />} />

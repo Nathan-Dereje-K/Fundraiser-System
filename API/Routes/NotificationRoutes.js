@@ -1,62 +1,19 @@
+// notificationRoutes.js
 const express = require("express");
-const Notification = require("../Models/Notification");
+const router = express.Router();
+const controller = require("../Controllers/NotificationCtrl");
 const authMiddleware = require("../Middleware/authMiddleware");
 
-const router = express.Router();
+// Apply auth middleware to all routes (redundant if already checking tokens in controller)
+router.use(authMiddleware); 
 
-// Apply auth middleware to all routes
-router.use(authMiddleware);
+// Public docs would show these require authentication
+router.get("/user/:userId", controller.getUserNotifications);
+router.get("/unread-count", controller.getUnreadCount);
+router.patch("/:id/read", controller.markAsRead);
+router.delete("/:id", controller.deleteNotification);
 
-// Get all notifications for a user
-router.get("/user/:id", async (req, res) => {
-  try {
-    // Ensure the user is accessing their own data
-    if (req.user._id !== req.params.id) {
-      return res.status(403).json({ message: "Forbidden" });
-    }
-
-    const notifications = await Notification.find({ userId: req.params.id }).sort({ createdAt: -1 });
-    res.json(notifications);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-// Mark one notification as read
-router.patch("/:id/read", async (req, res) => {
-  try {
-    const notification = await Notification.findOneAndUpdate(
-      { _id: req.params.id, userId: req.user._id },
-      { read: true },
-      { new: true }
-    );
-
-    if (!notification) {
-      return res.status(404).json({ message: "Notification not found" });
-    }
-
-    res.json(notification);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-// Delete a notification
-router.delete("/:id", async (req, res) => {
-  try {
-    const notification = await Notification.findOneAndDelete({
-      _id: req.params.id,
-      userId: req.user._id
-    });
-
-    if (!notification) {
-      return res.status(404).json({ message: "Notification not found" });
-    }
-
-    res.json({ message: "Notification deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
+// Internal use only (protected via API key or admin auth)
+router.post("/", controller.createNotification); 
 
 module.exports = router;
