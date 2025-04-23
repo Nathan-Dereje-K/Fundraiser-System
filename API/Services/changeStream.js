@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Campaign = require("../Models/Campaign");
 const Notification = require("../Models/Notification");
 require('colors');

@@ -1,18 +1,18 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { format } from 'date-fns';
-import { useUser } from '../../context/UserContext';
+import { useAuth } from '../../hooks/useAuth'; 
 import { Link } from 'react-router-dom';
 
 const NotificationPage = () => {
-  const { user } = useUser();
+  const { user } = useAuth(); // Now using useAuth hook
   const queryClient = useQueryClient();
 
   // Fetch notifications (with read status support)
   const { data: apiResponse = { data: { notifications: [] } } } = useQuery({
     queryKey: ['notifications', user?._id],
     queryFn: async () => {
-      console.log('Fetching notifications for user:', user?._id); // Debug log
+      console.log('Fetching notifications for user:', user?._id);
       if (!user?._id) {
         console.log('No user ID - returning empty array');
         return { data: { notifications: [] } };
@@ -21,8 +21,10 @@ const NotificationPage = () => {
       try {
         const { data } = await axios.get(`/api/notifications/user/${user._id}`, {
           withCredentials: true,
+         
         });
-        console.log('API Response:', data); // Debug log
+        console.log('Request cookies:', document.cookie); 
+        console.log('API Response:', data);
         return data;
       } catch (error) {
         console.error('Notification fetch error:', error);
@@ -34,15 +36,15 @@ const NotificationPage = () => {
 
   const notifications = apiResponse.data?.notifications || [];
 
-  // Mark as read mutation (now properly uses read field)
+  // Mark as read mutation
   const markAsReadMutation = useMutation({
     mutationFn: async (notificationId) => {
       await axios.patch(`/api/notifications/${notificationId}/read`, {}, {
         withCredentials: true,
+        
       });
     },
     onMutate: async (notificationId) => {
-      // Optimistic update
       queryClient.setQueryData(['notifications', user?._id], (old) => ({
         ...old,
         data: {
@@ -56,7 +58,6 @@ const NotificationPage = () => {
     },
   });
 
-  // Group by date
   const groupedNotifications = notifications.reduce((acc, notification) => {
     const date = format(new Date(notification.createdAt), 'MMMM d, yyyy');
     if (!acc[date]) acc[date] = [];

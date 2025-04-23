@@ -4,7 +4,6 @@ const router = express.Router();
 const controller = require("../Controllers/NotificationCtrl");
 const authMiddleware = require("../Middleware/authMiddleware");
 
-// Apply auth middleware to all routes (redundant if already checking tokens in controller)
 router.use(authMiddleware); 
 
 // Public docs would show these require authentication

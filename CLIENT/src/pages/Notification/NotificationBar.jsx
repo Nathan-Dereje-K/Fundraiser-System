@@ -1,30 +1,46 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import { useUser } from '../../context/UserContext';
+import { useAuth } from '../../hooks/useAuth'; // Changed import
 
 const NotificationBar = () => {
-  const { user } = useUser();
+  const { user, isLoading } = useAuth(); // Now using useAuth
 
   const { data: apiResponse = { data: { count: 0 } } } = useQuery({
     queryKey: ['unread-notifications', user?._id],
     queryFn: async () => {
       if (!user?._id) return { data: { count: 0 } };
-      const { data } = await axios.get('/api/notifications/unread-count', {
-        withCredentials: true,
-      });
-      return data;
+      
+      try {
+        const { data } = await axios.get('/api/notifications/unread-count', {
+          withCredentials: true,
+          
+        });
+        return data;
+      } catch (error) {
+        console.error('Error fetching unread count:', error);
+        return { data: { count: 0 } }; // Fallback on error
+      }
     },
-    enabled: !!user?._id,
+    enabled: !!user?._id && !isLoading, // Added isLoading check
     refetchInterval: 60000,
+    refetchOnWindowFocus: true // Added for better real-time updates
   });
 
   const unreadCount = apiResponse.data?.count || 0;
 
+  if (isLoading) {
+    return (
+      <div className="relative">
+        <BellIcon loading={true} />
+      </div>
+    );
+  }
+
   return (
     <div className="relative">
       <Link
-        to="/Notification"
+        to="/Notification" 
         className="flex items-center"
         aria-label={`${unreadCount} unread notifications`}
       >
@@ -39,11 +55,11 @@ const NotificationBar = () => {
   );
 };
 
-// Reusable Bell Icon Component
-const BellIcon = () => (
+// Enhanced Bell Icon Component with loading state
+const BellIcon = ({ loading = false }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    className="h-6 w-6 text-gray-600 hover:text-blue-500 transition-colors"
+    className={`h-6 w-6 ${loading ? 'text-gray-400 animate-pulse' : 'text-gray-600 hover:text-blue-500 transition-colors'}`}
     fill="none"
     viewBox="0 0 24 24"
     stroke="currentColor"

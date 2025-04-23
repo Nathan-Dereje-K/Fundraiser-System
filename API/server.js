@@ -26,8 +26,8 @@ const errorHandler = require("./Middleware/error");
 const setupChangeStreams = require("./services/changeStream"); // New
 
 // Connect to DB and setup change streams
-connectDB().then((connection) => {
-  setupChangeStreams(connection);
+connectDB().then(() => {
+  setupChangeStreams(mongoose.connection); 
 });
 
 if (process.env.NODE_ENV === "development") {
