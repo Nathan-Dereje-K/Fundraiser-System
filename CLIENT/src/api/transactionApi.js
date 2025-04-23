@@ -12,5 +12,7 @@ export const getTrasactOfUser = async (id) => {
 
 export const getTrasactOfCampaign = async (id) => {
   const response = await API.get(`/transaction/campaign/${id}`);
+  console.log(response.data);
+
   return response.data;
 };

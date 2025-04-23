@@ -1,97 +1,43 @@
 import React, { useState, useEffect } from "react";
+import Loader from "../../components/ui/Loader";
+import { useTransactionOfCampaign } from "../../hooks/useTransaction";
 
-const DonationHistory = ({ campaignName = "Ethiopian Cause" }) => {
-  const [transactions, setTransactions] = useState([
-    {
-      id: 1,
-      name: "John Doe",
-      amount: 100,
-      currency: "$",
-      timestamp: new Date(2025, 3, 15, 10, 30),
-      color: "bg-blue-500",
-    },
-    {
-      id: 2,
-      name: "Abebe Kebede",
-      amount: 2500,
-      currency: "ETB",
-      timestamp: new Date(2025, 3, 15, 9, 45),
-      color: "bg-orange-500",
-    },
-    {
-      id: 3,
-      name: "Sara Johnson",
-      amount: 50,
-      currency: "$",
-      timestamp: new Date(2025, 3, 14, 18, 20),
-      color: "bg-blue-500",
-    },
-    {
-      id: 4,
-      name: "Tigist Haile",
-      amount: 1000,
-      currency: "ETB",
-      timestamp: new Date(2025, 3, 14, 16, 10),
-      color: "bg-orange-500",
-    },
-    {
-      id: 5,
-      name: "Michael Chen",
-      amount: 200,
-      currency: "$",
-      timestamp: new Date(2025, 3, 14, 12, 5),
-      color: "bg-blue-500",
-    },
-    {
-      id: 6,
-      name: "Jane Smith",
-      amount: 500,
-      currency: "ETB",
-      timestamp: new Date(2025, 3, 13, 19, 15),
-      color: "bg-orange-500",
-    },
-    {
-      id: 7,
-      name: "John Doe",
-      amount: 100,
-      currency: "$",
-      timestamp: new Date(2025, 3, 15, 10, 30),
-      color: "bg-blue-500",
-    },
-    {
-      id: 8,
-      name: "Abebe Kebede",
-      amount: 2500,
-      currency: "ETB",
-      timestamp: new Date(2025, 3, 15, 9, 45),
-      color: "bg-orange-500",
-    },
-    {
-      id: 9,
-      name: "Sara Johnson",
-      amount: 50,
-      currency: "$",
-      timestamp: new Date(2025, 3, 14, 18, 20),
-      color: "bg-blue-500",
-    },
-    {
-      id: 10,
-      name: "Tigist Haile",
-      amount: 1000,
-      currency: "ETB",
-      timestamp: new Date(2025, 3, 14, 16, 10),
-      color: "bg-orange-500",
-    },
-  ]);
+const DonationHistory = ({ campaignId }) => {
+  const bgColors = [
+    "bg-green-500",
+    "bg-yellow-500",
+    "bg-purple-500",
+    "bg-pink-500",
+    "bg-indigo-500",
+    "bg-teal-500",
+    "bg-orange-500",
+    "bg-blue-500",
+  ];
 
+  const { data: transactions, isPending } =
+    useTransactionOfCampaign(campaignId);
+  const coloredTransactions = transactions?.map((tx) => ({
+    ...tx,
+    color: bgColors[Math.floor(Math.random() * bgColors.length)],
+  }));
   const formatTime = (date) => {
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    const d = new Date(date);
+    if (isNaN(d)) return "Invalid Time";
+    return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
+  useEffect(() => {
+    console.log(transactions);
+  }, [transactions]);
 
-  const formatDate = (date) => {
+  const formatDate = (myDate) => {
+    if (!myDate) return "Invalid Date";
+
+    const date = new Date(myDate);
+    if (isNaN(date)) return "Invalid Date"; // Catch bad date strings
+
     const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
 
     if (date.toDateString() === today.toDateString()) {
       return "Today";
@@ -101,6 +47,13 @@ const DonationHistory = ({ campaignName = "Ethiopian Cause" }) => {
       return date.toLocaleDateString();
     }
   };
+  if (isPending) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50">
+        <Loader size={80} color="text-blue-500" />
+      </div>
+    );
+  }
 
   return (
     <div className="h-[500px] overflow-y-auto pr-1">
@@ -111,36 +64,36 @@ const DonationHistory = ({ campaignName = "Ethiopian Cause" }) => {
         <div className="h-px bg-gray-200 w-full"></div>
       </div>
 
-      {transactions.map((transaction, index) => {
+      {coloredTransactions?.map((transaction, index) => {
         // Check if we need to display a date divider
         const showDateDivider =
           index === 0 ||
-          formatDate(transaction.timestamp) !==
-            formatDate(transactions[index - 1].timestamp);
+          formatDate(transaction.createdAt) !==
+            formatDate(transactions[index - 1].createdAt);
 
         return (
           <React.Fragment key={transaction.id}>
             {showDateDivider && (
               <div className="bg-gray-50 px-3 py-1 text-xs text-gray-500 font-medium sticky top-7">
-                {formatDate(transaction.timestamp)}
+                {formatDate(transaction.createdAt)}
               </div>
             )}
             <div className="p-3 border-b border-gray-100 hover:bg-gray-50 transition">
               <div className="flex items-center mb-1">
                 <div
-                  className={`h-4 w-4 rounded-full ${transaction.color} mr-2`}
+                  className={`h-4 w-4 rounded-full  mr-2 ${transaction.color} `}
                 ></div>
                 <span className="font-medium text-gray-800">
-                  {transaction.name}
+                  {transaction.usersName}
                 </span>
                 <span className="ml-auto text-xs text-gray-500">
-                  {formatTime(transaction.timestamp)}
+                  {formatTime(transaction.createdAt)}
                 </span>
               </div>
               <div className="ml-6 text-green-600 font-bold">
-                {transaction.currency === "$" ? "$" : ""}
+                {transaction.method !== "local" ? "$" : ""}
                 {transaction.amount}
-                {transaction.currency === "ETB" ? " ETB" : ""}
+                {transaction.method === "local" ? " ETB" : ""}
               </div>
             </div>
           </React.Fragment>
