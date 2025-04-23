@@ -23,6 +23,7 @@
     "axios": "^1.8.4",
     "braintree-web-drop-in": "^1.44.1",
     "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
     "framer-motion": "^12.5.0",
     "lucide-react": "^0.479.0",
     "motion": "^12.5.0",
