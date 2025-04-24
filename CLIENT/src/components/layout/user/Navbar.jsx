@@ -7,6 +7,7 @@ import { User, LayoutDashboardIcon, LogOut, Menu, X } from "lucide-react";
 import Avatar from "../../ui/Avatar";
 import Dropdown from "../../ui/Dropdown";
 import NotificationSystem from "../../../pages/Notification/NotificationSystem";
+import SearchCampaign from "../../ui/SearchCampaign";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -74,6 +75,9 @@ const Navbar = () => {
           </li>
           <li className="hover:text-orange-500 cursor-pointer transition-colors">
             Impact
+          </li>
+          <li className=" cursor-pointer transition-colors">
+            <SearchCampaign />
           </li>
 
           <li>

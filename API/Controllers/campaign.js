@@ -194,3 +194,31 @@ exports.getMyCampaigns = asyncHandler(async (req, res) => {
     data: campaigns,
   });
 });
+
+exports.searchCampaigns = asyncHandler(async (req, res) => {
+  try {
+    const searchTerm = req.query.q;
+
+    if (!searchTerm || searchTerm.length < 2) {
+      return res.json([]);
+    }
+
+    const campaigns = await Campaign.find({
+      status: "approved",
+      $or: [
+        { title: { $regex: searchTerm, $options: "i" } },
+        { description: { $regex: searchTerm, $options: "i" } },
+      ],
+    })
+      .select("title slug description category")
+      .limit(10)
+      .sort({ title: 1 });
+
+    res.json(campaigns);
+  } catch (error) {
+    console.error("Search error:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while searching campaigns" });
+  }
+});
