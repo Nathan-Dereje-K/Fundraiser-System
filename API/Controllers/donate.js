@@ -25,7 +25,7 @@ exports.initiatePayment = asyncHandler(async (req, res) => {
     userId = _id;
   } else {
     first_name = "Anonymous";
-    last_name = "Anonymous";
+    last_name = "Donor";
     email = "anonymous@gmail.com";
     userId = new mongoose.Types.ObjectId("000000000000000000000000");
   }
@@ -53,6 +53,7 @@ exports.initiatePayment = asyncHandler(async (req, res) => {
     await Transaction.create({
       campaignId,
       userId,
+      usersName: first_name + " " + last_name,
       amount,
       transaction_id: tx_ref,
     });
@@ -165,8 +166,15 @@ exports.processPayment = asyncHandler(async (req, res) => {
     if (!token) return res.status(401).json({ loggedIn: false });
     const user = verifyToken(token);
     let userId = user.userId;
+    let usersName = "Anonymous Donor";
     if (userId === "_") {
       userId = new mongoose.Types.ObjectId("000000000000000000000000");
+    } else {
+      const myUser = await getUserFromToken(token);
+      if (!myUser) {
+        return next(new ErrorResponse(`User not found!`, 404));
+      }
+      usersName = myUser.name;
     }
     const result = await gateway.transaction.sale({
       amount,
@@ -180,6 +188,7 @@ exports.processPayment = asyncHandler(async (req, res) => {
       campaignId,
       userId,
       amount,
+      usersName,
       transaction_id: result.transaction.id,
       method: "international",
       status,

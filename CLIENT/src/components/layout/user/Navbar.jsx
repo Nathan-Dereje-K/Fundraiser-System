@@ -6,6 +6,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { User, LayoutDashboardIcon, LogOut, Menu, X } from "lucide-react";
 import Avatar from "../../ui/Avatar";
 import Dropdown from "../../ui/Dropdown";
+import NotificationSystem from "../../../pages/Notification/NotificationSystem";
+import SearchCampaign from "../../ui/SearchCampaign";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,7 +15,7 @@ const Navbar = () => {
   const menuRef = useRef(null);
   const navigate = useNavigate();
   const { handleLogout } = useAuth();
-  const { user: currentUser } = useUser();
+  const { user: currentUser, isLoading: userLoading } = useUser();
 
   // Close dropdown if clicked outside
   useEffect(() => {
@@ -74,6 +76,9 @@ const Navbar = () => {
           <li className="hover:text-orange-500 cursor-pointer transition-colors">
             Impact
           </li>
+          <li className=" cursor-pointer transition-colors">
+            <SearchCampaign />
+          </li>
 
           <li>
             <motion.button
@@ -85,6 +90,14 @@ const Navbar = () => {
               Start a Campaign
             </motion.button>
           </li>
+          {currentUser && (
+            <li className="cursor-pointer transition-colors">
+              <NotificationSystem
+                userId={currentUser._id}
+                isLoading={userLoading}
+              />
+            </li>
+          )}
           {/* Authentication */}
           <li>
             {currentUser ? (

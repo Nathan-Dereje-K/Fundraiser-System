@@ -3,6 +3,7 @@ import {
   useCampaigns,
   useUpdateCampaign,
   useDeleteCampaign,
+  useMyCampaigns,
 } from "../../hooks/useCampaign";
 import {
   Layout,
@@ -50,7 +51,7 @@ const CampaignDashboard = () => {
   const statisticsRef = useRef(null);
   const historyRef = useRef(null);
 
-  const { data: campaigns, isLoading, isError, error } = useCampaigns();
+  const { data: campaigns, isLoading, isError, error } = useMyCampaigns();
   const updateCampaignMutation = useUpdateCampaign();
   const deleteCampaignMutation = useDeleteCampaign();
 

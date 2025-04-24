@@ -417,7 +417,9 @@ const CampaignDetails = () => {
                             className="flex justify-between items-center"
                           >
                             <span className="text-gray-600">
+                              {transaction.method !== "local" ? "$" : ""}
                               {transaction.amount}
+                              {transaction.method === "local" ? " ETB" : ""}
                             </span>
                             <span
                               className={`text-${
@@ -445,7 +447,7 @@ const CampaignDetails = () => {
               )}
 
               {activeTab === "transactions" && (
-                <DonationHistory campaignName={campaign.name} />
+                <DonationHistory campaignId={id} />
               )}
             </motion.div>
           </div>

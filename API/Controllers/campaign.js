@@ -124,11 +124,11 @@ exports.putCampaign = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`Campaign not found!`, 404));
   }
 
-  if (campaign.userId.toString() !== req.user.id) {
-    return next(
-      new ErrorResponse(`Not authorized to update this campaign`, 403)
-    );
-  }
+  // if (campaign.userId.toString() !== req.user.id) {
+  //   return next(
+  //     new ErrorResponse(`Not authorized to update this campaign`, 403)
+  //   );
+  // }
 
   const updatedCampaign = await Campaign.findByIdAndUpdate(
     req.params.id,
@@ -149,11 +149,11 @@ exports.deleteCampaign = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`Campaign not found!`, 404));
   }
 
-  if (campaign.userId.toString() !== req.user.id) {
-    return next(
-      new ErrorResponse(`Not authorized to delete this campaign`, 403)
-    );
-  }
+  // if (campaign.userId.toString() !== req.user.id) {
+  //   return next(
+  //     new ErrorResponse(`Not authorized to delete this campaign`, 403)
+  //   );
+  // }
 
   await campaign.deleteOne();
   res.status(200).json({ success: true, data: {} });
@@ -193,4 +193,32 @@ exports.getMyCampaigns = asyncHandler(async (req, res) => {
     pages: Math.ceil(total / limit),
     data: campaigns,
   });
+});
+
+exports.searchCampaigns = asyncHandler(async (req, res) => {
+  try {
+    const searchTerm = req.query.q;
+
+    if (!searchTerm || searchTerm.length < 2) {
+      return res.json([]);
+    }
+
+    const campaigns = await Campaign.find({
+      status: "approved",
+      $or: [
+        { title: { $regex: searchTerm, $options: "i" } },
+        { description: { $regex: searchTerm, $options: "i" } },
+      ],
+    })
+      .select("title slug description category")
+      .limit(10)
+      .sort({ title: 1 });
+
+    res.json(campaigns);
+  } catch (error) {
+    console.error("Search error:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while searching campaigns" });
+  }
 });

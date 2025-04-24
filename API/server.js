@@ -26,6 +26,9 @@ const morgan = require("morgan");
 const errorHandler = require("./Middleware/error");
 
 // Connect to DB and setup change streams
+connectDB().then(() => {
+  setupChangeStreams(mongoose.connection);
+});
 connectDB();
 
 if (process.env.NODE_ENV === "development") {

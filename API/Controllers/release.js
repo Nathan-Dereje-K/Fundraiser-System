@@ -77,7 +77,7 @@ exports.suspendAndReallocate = asyncHandler(async (req, res, next) => {
       );
     }
 
-    targetCampaign.currentAmount += parseFloat(amount);
+    targetCampaign.raisedAmount += parseFloat(amount);
     await targetCampaign.save();
 
     await Transaction.create({
@@ -95,10 +95,7 @@ exports.suspendAndReallocate = asyncHandler(async (req, res, next) => {
     });
   }
 
-  campaign.raisedAmount = 0;
-  campaign.status = "suspended";
-  campaign.releaseStatus = "suspended";
-  await campaign.save();
+  await campaign.addReallocation(allocations);
   res.status(200).json({ success: true, data: campaign });
 });
 
