@@ -81,6 +81,21 @@ const campaignSchema = new mongoose.Schema(
     link: [{ type: String }],
 
     createdAt: { type: Date, default: Date.now },
+    metadata: {
+      reallocations: {
+        type: [
+          {
+            reallocatedCampaignId: {
+              type: mongoose.Schema.Types.ObjectId,
+              ref: "Campaign", // Reference to the campaign where funds are reallocated
+            },
+            reallocatedAmount: { type: Number, required: true },
+            reallocationDate: { type: Date, default: Date.now },
+          },
+        ],
+        default: [], // Default to an empty array if no reallocations have occurred
+      },
+    },
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
@@ -97,5 +112,19 @@ campaignSchema.pre("save", function (next) {
   }
   next();
 });
+campaignSchema.methods.addReallocation = async function (allocations) {
+  for (const [campaignId, amount] of Object.entries(allocations)) {
+    this.metadata.reallocations.push({
+      reallocatedCampaignId: campaignId,
+      reallocatedAmount: amount,
+      reallocationDate: new Date(),
+    });
+  }
 
+  // Deduct the reallocated amount from the currentAmount
+  this.raisedAmount = 0;
+  this.status = "suspended";
+  this.releaseStatus = "suspended";
+  await this.save();
+};
 module.exports = mongoose.model("Campaign", campaignSchema);

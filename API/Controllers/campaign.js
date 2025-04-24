@@ -124,11 +124,11 @@ exports.putCampaign = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`Campaign not found!`, 404));
   }
 
-  if (campaign.userId.toString() !== req.user.id) {
-    return next(
-      new ErrorResponse(`Not authorized to update this campaign`, 403)
-    );
-  }
+  // if (campaign.userId.toString() !== req.user.id) {
+  //   return next(
+  //     new ErrorResponse(`Not authorized to update this campaign`, 403)
+  //   );
+  // }
 
   const updatedCampaign = await Campaign.findByIdAndUpdate(
     req.params.id,
@@ -149,11 +149,11 @@ exports.deleteCampaign = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`Campaign not found!`, 404));
   }
 
-  if (campaign.userId.toString() !== req.user.id) {
-    return next(
-      new ErrorResponse(`Not authorized to delete this campaign`, 403)
-    );
-  }
+  // if (campaign.userId.toString() !== req.user.id) {
+  //   return next(
+  //     new ErrorResponse(`Not authorized to delete this campaign`, 403)
+  //   );
+  // }
 
   await campaign.deleteOne();
   res.status(200).json({ success: true, data: {} });

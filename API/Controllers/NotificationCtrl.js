@@ -8,9 +8,9 @@ const mongoose = require("mongoose");
 exports.getUserNotifications = asyncHandler(async (req, res) => {
   // Authorization check (user can only access their own notifications)
   if (req.params.userId !== req.user.id) {
-    return res.status(403).json({ 
+    return res.status(403).json({
       status: "error",
-      message: "Unauthorized access to notifications" 
+      message: "Unauthorized access to notifications",
     });
   }
 
@@ -23,8 +23,8 @@ exports.getUserNotifications = asyncHandler(async (req, res) => {
     status: "success",
     data: {
       notifications,
-      unreadCount: notifications.filter(n => !n.read).length
-    }
+      unreadCount: notifications.filter((n) => !n.read).length,
+    },
   });
 });
 
@@ -34,12 +34,12 @@ exports.getUserNotifications = asyncHandler(async (req, res) => {
 exports.getUnreadCount = asyncHandler(async (req, res) => {
   const count = await Notification.countDocuments({
     userId: req.user.id,
-    read: false
+    read: false,
   });
 
-  res.status(200).json({ 
-    status: "success", 
-    data: { count } 
+  res.status(200).json({
+    status: "success",
+    data: { count },
   });
 });
 
@@ -48,9 +48,9 @@ exports.getUnreadCount = asyncHandler(async (req, res) => {
 // @access  Private
 exports.markAsRead = asyncHandler(async (req, res) => {
   const notification = await Notification.findOneAndUpdate(
-    { 
-      _id: req.params.id, 
-      userId: req.user.id // Ensures user owns the notification
+    {
+      _id: req.params.id,
+      userId: req.user.id, // Ensures user owns the notification
     },
     { $set: { read: true } },
     { new: true }
@@ -59,13 +59,13 @@ exports.markAsRead = asyncHandler(async (req, res) => {
   if (!notification) {
     return res.status(404).json({
       status: "error",
-      message: "Notification not found"
+      message: "Notification not found",
     });
   }
 
   res.status(200).json({
     status: "success",
-    data: { notification }
+    data: { notification },
   });
 });
 
@@ -75,19 +75,19 @@ exports.markAsRead = asyncHandler(async (req, res) => {
 exports.deleteNotification = asyncHandler(async (req, res) => {
   const notification = await Notification.findOneAndDelete({
     _id: req.params.id,
-    userId: req.user.id
+    userId: req.user.id,
   });
 
   if (!notification) {
     return res.status(404).json({
       status: "error",
-      message: "Notification not found"
+      message: "Notification not found",
     });
   }
 
   res.status(200).json({
     status: "success",
-    message: "Notification deleted successfully"
+    message: "Notification deleted successfully",
   });
 });
 
@@ -103,11 +103,23 @@ exports.createNotification = asyncHandler(async (req, res) => {
     type,
     campaignId,
     link,
-    read: false
+    read: false,
   });
 
   res.status(201).json({
     status: "success",
-    data: { notification }
+    data: { notification },
+  });
+});
+
+exports.markAllAsRead = asyncHandler(async (req, res) => {
+  console.log("Marking all notifications as read...");
+  await Notification.updateMany(
+    { userId: req.user.id },
+    { $set: { read: true } }
+  );
+  res.status(200).json({
+    status: "success",
+    message: "All notifications marked as read",
   });
 });

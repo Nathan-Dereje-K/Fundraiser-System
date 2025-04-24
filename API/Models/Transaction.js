@@ -39,6 +39,14 @@ const transactionSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  meta: {
+    suspendedCampaignId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Campaign",
+    },
+    suspendedCampaignTitle: { type: String },
+    targetCampaignTitle: { type: String },
+  },
 });
 
 module.exports = mongoose.model("Transaction", transactionSchema);

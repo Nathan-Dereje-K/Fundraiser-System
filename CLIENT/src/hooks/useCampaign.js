@@ -5,6 +5,7 @@ import {
   postCampaign,
   putCampaign,
   deleteCampaign,
+  getMyCampaigns,
 } from "../api/campaignApi";
 
 // Existing query hooks
@@ -50,11 +51,19 @@ export const useDeleteCampaign = () => {
   return useMutation({
     mutationFn: (id) => deleteCampaign(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["campaigns"] });
+      queryClient.invalidateQueries(["campaigns"]);
     },
     onError: (error) => {
       console.error("Delete failed:", error);
       // Add error toast here if needed
     },
+  });
+};
+
+export const useMyCampaigns = () => {
+  return useQuery({
+    queryKey: ["myCampaigns"],
+    queryFn: () => getMyCampaigns(),
+    refetchOnWindowFocus: false,
   });
 };
