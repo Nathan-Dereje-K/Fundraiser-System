@@ -120,18 +120,18 @@ const CampaignDashboard = () => {
     });
   };
 
-  const handleReleaseClick = (campaign) => {
-    if (
-      window.confirm(
-        "Are you sure you want to request a release for this campaign?"
-      )
-    ) {
-      updateCampaignMutation.mutate({
-        id: campaign._id,
-        releaseStatus: "requested",
-      });
-    }
-  };
+  // const handleReleaseClick = (campaign) => {
+  //   if (
+  //     window.confirm(
+  //       "Are you sure you want to request a release for this campaign?"
+  //     )
+  //   ) {
+  //     updateCampaignMutation.mutate({
+  //       id: campaign._id,
+  //       releaseStatus: "requested",
+  //     });
+  //   }
+  // };
 
   const handleDeleteCampaign = (id) => {
     toast.info(

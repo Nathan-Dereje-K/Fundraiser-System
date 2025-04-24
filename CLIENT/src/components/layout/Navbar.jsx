@@ -17,17 +17,39 @@ const Navbar = () => {
 
   const isActive = (path) => location.pathname === path;
 
-  // Check if the user is an admin
-  const isAdmin = loggedInUser?.role === "admin";
-
   // Define navigation links based on the user's role
   const navLinks = [];
-  if (isAdmin) {
-    navLinks.push(
-      { path: "/dashboard", label: "Dashboard" },
-      { path: "/users", label: "User Management", icon: Users }
-    );
+
+  if (loggedInUser) {
+    // Role-specific dashboard routing
+    let dashboardPath = "/";
+    switch (loggedInUser.role) {
+      case "admin":
+        dashboardPath = "/dashboard";
+        break;
+      case "user":
+        dashboardPath = "/campaign_panel";
+        break;
+      case "manager":
+        dashboardPath = "/campaign_manager";
+        break;
+      case "validator":
+        dashboardPath = "/validator_panel";
+        break;
+      default:
+        dashboardPath = "/";
+    }
+
+    // Add dashboard link
+    navLinks.push({ path: dashboardPath, label: "Dashboard" });
   }
+
+  // Admin-specific links
+  if (loggedInUser?.role === "admin") {
+    navLinks.push({ path: "/users", label: "User Management", icon: Users });
+  }
+
+  // Add sign-in link for non-logged-in users
   if (!loggedInUser) {
     navLinks.push({ path: "/signin", label: "Sign In", icon: User });
   }

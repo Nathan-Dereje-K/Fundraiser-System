@@ -24,7 +24,7 @@ import Loader from "../../components/ui/Loader";
 import { getPendingCampaigns } from "../../api/campaignApi";
 import { useUpdateCampaign } from "../../hooks/useCampaign";
 import { toast } from "react-toastify";
-import Navbar from "../../components/layout/Navbar";
+// import Navbar from "../../components/layout/Navbar";
 
 const categoryIcons = {
   Medical: HeartPulse,
@@ -40,7 +40,7 @@ const cardVariants = {
 };
 
 const sidebarVariants = {
-  expanded: { width: 280 },
+  expanded: { width: 340 },
   collapsed: { width: 84 },
 };
 
@@ -106,8 +106,7 @@ const ValidatorPage = () => {
 
   return (
     <div>
-      <Navbar />
-      <div className="flex h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+      <div className=" flex h-screen bg-gradient-to-br from-gray-50 to-blue-50">
         {/* Sidebar */}
         <motion.aside
           initial="expanded"
@@ -231,7 +230,7 @@ const ValidatorPage = () => {
           </nav>
         </motion.aside>
         {/* Main Content */}
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 overflow-x-hidden">
           <div className="p-6 sm:p-8 max-w-7xl mx-auto">
             <AnimatePresence mode="wait">
               {!selectedCampaign ? (
@@ -298,7 +297,8 @@ const ValidatorPage = () => {
                       <h3 className="text-lg font-semibold text-gray-900">
                         Campaign Overview
                       </h3>
-                      <p className="text-gray-600 leading-relaxed whitespace-pre-line">
+                      <p className="text-gray-600 leading-relaxed whitespace-pre-line break-words overflow-hidden max-w-full">
+                        {" "}
                         {selectedCampaign.description ||
                           "No description provided"}
                       </p>

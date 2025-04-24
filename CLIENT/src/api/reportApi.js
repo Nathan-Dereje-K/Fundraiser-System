@@ -7,12 +7,12 @@ export const postReport = async (formData) => {
   return response.data.report;
 };
 
-export const getReportsByUserId = (userId) => {
-  const response = API.get(`/reports/${userId}`, { withCredentials: true });
-  return response.data.reports;
+export const getAllReports = async () => {
+  const response = await API.get("/reports");
+  return response.data.data;
 };
 
-export const getAllReports = () => {
-  const response = API.get("/reports", { withCredentials: true });
-  return response.data.reports;
+export const deleteReport = async (id) => {
+  const response = await API.delete(`/reports/${id}`);
+  return response.data.data;
 };
