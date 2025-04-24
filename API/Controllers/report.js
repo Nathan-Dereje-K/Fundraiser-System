@@ -36,36 +36,14 @@ const createReport = async (req, res) => {
   }
 };
 
-// Get reports based on userId
-const getReportsByUserId = async (req, res) => {
-  try {
-    const userId = req.user.id;
-
-    // Fetch reports where the reportedBy field matches the userId
-    const reports = await Report.find({ reportedBy: userId }).sort({
-      createdAt: -1,
-    });
-
-    if (!reports || reports.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No reports found for this user",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Reports retrieved successfully",
-      reports,
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: "Something went wrong" });
-  }
-};
 const getAllReports = async (req, res) => {
   try {
-    const reports = await Report.find().sort({ createdAt: -1 });
+    const reports = await Report.find()
+      .populate("reportedBy", "name")
+      .populate("campaignId", "title") // Populate the reportedBy field with the user's email
+      .sort({ createdAt: -1 });
+
+    const count = reports.length;
 
     if (!reports || reports.length === 0) {
       return res.status(404).json({
@@ -77,7 +55,31 @@ const getAllReports = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Reports retrieved successfully",
-      reports,
+      count,
+      data: reports,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Something went wrong" });
+  }
+};
+
+// delete a report
+const deleteReport = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const report = await Report.findByIdAndDelete(id);
+
+    if (!report) {
+      return res.status(404).json({
+        success: false,
+        message: "Report not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Report deleted successfully",
     });
   } catch (err) {
     console.error(err);
@@ -87,6 +89,6 @@ const getAllReports = async (req, res) => {
 
 module.exports = {
   createReport,
-  getReportsByUserId,
   getAllReports,
+  deleteReport,
 };
