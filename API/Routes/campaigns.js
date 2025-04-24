@@ -6,6 +6,7 @@ const {
   putCampaign,
   deleteCampaign,
   getCampaign,
+  getActiveCampaigns,
 } = require("../Controllers/campaign");
 const { upload } = require("../Config/multerConfig");
 const authMiddleware = require("../Middleware/authMiddleware");
@@ -40,5 +41,6 @@ router
     putCampaign
   )
   .delete(authMiddleware, deleteCampaign);
+router.route("/active/:id").get(getActiveCampaigns);
 
 module.exports = router;

@@ -1,6 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const { createReport } = require("../Controllers/report"); // Your controller function
+const {
+  createReport,
+  getReportsByUserId,
+  getAllReports,
+} = require("../Controllers/report"); // Your controller function
 const { upload } = require("../Config/multerConfig"); // Your multer setup
 const authMiddleware = require("../Middleware/authMiddleware"); // Your auth middleware
 
@@ -13,5 +17,7 @@ router.post(
   ]),
   createReport
 );
+router.route("/").get(authMiddleware, getAllReports);
+router.route("/:id").get(authMiddleware, getReportsByUserId);
 
 module.exports = router;

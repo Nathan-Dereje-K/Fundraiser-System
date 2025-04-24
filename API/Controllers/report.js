@@ -1,5 +1,6 @@
 const Report = require("../Models/Report");
 
+// Create a new report
 const createReport = async (req, res) => {
   try {
     const { campaignId, reason } = req.body;
@@ -35,6 +36,57 @@ const createReport = async (req, res) => {
   }
 };
 
+// Get reports based on userId
+const getReportsByUserId = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Fetch reports where the reportedBy field matches the userId
+    const reports = await Report.find({ reportedBy: userId }).sort({
+      createdAt: -1,
+    });
+
+    if (!reports || reports.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No reports found for this user",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Reports retrieved successfully",
+      reports,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Something went wrong" });
+  }
+};
+const getAllReports = async (req, res) => {
+  try {
+    const reports = await Report.find().sort({ createdAt: -1 });
+
+    if (!reports || reports.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No reports found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Reports retrieved successfully",
+      reports,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Something went wrong" });
+  }
+};
+
 module.exports = {
   createReport,
+  getReportsByUserId,
+  getAllReports,
 };

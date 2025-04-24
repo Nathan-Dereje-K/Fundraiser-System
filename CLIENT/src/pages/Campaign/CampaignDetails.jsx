@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { useTransactionOfUserForCampaign } from "../../hooks/useTransaction";
 import { useCampaign } from "../../hooks/useCampaign";
+import { useCreateReport } from "../../hooks/useReport";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FileText,
@@ -16,13 +17,18 @@ import {
 } from "lucide-react";
 import Loader from "../../components/ui/Loader";
 import Donate from "../Donate/Donate";
+import DonationHistory from "./DonationHistory";
 import {
   getTranStatusBraintree,
   getTranStatusChapa,
 } from "../../api/donateApi";
-import axios from "axios";
+import { toast } from "react-toastify";
 
 const CampaignDetails = () => {
+  const isOwner = false;
+  const [activeTab, setActiveTab] = useState(
+    isOwner ? "transactions" : "donate"
+  );
   const { categoryName, id } = useParams();
   const [activeMedia, setActiveMedia] = useState("images");
   const { user } = useAuth();
@@ -30,17 +36,16 @@ const CampaignDetails = () => {
   const [reportReason, setReportReason] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [videoFile, setVideoFile] = useState(null);
-  const [loading, setLoading] = useState(false);
 
   // React Query hooks
   const { data: campaign, isLoading, isError, error } = useCampaign(id);
   const { data: transactions } = useTransactionOfUserForCampaign(
     id,
-    user?.userId // Using user from useAuth
+    user?.userId
   );
-  useEffect(() => {
-    console.log(user);
-  }, []);
+  const { mutateAsync: submitReport, isLoading: isSubmitting } =
+    useCreateReport();
+
   const progressPercentage = campaign
     ? Math.round((campaign.raisedAmount / campaign.goalAmount) * 100)
     : 0;
@@ -63,7 +68,7 @@ const CampaignDetails = () => {
       alert("Please provide a reason for reporting.");
       return;
     }
-    setLoading(true);
+
     const formData = new FormData();
     formData.append("campaignId", id);
     formData.append("reason", reportReason);
@@ -71,20 +76,15 @@ const CampaignDetails = () => {
     if (videoFile) formData.append("video", videoFile);
 
     try {
-      await axios.post("http://localhost:5000/api/reports", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-        withCredentials: true,
-      });
-      alert("Report submitted successfully!");
+      await submitReport(formData);
+      toast.success("Campaign reported successfuly !");
       setIsReportModalOpen(false);
       setReportReason("");
       setImageFile(null);
       setVideoFile(null);
     } catch (error) {
       console.error("Error submitting report:", error);
-      alert("Failed to submit the report. Please try again.");
-    } finally {
-      setLoading(false);
+      toast.error("Failed to submit report. Please try again.");
     }
   };
 
@@ -162,23 +162,31 @@ const CampaignDetails = () => {
                 <Goal className="w-4 h-4 mr-2" />
                 {campaign.status.toUpperCase()}
               </div>
-              {/* Report Button or Sign In Prompt */}
               {user.role === "user" ? (
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
                   onClick={() => setIsReportModalOpen(true)}
-                  className="flex items-center bg-white/10 px-3 py-1 rounded-full text-red-500 hover:bg-white/20 transition-colors"
+                  className="flex items-center bg-white px-3 py-1 rounded-full text-red-500 border border-red-500 hover:border-blue-800 hover:text-blue-800 transition-all duration-300 shadow-md hover:shadow-lg"
                 >
                   <AlertCircle className="w-4 h-4 mr-2" />
                   Report Campaign
-                </button>
+                </motion.button>
               ) : (
-                <Link
-                  to="/signin"
-                  className="flex items-center bg-white/10 px-3 py-1 rounded-full text-red-500 hover:bg-white/20 transition-colors"
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
                 >
-                  <AlertCircle className="w-4 h-4 mr-2" />
-                  Sign In to Report
-                </Link>
+                  <Link
+                    to="/signin"
+                    className="flex items-center bg-white px-3 py-1 rounded-full text-red-500 hover:bg-white/20 hover:text-blue-800 transition-all duration-300 shadow-sm hover:shadow-md"
+                  >
+                    <AlertCircle className="w-4 h-4 mr-2" />
+                    Sign In to Report
+                  </Link>
+                </motion.div>
               )}
             </div>
           </motion.div>
@@ -346,64 +354,98 @@ const CampaignDetails = () => {
               <h2 className="text-2xl font-bold text-center mb-6">
                 Support This Cause
               </h2>
-              <div className="space-y-5">
-                <div className="bg-orange-50/50 rounded-xl p-4 border border-orange-100">
-                  <p className="text-center text-orange-700 font-medium text-sm">
-                    Your contribution can create real change
-                  </p>
-                </div>
-                <Donate campaignId={campaign._id} />
-                <div className="pt-4 space-y-3">
-                  <div className="flex justify-between items-center text-gray-600">
-                    <span className="text-sm">Campaign Goal</span>
-                    <span className="font-medium">
-                      ETB {campaign.goalAmount.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center text-orange-600">
-                    <span className="text-sm">Amount Raised</span>
-                    <span className="font-semibold">
-                      ETB {campaign.raisedAmount.toLocaleString()}
-                    </span>
-                  </div>
-                </div>
+              {/* Tab Navigation */}
+              <div className="flex border-b border-gray-200 mb-6">
+                {!isOwner && (
+                  <button
+                    onClick={() => setActiveTab("donate")}
+                    className={`flex-1 py-2 font-medium text-center ${
+                      activeTab === "donate"
+                        ? "text-orange-500 border-b-2 border-orange-500"
+                        : "text-gray-500 hover:text-gray-700"
+                    }`}
+                  >
+                    Donate
+                  </button>
+                )}
+                <button
+                  onClick={() => setActiveTab("transactions")}
+                  className={`flex-1 py-2 font-medium text-center ${
+                    activeTab === "transactions"
+                      ? "text-orange-500 border-b-2 border-orange-500"
+                      : "text-gray-500 hover:text-gray-700"
+                  }`}
+                >
+                  Transaction History
+                </button>
               </div>
-              {transactions?.length > 0 && (
+              {activeTab === "donate" && (
                 <>
-                  <h2 className="flex items-center mt-2 text-2xl font-semibold mb-4">
-                    <BadgeDollarSign className="w-6 h-6 mr-2 text-orange-600" />
-                    My Transactions
-                  </h2>
-                  <ul className="space-y-4">
-                    {transactions.map((transaction, index) => (
-                      <li
-                        key={index}
-                        className="flex justify-between items-center"
-                      >
-                        <span className="text-gray-600">
-                          {transaction.amount}
+                  <div className="space-y-5">
+                    <div className="bg-orange-50/50 rounded-xl p-4 border border-orange-100">
+                      <p className="text-center text-orange-700 font-medium text-sm">
+                        Your contribution can create real change
+                      </p>
+                    </div>
+
+                    <Donate campaignId={campaign._id} />
+                    <div className="pt-4 space-y-3">
+                      <div className="flex justify-between items-center text-gray-600">
+                        <span className="text-sm">Campaign Goal</span>
+                        <span className="font-medium">
+                          ETB {campaign.goalAmount.toLocaleString()}
                         </span>
-                        <span
-                          className={`text-${
-                            transaction.status === "pending"
-                              ? "orange"
-                              : transaction.status === "approved"
-                              ? "green"
-                              : "red"
-                          }-600`}
-                        >
-                          {transaction.status}
+                      </div>
+                      <div className="flex justify-between items-center text-orange-600">
+                        <span className="text-sm">Amount Raised</span>
+                        <span className="font-semibold">
+                          ETB {campaign.raisedAmount.toLocaleString()}
                         </span>
-                        <button
-                          className="bg-transparent hover:bg-orange-500 hover:text-white text-orange-500 font-bold py-2 px-4 rounded"
-                          onClick={() => handleRefresh(transaction)}
-                        >
-                          <RefreshCcw className="w-4 h-4" />
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
+                      </div>
+                    </div>
+                  </div>
+                  {transactions?.length > 0 && (
+                    <>
+                      <h2 className="flex items-center mt-2 text-2xl font-semibold mb-4">
+                        <BadgeDollarSign className="w-6 h-6 mr-2 text-orange-600" />
+                        My Transactions
+                      </h2>
+                      <ul className="space-y-4">
+                        {transactions.map((transaction, index) => (
+                          <li
+                            key={index}
+                            className="flex justify-between items-center"
+                          >
+                            <span className="text-gray-600">
+                              {transaction.amount}
+                            </span>
+                            <span
+                              className={`text-${
+                                transaction.status === "pending"
+                                  ? "orange"
+                                  : transaction.status === "approved"
+                                  ? "green"
+                                  : "red"
+                              }-600`}
+                            >
+                              {transaction.status}
+                            </span>
+                            <button
+                              className="bg-transparent hover:bg-orange-500 hover:text-white text-orange-500 font-bold py-2 px-4 rounded"
+                              onClick={() => handleRefresh(transaction)}
+                            >
+                              <RefreshCcw className="w-4 h-4" />
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
                 </>
+              )}
+
+              {activeTab === "transactions" && (
+                <DonationHistory campaignName={campaign.name} />
               )}
             </motion.div>
           </div>
@@ -417,7 +459,7 @@ const CampaignDetails = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            className="fixed inset-0 bg-black/80 bg-opacity-50 flex items-center justify-center z-50"
           >
             <motion.div
               initial={{ scale: 0.9 }}
@@ -445,12 +487,14 @@ const CampaignDetails = () => {
                     Upload Evidence (Optional)
                   </label>
                   <div className="space-y-2">
+                    <label htmlFor="">Image</label>
                     <input
                       type="file"
                       accept="image/*"
                       onChange={(e) => setImageFile(e.target.files[0])}
                       className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                     />
+                    <label htmlFor="">Video</label>
                     <input
                       type="file"
                       accept="video/*"
@@ -469,10 +513,10 @@ const CampaignDetails = () => {
                   </button>
                   <button
                     type="submit"
-                    disabled={loading}
+                    disabled={isSubmitting}
                     className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors disabled:bg-red-300"
                   >
-                    {loading ? "Submitting..." : "Submit Report"}
+                    {isSubmitting ? "Submitting..." : "Submit Report"}
                   </button>
                 </div>
               </form>

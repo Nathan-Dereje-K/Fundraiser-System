@@ -10,6 +10,7 @@ import {
   Settings,
   ChevronsLeft,
   ChevronsRight,
+  Wallet,
   LayoutDashboard,
   MessageSquare,
   Calendar,
@@ -34,8 +35,9 @@ const Sidebar = ({ isCollapsed, onCollapse }) => {
     // { path: "/problems", icon: Flag, label: "Problems" },
     // { path: "/contests", icon: Calendar, label: "Contests" },
     // { path: "/roadmap", icon: LayoutDashboard, label: "Roadmap" },
-    { path: "/users", icon: Users, label: "Users" },
+    // { path: "/users", icon: Users, label: "Users" },
     { path: "/profile", icon: User, label: "Profile" },
+    { path: "/withdraw", icon: Wallet, label: "Withdraw" },
     // { path: "/forum", icon: MessageSquare, label: "Forum" },
     // { path: "/sessions", icon: Calendar, label: "Sessions" },
   ];

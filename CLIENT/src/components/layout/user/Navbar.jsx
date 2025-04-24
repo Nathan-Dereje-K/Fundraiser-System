@@ -74,6 +74,7 @@ const Navbar = () => {
           <li className="hover:text-orange-500 cursor-pointer transition-colors">
             Impact
           </li>
+
           <li>
             <motion.button
               whileHover={{ scale: 1.1 }}

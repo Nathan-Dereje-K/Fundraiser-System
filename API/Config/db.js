@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+require('colors');
 
 const connectDB = async () => {
   try {
@@ -7,13 +8,9 @@ const connectDB = async () => {
       `MongoDB Connected: ${mongoose.connection.host}`.cyan.bold.underline
     );
   } catch (error) {
-    {
-      console.error(
-        "MongoDB Connection Error:",
-        error.message.red.bold.underline
-      );
-      process.exit(1);
-    }
+    console.error(`❌ MongoDB Connection Error: ${error.message}`.red.bold);
+    process.exit(1);
   }
 };
+
 module.exports = connectDB;

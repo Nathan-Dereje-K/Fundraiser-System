@@ -14,6 +14,7 @@ import ResetPassword from "./pages/auth/ResetPassword";
 import VerifyEmail from "./pages/auth/VerifyEmail";
 import PageError from "./pages/PageError";
 import CampaignManager from "./pages/Manager/CampaignManager";
+import WithdrawPage from "./pages/Withdraw/WithdrawPage";
 import ValidatorPanel from "./pages/validator/ValidatorPanel";
 
 // User pages
@@ -30,6 +31,29 @@ import CampaignPanel from "./pages/Campaign/CampaignPanel";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+const userRoutes = [
+  {
+    path: "/dashboard",
+    component: Dashboard,
+  },
+  {
+    path: "/users",
+    component: UserManagement,
+  },
+  {
+    path: "/profile",
+    component: ProfileManagement,
+  },
+  {
+    path: "/settings",
+    component: Settings,
+  },
+  {
+    path: "/withdraw",
+    component: WithdrawPage,
+  },
+];
+
 function App() {
   return (
     <AuthProvider>
@@ -44,7 +68,6 @@ function App() {
             <Route path="/forgotpassword" element={<ForgetPassword />} />
             <Route path="/resetpassword" element={<ResetPassword />} />
             <Route path="/verifyemail" element={<VerifyEmail />} />
-
             <Route path="/campaign_panel" element={<CampaignPanel />} />
             <Route path="/campaign_creation" element={<CampaignCreation />} />
             <Route path="/validator_panel" element={<ValidatorPanel />} />
@@ -57,38 +80,17 @@ function App() {
             />
 
             <Route path="*" element={<PageError />} />
-            <Route
-              path="/dashboard"
-              element={
-                <Layout>
-                  <Dashboard />
-                </Layout>
-              }
-            />
-            <Route
-              path="/users"
-              element={
-                <Layout>
-                  <UserManagement />
-                </Layout>
-              }
-            />
-            <Route
-              path="/profile"
-              element={
-                <Layout>
-                  <ProfileManagement />
-                </Layout>
-              }
-            />
-            <Route
-              path="/settings"
-              element={
-                <Layout>
-                  <Settings />
-                </Layout>
-              }
-            />
+            {userRoutes.map(({ path, component: Component }) => (
+              <Route
+                key={path}
+                path={path}
+                element={
+                  <Layout>
+                    <Component />
+                  </Layout>
+                }
+              />
+            ))}
           </Routes>
           <ToastContainer
             position="bottom-right"

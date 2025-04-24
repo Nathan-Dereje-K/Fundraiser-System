@@ -79,6 +79,9 @@ exports.verifyPayment = asyncHandler(async (req, res) => {
       return res.status(404).json({ error: "Campaign not found" });
     }
     campaign.raisedAmount += transaction.amount;
+    if (campaign.raisedAmount >= campaign.goalAmount) {
+      campaign.status = "completed";
+    }
     await campaign.save();
   }
 
@@ -105,6 +108,9 @@ exports.webhookVerify = asyncHandler(async (req, res) => {
         return res.status(404).json({ error: "Campaign not found" });
       }
       campaign.raisedAmount += transaction.amount;
+      if (campaign.raisedAmount >= campaign.goalAmount) {
+        campaign.status = "completed";
+      }
       await campaign.save();
     }
     res.status(200).json({ message: "Payment confirmed" });
@@ -132,6 +138,9 @@ exports.getTransactionStatusChapa = asyncHandler(async (req, res) => {
           return res.status(404).json({ error: "Campaign not found" });
         }
         campaign.raisedAmount += transaction.amount;
+        if (campaign.raisedAmount >= campaign.goalAmount) {
+          campaign.status = "completed";
+        }
         await campaign.save();
       }
     } catch (error) {}
@@ -181,6 +190,9 @@ exports.processPayment = asyncHandler(async (req, res) => {
         return res.status(404).json({ error: "Campaign not found" });
       }
       campaign.raisedAmount += ONE_DOLLAR_IN_ETHIOPIA_BIRR * amount;
+      if (campaign.raisedAmount >= campaign.goalAmount) {
+        campaign.status = "completed";
+      }
       await campaign.save();
     }
     res.status(200).json(result);
@@ -204,6 +216,9 @@ exports.getTransactionStatus = asyncHandler(async (req, res) => {
       return res.status(404).json({ error: "Campaign not found" });
     }
     campaign.raisedAmount += ONE_DOLLAR_IN_ETHIOPIA_BIRR * transaction.amount;
+    if (campaign.raisedAmount >= campaign.goalAmount) {
+      campaign.status = "completed";
+    }
     await campaign.save();
   }
   res.status(200).json(transaction);
