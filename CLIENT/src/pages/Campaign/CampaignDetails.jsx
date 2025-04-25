@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { useTransactionOfUserForCampaign } from "../../hooks/useTransaction";
@@ -38,6 +38,9 @@ const CampaignDetails = () => {
   const [videoFile, setVideoFile] = useState(null);
 
   // React Query hooks
+
+  useEffect(() => {}, []);
+
   const { data: campaign, isLoading, isError, error } = useCampaign(id);
   const { data: transactions } = useTransactionOfUserForCampaign(
     id,
@@ -162,7 +165,7 @@ const CampaignDetails = () => {
                 <Goal className="w-4 h-4 mr-2" />
                 {campaign.status.toUpperCase()}
               </div>
-              {user.role === "user" ? (
+              {user?.role === "user" ? (
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -275,7 +278,7 @@ const CampaignDetails = () => {
                 <FileText className="w-6 h-6 mr-2 text-orange-600" />
                 Campaign Story
               </h2>
-              <p className="text-gray-600 leading-relaxed">
+              <p className="text-gray-600 leading-relaxed max-w-full break-words">
                 {campaign.description}
               </p>
             </motion.div>

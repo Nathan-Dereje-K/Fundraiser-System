@@ -1,46 +1,130 @@
 import { motion } from "framer-motion";
+import { useCampaigns } from "../../hooks/useCampaign";
+import { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+
+const shuffleArray = (array) => {
+  let currentIndex = array.length,
+    randomIndex;
+  while (currentIndex !== 0) {
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex],
+      array[currentIndex],
+    ];
+  }
+  return array;
+};
 
 const FeaturedCampaign = () => {
-  return (
-    <div className="flex flex-col sm:flex-row justify-center items-center gap-8 md:gap-16 w-full h-auto py-4 md:py-8">
-      {/* Image Section */}
-      <div className="w-full md:w-1/2 h-auto relative overflow-hidden rounded-3xl shadow-lg">
-        <img
-          className="w-full h-96 object-cover object-center transition-transform duration-500 transform hover:scale-105"
-          src="https://images.pexels.com/photos/289738/pexels-photo-289738.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-          alt="Featured Campaign - Education"
-          loading="lazy" // Improve performance for images
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50 flex items-end p-6">
-          <p className="text-white font-semibold text-sm sm:text-base">
-            Join us in making education accessible to all!
-          </p>
-        </div>
-      </div>
+  const navigate = useNavigate();
 
-      {/* Content Section */}
-      <div className="w-full md:w-1/2 h-auto flex flex-col gap-4">
-        <h1 className="text-4xl sm:text-5xl font-bold text-gray-800">
-          Featured Campaign
-        </h1>
-        <h2 className="text-3xl sm:text-4xl font-bold text-blue-600">
-          Education
-        </h2>
-        <p className="text-lg sm:text-xl text-gray-600">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Tempora
-          possimus blanditiis tenetur eum, repellendus maiores dolores aperiam
-          nobis consectetur magni porro perferendis mollitia rerum sapiente.
-          Praesentium aut facere quibusdam beatae.
-        </p>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full shadow-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          aria-label="Donate to the Education campaign"
-        >
-          Donate Now
-        </motion.button>
+  // Navigate to the campaign detail page based on category and id
+  const handleNavigate = (id, category) => {
+    navigate(`/category/${category}/${id}`);
+  };
+
+  const { data: apiResponse, isError, isLoading } = useCampaigns();
+
+  const featuredCampaigns = useMemo(() => {
+    const campaignsArray = apiResponse || [];
+
+    if (!Array.isArray(campaignsArray)) return [];
+
+    const approvedCampaigns = campaignsArray.filter(
+      (campaign) => campaign.status === "approved"
+    );
+
+    if (approvedCampaigns.length === 0) return [];
+
+    // Shuffle and pick two random campaigns
+    const shuffledCampaigns = shuffleArray([...approvedCampaigns]);
+    return shuffledCampaigns.slice(0, 2); // Limit to 2 campaigns
+  }, [apiResponse]);
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <p className="text-xl text-gray-500">Loading featured campaigns...</p>
       </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex justify-center items-center h-64 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+        <strong className="font-bold mr-2">Error:</strong>
+        <span className="block sm:inline">
+          Could not load featured campaigns. Please try again later.
+        </span>
+      </div>
+    );
+  }
+
+  if (featuredCampaigns.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-xl text-gray-500">
+          No featured campaigns available right now.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-16 w-full h-auto py-4 md:py-8">
+      {featuredCampaigns.map((campaign, index) => (
+        <div
+          key={index}
+          className="flex flex-col sm:flex-row justify-center items-center gap-8 md:gap-16 w-full h-auto cursor-pointer"
+          onClick={() => handleNavigate(campaign.id, campaign.category)} // Navigate on click of the entire card
+        >
+          {/* Image Section */}
+          <div className="w-full md:w-1/2 h-auto relative overflow-hidden rounded-3xl shadow-lg">
+            <img
+              className="w-full h-96 object-cover object-center transition-transform duration-500 transform hover:scale-105"
+              src={
+                campaign.image?.[0] ||
+                "https://images.pexels.com/photos/289738/pexels-photo-289738.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+              }
+              alt={`Featured Campaign - ${campaign.title}`}
+              loading="lazy"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50 flex items-end p-6">
+              <p className="text-white font-semibold text-sm sm:text-base">
+                {campaign.tagline || "Join us in making a difference!"}
+              </p>
+            </div>
+          </div>
+
+          {/* Content Section */}
+          <div className="w-full md:w-1/2 h-auto flex flex-col gap-4">
+            <h1 className="text-4xl sm:text-5xl font-bold text-gray-800">
+              {campaign.title || "Campaign Support"}
+            </h1>
+            <h2 className="text-3xl sm:text-4xl font-bold text-orange-600">
+              {campaign.category || "General Support"}
+            </h2>
+            <p className="text-lg sm:text-xl text-gray-600 max-w-full break-words">
+              {campaign.description ||
+                "Help us make a meaningful impact in our community. Your support can change lives."}
+            </p>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full shadow-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              aria-label={`Donate to ${campaign.title} campaign`}
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent triggering parent click event
+                handleNavigate(campaign.id, campaign.category);
+              }}
+            >
+              Donate Now
+            </motion.button>
+          </div>
+        </div>
+      ))}
     </div>
   );
 };

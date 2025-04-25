@@ -191,9 +191,6 @@ const Landing = () => {
             <motion.div variants={featuredCampaignVariants}>
               <FeaturedCampaign />
             </motion.div>
-            <motion.div variants={featuredCampaignVariants}>
-              <FeaturedCampaign />
-            </motion.div>
           </div>
         </motion.div>
 

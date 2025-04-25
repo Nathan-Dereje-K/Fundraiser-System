@@ -92,12 +92,12 @@ const Footer = () => {
 
         {/* Bottom Line */}
         <div className="mt-8 border-t border-gray-700 pt-6 text-center text-sm text-gray-400">
-          Made with ❤️ by{" "}
+          Made with ❤️ and ☕ by{" "}
           <a
             href="https://yourwebsite.com"
             className="text-orange-500 hover:underline transition-colors duration-300"
           >
-            Three Nerds
+            A team of Three
           </a>
         </div>
       </div>
