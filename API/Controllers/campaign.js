@@ -68,6 +68,8 @@ exports.getCampaign = asyncHandler(async (req, res, next) => {
 // @Route      POST /api/campaigns
 // @Access     Private
 exports.postCampaign = asyncHandler(async (req, res) => {
+
+  try {
   const userId = req.user.id;
   console.log(userId);
   const { title, description, goalAmount, startDate, endDate, category, link } =
@@ -96,6 +98,11 @@ exports.postCampaign = asyncHandler(async (req, res) => {
   campaign = await campaign.populate("userId", "name email");
 
   res.status(201).json({ success: true, data: campaign });
+}
+  catch (error) {
+    console.error("Error creating campaign:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
 });
 
 // @Desc       Update Campaign
