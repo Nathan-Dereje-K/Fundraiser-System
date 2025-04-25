@@ -1,5 +1,5 @@
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
-import Chapa from "./chapa";
+import Chapa from "./Chapa";
 import Braintree from "./Braintree";
 import { Fragment } from "react";
 import clsx from "clsx";
