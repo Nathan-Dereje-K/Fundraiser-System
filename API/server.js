@@ -11,6 +11,7 @@ const utilRouter = require("./Routes/util");
 const donateRouter = require("./Routes/donate");
 const transactionRouter = require("./Routes/transaction");
 const reportRouter = require("./Routes/report");
+const setupChangeStreams = require("./Services/changeStream");
 
 const notificationRouter = require("./Routes/NotificationRoutes"); // New
 
@@ -29,7 +30,6 @@ const errorHandler = require("./Middleware/error");
 connectDB().then(() => {
   setupChangeStreams(mongoose.connection);
 });
-connectDB();
 
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
@@ -47,9 +47,7 @@ app.use("/api/util", utilRouter);
 app.use("/api/donate", donateRouter);
 app.use("/api/transaction", transactionRouter);
 app.use("/api/reports", reportRouter);
-
 app.use("/api/notifications", notificationRouter);
-
 app.use("/api/release", releaseRouter);
 
 app.use(errorHandler);
