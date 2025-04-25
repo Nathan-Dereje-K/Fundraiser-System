@@ -1,7 +1,7 @@
 import API from "./api";
 
 export const getCampaigns = async () => {
-  const response = await API.get("/campaigns/me");
+  const response = await API.get("/campaigns");
   return response.data.data;
 };
 

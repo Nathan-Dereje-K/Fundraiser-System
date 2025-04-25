@@ -111,7 +111,7 @@ const Report = () => {
               {/* Report Details */}
               <div className="space-y-3">
                 <p className="text-sm text-gray-500">
-                  <span className="font-medium">Campaign ID:</span>{" "}
+                  <span className="font-medium">Campaign Name:</span>{" "}
                   {report.campaignId?.title || "Unknown Campaign"}
                 </p>
                 <p className="text-sm text-gray-500">

@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from "react";
 import {
-  useCampaigns,
   useUpdateCampaign,
   useDeleteCampaign,
   useMyCampaigns,
