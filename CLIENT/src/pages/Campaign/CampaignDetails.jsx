@@ -26,7 +26,8 @@ import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 
 const CampaignDetails = () => {
-  const isOwner = useDoesUserOwnCampaign();
+  const { user, isLoggedIn } = useAuth();
+  const { data: isOwner } = useDoesUserOwnCampaign();
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState(
     isOwner ? "transactions" : "donate"
@@ -36,14 +37,11 @@ const CampaignDetails = () => {
   }, [isOwner]);
   const { categoryName, id } = useParams();
   const [activeMedia, setActiveMedia] = useState("images");
-  const { user, isLoggedIn } = useAuth();
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [reportReason, setReportReason] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [videoFile, setVideoFile] = useState(null);
   // React Query hooks
-
-  useEffect(() => {}, []);
 
   const { data: campaign, isLoading, isError, error } = useCampaign(id);
   const { data: transactions } = useTransactionOfUserForCampaign(

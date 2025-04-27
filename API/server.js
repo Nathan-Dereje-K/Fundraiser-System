@@ -38,7 +38,9 @@ if (process.env.NODE_ENV === "development") {
 
 app.use(cookieParser());
 app.use(express.json());
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(
+  cors({ origin: "https://fundraiser-system.onrender.com", credentials: true })
+);
 
 // Routes
 app.use("/api/campaigns", campaignRouter);

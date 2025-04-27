@@ -108,14 +108,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/category/:category_name"
-              element={
-                <ProtectedRoute allowedRoles={["user"]}>
-                  <Category />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/category/:category_name" element={<Category />} />
             <Route
               path="/campaign_manager"
               element={
@@ -126,11 +119,7 @@ function App() {
             />
             <Route
               path="/category/:categoryName/:id"
-              element={
-                <ProtectedRoute allowedRoles={["user"]}>
-                  <CampaignDetails />
-                </ProtectedRoute>
-              }
+              element={<CampaignDetails />}
             />
 
             <Route path="*" element={<PageError />} />
