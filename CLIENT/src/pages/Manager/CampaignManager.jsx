@@ -3,6 +3,7 @@ import {
   useCampaigns,
   useUpdateCampaign,
   useDeleteCampaign,
+  useCampaignsSearch,
 } from "../../hooks/useCampaign";
 import { useReleaseMoney } from "../../hooks/useRelease";
 import {
@@ -73,7 +74,7 @@ const CampaignManager = () => {
     isLoading,
     isError,
     error,
-  } = useCampaigns(debouncedSearch);
+  } = useCampaignsSearch(debouncedSearch);
   const updateCampaignMutation = useUpdateCampaign();
   const deleteCampaignMutation = useDeleteCampaign();
   const releaseMoneyMutation = useReleaseMoney();
@@ -86,11 +87,19 @@ const CampaignManager = () => {
         status: newStatus,
       });
       toast.success(
-        t(`campaign_${newStatus === "approved" ? "approved" : "rejected"}_success`)
+        t(
+          `campaign_${
+            newStatus === "approved" ? "approved" : "rejected"
+          }_success`
+        )
       );
     } catch (error) {
       toast.error(
-        t(`failed_to_${newStatus === "approved" ? "approve" : "reject"}_campaign`)
+        t(
+          `failed_to_${
+            newStatus === "approved" ? "approve" : "reject"
+          }_campaign`
+        )
       );
       console.error("Status update failed:", error);
     }
@@ -119,7 +128,7 @@ const CampaignManager = () => {
         await releaseMoneyMutation.mutateAsync(campaign._id);
       } catch (error) {
         console.error("Release failed:", error);
-        toast.error(t("release_failed")); 
+        toast.error(t("release_failed"));
       }
     }
   };
@@ -253,7 +262,7 @@ const CampaignManager = () => {
           </div>
           <nav className="p-4">
             <motion.ul className="space-y-3">
-              {["campaigns", "reports", "testimonials"].map((tab) => (
+              {["campaigns", "report", "testimonials"].map((tab) => (
                 <motion.li key={tab}>
                   <motion.button
                     whileHover={{ x: 5 }}
@@ -266,12 +275,10 @@ const CampaignManager = () => {
                     }`}
                   >
                     {tab === "campaigns" && <LayoutGrid size={24} />}
-                    {tab === "reports" && <Flag size={24} />}
+                    {tab === "report" && <Flag size={24} />}
                     {tab === "testimonials" && <MessageSquare size={24} />}
                     {!isSidebarCollapsed && (
-                      <span className="capitalize font-medium">
-                        {t(tab)}
-                      </span>
+                      <span className="capitalize font-medium">{t(tab)}</span>
                     )}
                   </motion.button>
                 </motion.li>
@@ -340,7 +347,8 @@ const CampaignManager = () => {
                                   <Target size={16} />
                                   <span>
                                     {t("goal")}:{" "}
-                                    {campaign.goalAmount?.toLocaleString()} {t("birr")}
+                                    {campaign.goalAmount?.toLocaleString()}{" "}
+                                    {t("birr")}
                                   </span>
                                 </div>
                                 <div className="flex items-center gap-1">

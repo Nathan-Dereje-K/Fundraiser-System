@@ -1,7 +1,6 @@
 // TestimonialManagement.jsx
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Trash2, Search } from "lucide-react";
-import axios from "axios";
 import {
   useGetAllTestimonials,
   useDeleteTestimonial,
@@ -146,7 +145,9 @@ const TestimonialManagement = () => {
                         ({ closeToast }) => (
                           <div>
                             <p className="text-sm text-gray-800">
-                              {t("Delete this testimonial? This action cannot be undone.")}
+                              {t(
+                                "Delete this testimonial? This action cannot be undone."
+                              )}
                             </p>
                             <div className="flex gap-3 mt-3">
                               <button

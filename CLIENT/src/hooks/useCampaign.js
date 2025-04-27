@@ -21,6 +21,13 @@ export const useCampaign = (id) => {
 
 export const useCampaigns = (search = "") => {
   return useQuery({
+    queryKey: ["campaigns"],
+    queryFn: () => getCampaigns(search),
+  });
+};
+
+export const useCampaignsSearch = (search = "") => {
+  return useQuery({
     queryKey: ["campaigns", search],
     queryFn: () => getCampaigns(search),
   });
