@@ -7,8 +7,10 @@ import {
   useDeleteTestimonial,
 } from "../../hooks/useTestimonial";
 import { toast } from "react-toastify";
+import { useTranslation } from "react-i18next";
 
 const TestimonialManagement = () => {
+  const { t } = useTranslation();
   const {
     data: testimonials,
     isPending: loading,
@@ -21,9 +23,6 @@ const TestimonialManagement = () => {
 
   const itemsPerPage = 6;
 
-  // Fetch testimonials from API
-
-  // Filter testimonials when search term changes
   useEffect(() => {
     if (searchTerm.trim() === "") {
       setFilteredTestimonials(testimonials);
@@ -40,12 +39,10 @@ const TestimonialManagement = () => {
     setCurrentPage(1);
   }, [searchTerm, testimonials]);
 
-  // Handle search input change
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
 
-  // Calculate pagination
   const pageCount = Math.ceil(filteredTestimonials?.length / itemsPerPage);
   const paginatedTestimonials =
     filteredTestimonials?.slice(
@@ -53,14 +50,12 @@ const TestimonialManagement = () => {
       currentPage * itemsPerPage
     ) || [];
 
-  // Generate fallback avatar
   const generateDefaultAvatar = (name) => {
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(
       name
     )}&background=FF6B00&color=fff`;
   };
 
-  // Format date
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return `${date.toLocaleDateString()} at ${date.toLocaleTimeString([], {
@@ -80,7 +75,7 @@ const TestimonialManagement = () => {
   if (error) {
     return (
       <div className="text-center text-red-500 p-4">
-        <h2 className="text-xl font-bold">Error</h2>
+        <h2 className="text-xl font-bold">{t("Error")}</h2>
         <p>{error}</p>
       </div>
     );
@@ -90,12 +85,12 @@ const TestimonialManagement = () => {
     <div className="max-w-7xl mx-auto p-4 sm:p-6">
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 pb-4 border-b border-gray-200">
         <h1 className="text-2xl font-bold text-gray-800 mb-4 sm:mb-0">
-          Testimonial Management
+          {t("Testimonial Management")}
         </h1>
         <div className="relative w-full sm:w-auto">
           <input
             type="text"
-            placeholder="Search testimonials..."
+            placeholder={t("Search testimonials...")}
             value={searchTerm}
             onChange={handleSearchChange}
             className="pl-10 pr-4 py-2 w-full sm:w-64 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
@@ -107,10 +102,10 @@ const TestimonialManagement = () => {
       {paginatedTestimonials.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-lg shadow">
           <h3 className="text-xl font-semibold text-gray-700 mb-2">
-            No testimonials found
+            {t("No testimonials found")}
           </h3>
           <p className="text-gray-500">
-            Try adjusting your search or add new testimonials.
+            {t("Try adjusting your search or add new testimonials.")}
           </p>
         </div>
       ) : (
@@ -135,7 +130,7 @@ const TestimonialManagement = () => {
                       {testimonial.userName}
                     </h3>
                     <p className="text-xs text-gray-500">
-                      Posted on {formatDate(testimonial.createdAt)}
+                      {t("Posted on")} {formatDate(testimonial.createdAt)}
                     </p>
                   </div>
                 </div>
@@ -147,31 +142,28 @@ const TestimonialManagement = () => {
                 <div className="flex justify-end">
                   <button
                     onClick={() => {
-                      //   openDeleteModal(testimonial._id);
                       toast.info(
                         ({ closeToast }) => (
                           <div>
                             <p className="text-sm text-gray-800">
-                              Delete this testimonial? This action cannot be
-                              undone.
+                              {t("Delete this testimonial? This action cannot be undone.")}
                             </p>
                             <div className="flex gap-3 mt-3">
                               <button
                                 onClick={() => {
                                   deleteTestimonial(testimonial._id);
-                                  toast.dismiss(); // Dismiss the confirmation toast
-                                  // Success/Error handled by mutation's onSuccess/onError
+                                  toast.dismiss();
                                 }}
                                 className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm"
-                                disabled={loading} // Disable while deleting
+                                disabled={loading}
                               >
-                                {loading ? "Deleting..." : "Yes, Delete"}
+                                {loading ? t("Deleting...") : t("Yes, Delete")}
                               </button>
                               <button
                                 onClick={closeToast}
                                 className="px-3 py-1 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 text-sm"
                               >
-                                No
+                                {t("No")}
                               </button>
                             </div>
                           </div>
@@ -180,7 +172,7 @@ const TestimonialManagement = () => {
                           autoClose: false,
                           closeOnClick: false,
                           draggable: false,
-                          closeButton: false, // Hide default close button
+                          closeButton: false,
                           position: "top-center",
                         }
                       );
@@ -188,7 +180,7 @@ const TestimonialManagement = () => {
                     className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition"
                   >
                     <Trash2 className="mr-2" />
-                    Delete
+                    {t("Delete")}
                   </button>
                 </div>
               </div>
@@ -197,7 +189,6 @@ const TestimonialManagement = () => {
         </div>
       )}
 
-      {/* Pagination */}
       {pageCount > 1 && (
         <div className="flex justify-center mt-8 space-x-1">
           {currentPage > 1 && (

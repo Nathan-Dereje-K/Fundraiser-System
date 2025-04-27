@@ -2,8 +2,10 @@ import { motion } from "framer-motion";
 import { Flag, AlertCircle, Loader, Trash2 } from "lucide-react";
 import { useGetAllReports, useDeleteReport } from "../../hooks/useReport";
 import { toast } from "react-toastify";
+import { useTranslation } from "react-i18next"; // 🏁 Added import
 
 const Report = () => {
+  const { t } = useTranslation(); // 🏁 Added hook
   const { data: reports, isLoading, isError, error } = useGetAllReports();
   const { mutate: deleteReportMutation } = useDeleteReport();
 
@@ -13,24 +15,24 @@ const Report = () => {
       ({ closeToast }) => (
         <div className="text-center p-4 bg-white rounded-lg shadow-md">
           <p className="text-sm font-medium text-gray-800 mb-3">
-            Are you sure you want to delete this report?
+            {t("Are you sure you want to delete this report?")}
           </p>
           <div className="flex justify-center gap-3">
             <button
               onClick={() => {
                 deleteReportMutation(id);
                 closeToast();
-                toast.success("Report deleted successfully!");
+                toast.success(t("Report deleted successfully!"));
               }}
               className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
             >
-              Yes
+              {t("Yes")}
             </button>
             <button
               onClick={closeToast}
               className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
             >
-              No
+              {t("No")}
             </button>
           </div>
         </div>
@@ -57,7 +59,7 @@ const Report = () => {
     return (
       <div className="flex flex-col items-center justify-center h-screen text-red-500">
         <AlertCircle className="w-12 h-12 mb-4" />
-        <p className="text-lg font-medium">Error: {error.message}</p>
+        <p className="text-lg font-medium">{t("Error")}: {error.message}</p>
       </div>
     );
   }
@@ -73,16 +75,16 @@ const Report = () => {
       <div className="text-center mb-12">
         <Flag size={64} className="mx-auto mb-6 text-orange-500" />
         <h3 className="text-4xl font-bold text-gray-900 mb-2">
-          Reports Dashboard
+          {t("Reports Dashboard")}
         </h3>
-        <p className="text-gray-600">User-submitted campaign reports</p>
+        <p className="text-gray-600">{t("User-submitted campaign reports")}</p>
       </div>
 
       {/* Reports List Section */}
       {reports.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-[70vh] text-gray-400">
           <Flag size={64} className="mb-6" />
-          <p className="text-xl font-medium">No reports found.</p>
+          <p className="text-xl font-medium">{t("No reports found.")}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -111,15 +113,15 @@ const Report = () => {
               {/* Report Details */}
               <div className="space-y-3">
                 <p className="text-sm text-gray-500">
-                  <span className="font-medium">Campaign Name:</span>{" "}
-                  {report.campaignId?.title || "Unknown Campaign"}
+                  <span className="font-medium">{t("Campaign Name")}:</span>{" "}
+                  {report.campaignId?.title || t("Unknown Campaign")}
                 </p>
                 <p className="text-sm text-gray-500">
-                  <span className="font-medium">Reported By:</span>{" "}
-                  {report.reportedBy?.name || "Unknown User"}
+                  <span className="font-medium">{t("Reported By")}:</span>{" "}
+                  {report.reportedBy?.name || t("Unknown User")}
                 </p>
                 <p className="text-sm text-gray-500">
-                  <span className="font-medium">Status:</span>{" "}
+                  <span className="font-medium">{t("Status")}:</span>{" "}
                   <span
                     className={`${
                       report.status === "pending"
@@ -152,7 +154,7 @@ const Report = () => {
 
               {/* Timestamp */}
               <p className="text-xs text-gray-400 mt-5">
-                Submitted on: {new Date(report.createdAt).toLocaleString()}
+                {t("Submitted on")}: {new Date(report.createdAt).toLocaleString()}
               </p>
             </motion.div>
           ))}

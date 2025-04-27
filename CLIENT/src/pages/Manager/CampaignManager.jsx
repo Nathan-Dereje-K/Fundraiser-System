@@ -3,11 +3,11 @@ import {
   useCampaigns,
   useUpdateCampaign,
   useDeleteCampaign,
-} from "../../hooks/useCampaign"; // Assuming hooks path is correct relative to Report.jsx
-import { useReleaseMoney } from "../../hooks/useRelease"; // Assuming hooks path is correct relative to Report.jsx
+} from "../../hooks/useCampaign";
+import { useReleaseMoney } from "../../hooks/useRelease";
 import {
   LayoutGrid,
-  Flag, // Flag is still needed for the sidebar
+  Flag,
   MessageSquare,
   ChevronLeft,
   ChevronRight,
@@ -26,16 +26,18 @@ import {
   User,
 } from "lucide-react";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
-import Loader from "../../components/ui/Loader"; // Adjust path as needed
-import SuspendCampaignModal from "./SuspendCampaignModal"; // Adjust path as needed
+import Loader from "../../components/ui/Loader";
+import SuspendCampaignModal from "./SuspendCampaignModal";
 import { toast } from "react-toastify";
-import Navbar from "../../components/layout/Navbar"; // Adjust path as needed
-import Report from "./Report"; // Import the new Report component (adjust path if needed)
+import Navbar from "../../components/layout/Navbar";
+import Report from "./Report";
 import { TopLoader, ButtonLoader } from "../../components/ui/OtherLoader";
 import { useDebounce } from "../../hooks/useDebounce";
 import TestimonialManagement from "./Testimonial";
+import { useTranslation } from "react-i18next";
 
 const CampaignManager = () => {
+  const { t } = useTranslation();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [selectedTab, setSelectedTab] = useState("campaigns");
   const [expandedCampaignId, setExpandedCampaignId] = useState(null);
@@ -72,9 +74,6 @@ const CampaignManager = () => {
     isError,
     error,
   } = useCampaigns(debouncedSearch);
-  useEffect(() => {
-    console.log(campaigns);
-  }, [campaigns]);
   const updateCampaignMutation = useUpdateCampaign();
   const deleteCampaignMutation = useDeleteCampaign();
   const releaseMoneyMutation = useReleaseMoney();
@@ -87,13 +86,11 @@ const CampaignManager = () => {
         status: newStatus,
       });
       toast.success(
-        `Campaign ${
-          newStatus === "approved" ? "approved" : "rejected"
-        } successfully!`
+        t(`campaign_${newStatus === "approved" ? "approved" : "rejected"}_success`)
       );
     } catch (error) {
       toast.error(
-        `Failed to ${newStatus === "approved" ? "approve" : "reject"} campaign.`
+        t(`failed_to_${newStatus === "approved" ? "approve" : "reject"}_campaign`)
       );
       console.error("Status update failed:", error);
     }
@@ -109,20 +106,20 @@ const CampaignManager = () => {
         endDate: new Date(formData.endDate).toISOString(),
       });
       setEditingCampaign(null);
-      toast.success("Campaign updated successfully!");
+      toast.success(t("campaign_updated_success"));
     } catch (error) {
-      toast.error("Failed to update campaign.");
+      toast.error(t("update_failed"));
       console.error("Update failed:", error);
     }
   };
+
   const handleReleaseCampaign = async (campaign) => {
-    if (window.confirm("Are you sure you want to release this campaign?")) {
+    if (window.confirm(t("confirm_release_campaign"))) {
       try {
         await releaseMoneyMutation.mutateAsync(campaign._id);
-        // Optionally add success toast here
       } catch (error) {
         console.error("Release failed:", error);
-        toast.error("Failed to release campaign."); 
+        toast.error(t("release_failed")); 
       }
     }
   };
@@ -154,7 +151,7 @@ const CampaignManager = () => {
             className={`${baseClasses} bg-gradient-to-r from-green-400 to-green-600 text-white`}
           >
             <CheckCircle2 size={16} />
-            Approved
+            {t("approved")}
           </div>
         );
       case "rejected":
@@ -163,15 +160,15 @@ const CampaignManager = () => {
             className={`${baseClasses} bg-gradient-to-r from-red-400 to-red-600 text-white`}
           >
             <XCircle size={16} />
-            Rejected
+            {t("rejected")}
           </div>
         );
-      default: // Handle other statuses like 'pending', 'suspended', etc. if applicable
+      default:
         return (
           <div
             className={`${baseClasses} bg-gradient-to-r from-gray-400 to-gray-600 text-white`}
           >
-            {status} {/* Display the status text directly */}
+            {t(status.toLowerCase())}
           </div>
         );
     }
@@ -182,28 +179,19 @@ const CampaignManager = () => {
       return (
         <span className="bg-yellow-100 text-yellow-800 text-sm mr-2 px-2.5 py-0.5 rounded-full dark:bg-yellow-900 dark:text-yellow-300 flex items-center gap-1">
           <DollarSign size={14} />
-          Release Requested
+          {t("release_requested")}
         </span>
       );
     } else if (status === "released") {
       return (
         <span className="bg-green-500 text-white text-sm mr-2 px-2.5 py-0.5 rounded-full flex items-center gap-1">
           <DollarSign size={14} />
-          Released
+          {t("released")}
         </span>
       );
     }
-    // Return null or an empty fragment if no status matches or if status is null/undefined
     return null;
   };
-
-  // if (isLoading) {
-  //   return (
-  //     <div className="flex h-screen bg-gradient-to-br from-gray-50 to-blue-50 items-center justify-center">
-  //       <Loader size={80} color="text-orange-500" />
-  //     </div>
-  //   );
-  // }
 
   if (isError) {
     return (
@@ -215,7 +203,7 @@ const CampaignManager = () => {
         >
           <div className="text-red-500 text-4xl">⚠️</div>
           <h2 className="text-2xl font-bold text-gray-800 mb-2">
-            {error?.message || "Failed to load campaigns"}
+            {error?.message || t("failed_to_load_campaigns")}
           </h2>
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -223,7 +211,7 @@ const CampaignManager = () => {
             className="bg-gradient-to-r from-orange-400 to-orange-600 text-white px-6 py-3 rounded-xl font-semibold shadow-md"
             onClick={() => window.location.reload()}
           >
-            Refresh Dashboard
+            {t("refresh_dashboard")}
           </motion.button>
         </motion.div>
       </div>
@@ -250,7 +238,7 @@ const CampaignManager = () => {
                   exit={{ opacity: 0 }}
                   className="font-bold text-2xl bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent"
                 >
-                  Manager Panel
+                  {t("manager_panel")}
                 </motion.h2>
               )}
             </AnimatePresence>
@@ -279,15 +267,10 @@ const CampaignManager = () => {
                   >
                     {tab === "campaigns" && <LayoutGrid size={24} />}
                     {tab === "reports" && <Flag size={24} />}
-                    {/* Flag is used here */}
-                    {tab === "testimonials" && <MessageSquare size={24} />}{" "}
+                    {tab === "testimonials" && <MessageSquare size={24} />}
                     {!isSidebarCollapsed && (
                       <span className="capitalize font-medium">
-                        {tab === "campaigns"
-                          ? "Campaigns"
-                          : tab === "reports"
-                          ? "Reports"
-                          : "Testimonials"}
+                        {t(tab)}
                       </span>
                     )}
                   </motion.button>
@@ -307,19 +290,19 @@ const CampaignManager = () => {
               <div className="mb-8 flex items-center justify-between sm:flex-row flex-col">
                 <div>
                   <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                    Campaign Management
+                    {t("campaign_management")}
                   </h1>
                   <p className="text-gray-600">
-                    Manage and moderate all fundraising campaigns
+                    {t("manage_campaigns_description")}
                   </p>
                 </div>
                 <input
                   type="text"
-                  placeholder="Search Campaigns"
+                  placeholder={t("search_campaigns")}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="border border-gray-300 rounded px-3 py-2 mb-4"
-                />{" "}
+                />
               </div>
               {isLoading && <TopLoader />}
               <LayoutGroup>
@@ -332,7 +315,7 @@ const CampaignManager = () => {
                         variants={cardVariants}
                         initial="hidden"
                         animate="visible"
-                        exit="hidden" // Add exit animation if needed
+                        exit="hidden"
                         className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow"
                       >
                         <div className="p-6">
@@ -356,20 +339,18 @@ const CampaignManager = () => {
                                 <div className="flex items-center gap-1">
                                   <Target size={16} />
                                   <span>
-                                    Goal:{" "}
-                                    {campaign.goalAmount?.toLocaleString()} Birr
+                                    {t("goal")}:{" "}
+                                    {campaign.goalAmount?.toLocaleString()} {t("birr")}
                                   </span>
                                 </div>
-                                {/* raised money */}
                                 <div className="flex items-center gap-1">
                                   <DollarSign size={16} />
                                   <span>
-                                    Raised:{" "}
+                                    {t("raised")}:{" "}
                                     {campaign.raisedAmount?.toLocaleString()}{" "}
-                                    Birr
+                                    {t("birr")}
                                   </span>
                                 </div>
-                                {/* owner name */}
                                 <div className="flex items-center gap-1">
                                   <User size={16} />
                                   <span>{campaign.userId?.name} </span>
@@ -410,12 +391,12 @@ const CampaignManager = () => {
                                     <div>
                                       <h4 className="font-medium mb-2 flex items-center gap-2">
                                         <CalendarDays size={18} />
-                                        Campaign Timeline
+                                        {t("campaign_timeline")}
                                       </h4>
                                       <div className="space-y-2">
                                         <div className="flex items-center gap-2 text-sm text-gray-600">
                                           <span className="font-medium w-16">
-                                            Start:
+                                            {t("start")}:
                                           </span>
                                           <span>
                                             {formatDate(campaign.startDate)}
@@ -423,7 +404,7 @@ const CampaignManager = () => {
                                         </div>
                                         <div className="flex items-center gap-2 text-sm text-gray-600">
                                           <span className="font-medium w-16">
-                                            End:
+                                            {t("end")}:
                                           </span>
                                           <span>
                                             {formatDate(campaign.endDate)}
@@ -434,7 +415,7 @@ const CampaignManager = () => {
                                   </div>
                                   <div className="space-y-4">
                                     <h4 className="font-medium mb-2">
-                                      Management Actions
+                                      {t("management_actions")}
                                     </h4>
                                     <div className="flex flex-wrap gap-3">
                                       {campaign.status !== "suspended" &&
@@ -457,12 +438,12 @@ const CampaignManager = () => {
                                               <CheckCircle2 size={16} />
                                             )}
                                             {campaign.status === "approved"
-                                              ? "Cancel Campaign"
-                                              : "Approve Campaign"}
+                                              ? t("cancel_campaign")
+                                              : t("approve_campaign")}
                                           </motion.button>
                                         )}
                                       {campaign.releaseStatus !== "released" &&
-                                        campaign.raisedAmount > 0 && ( // Only show Release if approved and not released
+                                        campaign.raisedAmount > 0 && (
                                           <motion.button
                                             whileHover={{ scale: 1.05 }}
                                             whileTap={{ scale: 0.95 }}
@@ -473,12 +454,12 @@ const CampaignManager = () => {
                                               campaign.status === "completed"
                                                 ? "bg-green-100 text-green-800 hover:bg-green-200"
                                                 : ""
-                                            }`} // Changed color for distinction
+                                            }`}
                                             disabled={
                                               releaseMoneyMutation.isPending &&
                                               releaseMoneyMutation.variables ===
                                                 campaign._id
-                                            } // Disable while releasing this specific campaign
+                                            }
                                           >
                                             {releaseMoneyMutation.isPending &&
                                             releaseMoneyMutation.variables ===
@@ -487,7 +468,7 @@ const CampaignManager = () => {
                                             ) : (
                                               <DollarSign size={16} />
                                             )}
-                                            Release Funds
+                                            {t("release_funds")}
                                           </motion.button>
                                         )}
                                       {campaign.releaseStatus !== "released" &&
@@ -498,10 +479,10 @@ const CampaignManager = () => {
                                             onClick={() =>
                                               handleSuspendClick(campaign)
                                             }
-                                            className={`px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium bg-yellow-100 text-yellow-800 hover:bg-yellow-200 `} // Changed color
+                                            className={`px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium bg-yellow-100 text-yellow-800 hover:bg-yellow-200`}
                                           >
                                             <PauseCircle size={16} />
-                                            Suspend
+                                            {t("suspend")}
                                           </motion.button>
                                         )}
                                       <motion.button
@@ -522,7 +503,7 @@ const CampaignManager = () => {
                                         }}
                                         className="px-4 py-2 bg-orange-100 text-orange-800 rounded-lg hover:bg-orange-200 flex items-center gap-2 text-sm font-medium"
                                       >
-                                        <Edit3 size={16} /> Edit
+                                        <Edit3 size={16} /> {t("edit")}
                                       </motion.button>
                                       <motion.button
                                         whileHover={{ scale: 1.05 }}
@@ -532,9 +513,7 @@ const CampaignManager = () => {
                                             ({ closeToast }) => (
                                               <div>
                                                 <p className="text-sm text-gray-800">
-                                                  Permanently delete this
-                                                  campaign? This action cannot
-                                                  be undone.
+                                                  {t("confirm_delete_campaign")}
                                                 </p>
                                                 <div className="flex gap-3 mt-3">
                                                   <button
@@ -542,27 +521,26 @@ const CampaignManager = () => {
                                                       deleteCampaignMutation.mutate(
                                                         campaign._id
                                                       );
-                                                      toast.dismiss(); // Dismiss the confirmation toast
-                                                      // Success/Error handled by mutation's onSuccess/onError
+                                                      toast.dismiss();
                                                     }}
                                                     className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm"
                                                     disabled={
                                                       deleteCampaignMutation.isPending &&
                                                       deleteCampaignMutation.variables ===
                                                         campaign._id
-                                                    } // Disable while deleting
+                                                    }
                                                   >
                                                     {deleteCampaignMutation.isPending &&
                                                     deleteCampaignMutation.variables ===
                                                       campaign._id
-                                                      ? "Deleting..."
-                                                      : "Yes, Delete"}
+                                                      ? t("deleting")
+                                                      : t("yes_delete")}
                                                   </button>
                                                   <button
                                                     onClick={closeToast}
                                                     className="px-3 py-1 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 text-sm"
                                                   >
-                                                    No
+                                                    {t("no")}
                                                   </button>
                                                 </div>
                                               </div>
@@ -571,7 +549,7 @@ const CampaignManager = () => {
                                               autoClose: false,
                                               closeOnClick: false,
                                               draggable: false,
-                                              closeButton: false, // Hide default close button
+                                              closeButton: false,
                                               position: "top-center",
                                             }
                                           );
@@ -581,9 +559,9 @@ const CampaignManager = () => {
                                           deleteCampaignMutation.isPending &&
                                           deleteCampaignMutation.variables ===
                                             campaign._id
-                                        } // Disable button while deleting this campaign
+                                        }
                                       >
-                                        <Trash2 size={16} /> Delete
+                                        <Trash2 size={16} /> {t("delete")}
                                       </motion.button>
                                     </div>
                                   </div>
@@ -610,21 +588,21 @@ const CampaignManager = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" // Added z-index
+                className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
               >
                 <motion.div
                   initial={{ scale: 0.95, y: 20 }}
                   animate={{ scale: 1, y: 0 }}
-                  exit={{ scale: 0.95, y: 20, opacity: 0 }} // Added exit animation
-                  className="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl" // Added shadow
+                  exit={{ scale: 0.95, y: 20, opacity: 0 }}
+                  className="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl"
                 >
                   <div className="flex justify-between items-center mb-6">
                     <h3 className="text-xl font-bold text-gray-800">
-                      Edit Campaign
+                      {t("edit_campaign")}
                     </h3>
                     <button
                       onClick={() => setEditingCampaign(null)}
-                      className="p-2 hover:bg-gray-100 rounded-full text-gray-500 hover:text-gray-700" // Style changes
+                      className="p-2 hover:bg-gray-100 rounded-full text-gray-500 hover:text-gray-700"
                     >
                       <X size={20} />
                     </button>
@@ -633,7 +611,7 @@ const CampaignManager = () => {
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Title
+                          {t("title")}
                         </label>
                         <input
                           type="text"
@@ -642,12 +620,12 @@ const CampaignManager = () => {
                           onChange={(e) =>
                             setFormData({ ...formData, title: e.target.value })
                           }
-                          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500" // Style changes
+                          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                         />
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Description
+                          {t("description")}
                         </label>
                         <textarea
                           value={formData.description}
@@ -657,14 +635,14 @@ const CampaignManager = () => {
                               description: e.target.value,
                             })
                           }
-                          className="w-full p-2 border border-gray-300 rounded-lg h-32 focus:ring-2 focus:ring-orange-500 focus:border-orange-500" // Style changes
-                          rows={4} // Set rows for better default height
+                          className="w-full p-2 border border-gray-300 rounded-lg h-32 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                          rows={4}
                         />
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Start Date
+                            {t("start_date")}
                           </label>
                           <input
                             type="date"
@@ -676,12 +654,12 @@ const CampaignManager = () => {
                                 startDate: e.target.value,
                               })
                             }
-                            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500" // Style changes
+                            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                           />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            End Date
+                            {t("end_date")}
                           </label>
                           <input
                             type="date"
@@ -693,78 +671,74 @@ const CampaignManager = () => {
                                 endDate: e.target.value,
                               })
                             }
-                            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500" // Style changes
-                            min={formData.startDate} // Keep min constraint
+                            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                            min={formData.startDate}
                           />
                         </div>
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Goal Amount (Birr)
+                            {t("goal_amount_birr")}
                           </label>
                           <input
                             type="number"
                             required
-                            min="0" // Add min constraint
+                            min="0"
                             value={formData.goalAmount}
                             onChange={(e) =>
                               setFormData({
                                 ...formData,
-                                goalAmount: parseFloat(e.target.value) || 0, // Ensure it's a number
+                                goalAmount: parseFloat(e.target.value) || 0,
                               })
                             }
-                            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500" // Style changes
+                            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                           />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Category
+                            {t("category")}
                           </label>
                           <select
                             value={formData.category}
-                            required // Make category required if needed
+                            required
                             onChange={(e) =>
                               setFormData({
                                 ...formData,
                                 category: e.target.value,
                               })
                             }
-                            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white" // Style changes
+                            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
                           >
                             <option value="" disabled>
-                              Select a category
-                            </option>{" "}
-                            {/* Add placeholder */}
-                            <option value="Medical">Medical</option>
-                            <option value="Education">Education</option>
-                            <option value="Religious">Religious</option>
-                            {/* Add more categories as needed */}
+                              {t("select_category")}
+                            </option>
+                            <option value="Medical">{t("medical")}</option>
+                            <option value="Education">{t("education")}</option>
+                            <option value="Religious">{t("religious")}</option>
                           </select>
                         </div>
                       </div>
                     </div>
                     <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
-                      {" "}
-                      {/* Added border */}
                       <button
                         type="button"
                         onClick={() => setEditingCampaign(null)}
-                        className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium" // Style changes
+                        className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium"
                       >
-                        Cancel
+                        {t("cancel")}
                       </button>
                       <button
                         type="submit"
                         disabled={updateCampaignMutation.isPending}
-                        className="px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:from-orange-600 hover:to-orange-700 flex items-center gap-2 font-medium disabled:opacity-70 disabled:cursor-not-allowed" // Style changes & disabled state
+                        className="px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:from-orange-600 hover:to-orange-700 flex items-center gap-2 font-medium disabled:opacity-70 disabled:cursor-not-allowed"
                       >
                         {updateCampaignMutation.isPending ? (
                           <>
-                            <ButtonLoader /> Updating...
+                            <ButtonLoader /> {t("updating")}...
                           </>
                         ) : (
-                          "Save Changes"
+                          t("save_changes")
                         )}
                       </button>
                     </div>
