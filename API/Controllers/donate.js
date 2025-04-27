@@ -41,7 +41,7 @@ exports.initiatePayment = asyncHandler(async (req, res) => {
     last_name,
     email,
     callback_url: "http://localhost:5000/api/donate/verifypayment",
-    return_url: `http://localhost:5173/category/${campaign.category}/${campaign._id}`,
+    // return_url: `http://localhost:5173/category/${campaign.category}/${campaign._id}`,
   };
 
   try {

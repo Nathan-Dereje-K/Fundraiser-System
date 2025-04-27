@@ -16,6 +16,8 @@ import PageError from "./pages/PageError";
 import CampaignManager from "./pages/Manager/CampaignManager";
 import WithdrawPage from "./pages/Withdraw/WithdrawPage";
 import ValidatorPanel from "./pages/validator/ValidatorPanel";
+import ForbiddenPage from "./components/layout/ForbiddenPage";
+import ProtectedRoute from "./components/layout/ProtectedRoute";
 
 // User pages
 import Landing from "./pages/User/Landing";
@@ -35,22 +37,27 @@ const userRoutes = [
   {
     path: "/dashboard",
     component: Dashboard,
+    roles: ["admin", "validator", "user", "manager"],
   },
   {
     path: "/users",
     component: UserManagement,
+    roles: ["admin"],
   },
   {
     path: "/profile",
     component: ProfileManagement,
+    roles: ["admin", "validator", "user", "manager"],
   },
   {
     path: "/settings",
     component: Settings,
+    roles: ["admin", "validator", "user", "manager"],
   },
   {
     path: "/withdraw",
     component: WithdrawPage,
+    roles: ["user"],
   },
 ];
 
@@ -62,6 +69,7 @@ function App() {
           <Routes>
             {/* <Route path="/" element={<Home />} /> */}
             <Route path="/" element={<Landing />} />
+            <Route path="/forbidden" element={<ForbiddenPage />} />
 
             <Route path="/signin" element={<SignInPage />} />
             <Route path="/signup" element={<SignUpPage />} />
@@ -80,14 +88,16 @@ function App() {
             />
 
             <Route path="*" element={<PageError />} />
-            {userRoutes.map(({ path, component: Component }) => (
+            {userRoutes.map(({ path, component: Component, roles }) => (
               <Route
                 key={path}
                 path={path}
                 element={
-                  <Layout>
-                    <Component />
-                  </Layout>
+                  <ProtectedRoute allowedRoles={roles}>
+                    <Layout>
+                      <Component />
+                    </Layout>
+                  </ProtectedRoute>
                 }
               />
             ))}

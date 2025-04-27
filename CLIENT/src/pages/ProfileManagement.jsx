@@ -18,11 +18,18 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import Settings from "./Settings";
+import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "react-toastify";
+import { useCreateTestimonial } from "../hooks/useTestimonial";
+import { useDoesUserOwnCampaign } from "../hooks/useCampaign";
 
 const ProfileManagement = () => {
   const { user: currentUser } = useUser();
+  const { data: isOwner } = useDoesUserOwnCampaign("completed");
   const { mutate: updateUser, isPending, error } = useUpdateUser();
   const { mutate: verifyEmail, isPending: isVerifying } = useVerifyEmail();
+  const { mutateAsync: submitTestimonial, isPending: isSubmitting } =
+    useCreateTestimonial();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -34,6 +41,38 @@ const ProfileManagement = () => {
     message: "",
     type: null,
   });
+  const [isTestiModalOpen, setIsTestiModalOpen] = useState(false);
+  const [testimonial, setTestimonial] = useState("");
+  const [imageFile, setImageFile] = useState(null);
+
+  const handleSubmitTestimonial = async (e) => {
+    e.preventDefault();
+    if (!testimonial.trim()) {
+      alert("Please provide a reason for reporting.");
+      return;
+    }
+    if (!currentUser) {
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("message", testimonial);
+    formData.append("userName", currentUser.name);
+    if (imageFile) formData.append("image", imageFile);
+
+    try {
+      await submitTestimonial(formData);
+      toast.success("Testimonial posted successfuly !");
+      setIsTestiModalOpen(false);
+      setTestimonial("");
+      setImageFile(null);
+    } catch (error) {
+      console.error("Error submitting report:", error);
+      setIsTestiModalOpen(false);
+      setTestimonial("");
+      setImageFile(null);
+    }
+  };
 
   useEffect(() => {
     if (currentUser) {
@@ -140,11 +179,27 @@ const ProfileManagement = () => {
           <h1 className="text-2xl font-bold text-gray-900">
             Profile Management
           </h1>
-          {!isEditing && (
-            <Button variant="primary" onClick={() => setIsEditing(true)}>
-              Edit Profile
+          <div className="mt-4 sm:mt-0 sm:ml-4 flex space-x-2">
+            {isOwner && (
+              <Button
+                variant="success"
+                onClick={() => setIsTestiModalOpen(true)}
+              >
+                Testimony
+              </Button>
+            )}
+            <Button
+              variant="success"
+              onClick={() => window.open(`/donor/${currentUser._id}`)}
+            >
+              Share Your Donor Profile
             </Button>
-          )}
+            {!isEditing && (
+              <Button variant="primary" onClick={() => setIsEditing(true)}>
+                Edit Profile
+              </Button>
+            )}
+          </div>
         </div>
 
         <div className="bg-white shadow overflow-hidden sm:rounded-lg">
@@ -303,6 +358,70 @@ const ProfileManagement = () => {
         </div>
       </div>
       <Settings />
+      <AnimatePresence>
+        {isTestiModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 bg-opacity-50 flex items-center justify-center z-50"
+          >
+            <motion.div
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.9 }}
+              className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg"
+            >
+              <h2 className="text-xl font-semibold mb-4">Report Campaign</h2>
+              <form onSubmit={handleSubmitTestimonial}>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Submit a Testimony
+                  </label>
+                  <textarea
+                    value={testimonial}
+                    onChange={(e) => setTestimonial(e.target.value)}
+                    placeholder="Write your testimony..."
+                    className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    rows="3"
+                    required
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Upload a Photo of Yours
+                  </label>
+                  <div className="space-y-2">
+                    <label htmlFor="">Image</label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => setImageFile(e.target.files[0])}
+                      className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end space-x-4">
+                  <button
+                    type="button"
+                    onClick={() => setIsTestiModalOpen(false)}
+                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors disabled:bg-red-300"
+                  >
+                    {isSubmitting ? "Submitting..." : "Submit Report"}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { useTransactionOfUserForCampaign } from "../../hooks/useTransaction";
-import { useCampaign } from "../../hooks/useCampaign";
+import { useCampaign, useDoesUserOwnCampaign } from "../../hooks/useCampaign";
 import { useCreateReport } from "../../hooks/useReport";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -25,18 +25,20 @@ import {
 import { toast } from "react-toastify";
 
 const CampaignDetails = () => {
-  const isOwner = false;
+  const { data: isOwner } = useDoesUserOwnCampaign();
   const [activeTab, setActiveTab] = useState(
     isOwner ? "transactions" : "donate"
   );
+  useEffect(() => {
+    setActiveTab(isOwner ? "transactions" : "donate");
+  }, [isOwner]);
   const { categoryName, id } = useParams();
   const [activeMedia, setActiveMedia] = useState("images");
-  const { user } = useAuth();
+  const { user, isLoggedIn } = useAuth();
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [reportReason, setReportReason] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [videoFile, setVideoFile] = useState(null);
-
   // React Query hooks
   const { data: campaign, isLoading, isError, error } = useCampaign(id);
   const { data: transactions } = useTransactionOfUserForCampaign(
@@ -111,7 +113,7 @@ const CampaignDetails = () => {
           <AlertCircle className="w-16 h-16" />
         </motion.div>
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-          {error?.message || "Failed to load campaign details"}
+          {"Failed to load campaign details"}
         </h2>
         <Link
           to="/"
@@ -162,7 +164,7 @@ const CampaignDetails = () => {
                 <Goal className="w-4 h-4 mr-2" />
                 {campaign.status.toUpperCase()}
               </div>
-              {user.role === "user" ? (
+              {isLoggedIn ? (
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}

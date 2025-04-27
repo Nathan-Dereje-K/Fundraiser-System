@@ -15,17 +15,19 @@ const DonorProfile = () => {
   const { data: transactions } = useTransactionOfUser(donorId || null);
   const [totalDonatedBirr, setTotalDonatedBirr] = useState(0);
   const [totalDonatedUSD, setTotalDonatedUSD] = useState(0);
+  const approvedDonations =
+    transactions?.filter(
+      (transaction) =>
+        transaction.status === "approved" &&
+        transaction.transactionType === "donation"
+    ) || [];
 
   useEffect(() => {
-    if (transactions) {
-      const approvedTransactions = transactions.filter(
-        (transaction) => transaction.status === "approved"
-      );
-
-      const localTransactions = approvedTransactions.filter(
+    if (approvedDonations) {
+      const localTransactions = approvedDonations.filter(
         (transaction) => transaction.method === "local"
       );
-      const internationalTransactions = approvedTransactions.filter(
+      const internationalTransactions = approvedDonations.filter(
         (transaction) => transaction.method === "international"
       );
 
@@ -41,7 +43,11 @@ const DonorProfile = () => {
       setTotalDonatedBirr(totalBirr);
       setTotalDonatedUSD(totalUSD);
     }
-  }, [transactions]);
+  }, [approvedDonations]);
+
+  useEffect(() => {
+    document.title = `Donor ${user?.name} Profile`;
+  }, [user]);
 
   const copyProfileLink = () => {
     const profileLink = `${window.location.origin}/donor/${donorId}`;
@@ -115,7 +121,7 @@ const DonorProfile = () => {
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {transactions?.map((transaction) => (
+            {approvedDonations?.map((transaction) => (
               <div
                 key={transaction._id}
                 className="bg-gray-50 p-6 rounded-lg shadow-sm hover:shadow-lg transition-shadow"

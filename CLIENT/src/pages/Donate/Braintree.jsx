@@ -13,8 +13,17 @@ const Braintree = ({ campaignId }) => {
   const {
     mutateAsync: processPayment,
     isPending,
-    data: payment,
+    isSuccess,
+    reset,
   } = useProcessPayment();
+
+  useEffect(() => {
+    if (isSuccess) {
+      // alert("Payment successful!");
+      setDonationAmount("");
+      reset();
+    }
+  }, [isSuccess]);
 
   // Cleanup function
   const cleanupDropin = async () => {
@@ -68,7 +77,7 @@ const Braintree = ({ campaignId }) => {
       const { nonce } = await dropinInstance.current.requestPaymentMethod();
       processPayment({ nonce, amount: donationAmount, campaignId });
 
-      if (payment?.success) {
+      if (isSuccess) {
         alert("Payment successful!");
         setDonationAmount("");
         await handleReset();
@@ -137,6 +146,7 @@ const Braintree = ({ campaignId }) => {
         whileTap={{ scale: 0.98 }}
         className="w-full bg-gradient-to-br from-orange-500 to-orange-600 text-white py-4 rounded-xl font-semibold shadow-md hover:shadow-lg transition-shadow"
         onClick={handlePayment}
+        disabled={isPending}
       >
         <div className="flex items-center justify-center">
           <HeartHandshake className="w-5 h-5 mr-2" />

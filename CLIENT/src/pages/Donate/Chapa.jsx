@@ -8,8 +8,11 @@ function Chapa({ campaignId }) {
   useEffect(() => {
     if (isSuccess) {
       //open it in new tab
-      // window.open(data.data.data.checkout_url, "_blank");
-      window.location.href = data.data.data.checkout_url;
+      window.open(data.data.data.checkout_url, "_blank");
+      // window.location.href = data.data.data.checkout_url;
+      setTimeout(() => {
+        setDonationAmount("");
+      }, 2000);
     }
   }, [isSuccess, data]);
 

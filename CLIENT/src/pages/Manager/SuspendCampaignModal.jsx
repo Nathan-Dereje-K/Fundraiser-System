@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useSuspendReallocate } from "../../hooks/useRelease";
 import API from "../../api/api";
 const SuspendCampaignModal = ({ isOpen, onClose, campaignToSuspend }) => {
   const [activeCampaigns, setActiveCampaigns] = useState([]);
@@ -6,7 +7,6 @@ const SuspendCampaignModal = ({ isOpen, onClose, campaignToSuspend }) => {
   const [unallocatedAmount, setUnallocatedAmount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (isOpen && campaignToSuspend) {
@@ -43,6 +43,13 @@ const SuspendCampaignModal = ({ isOpen, onClose, campaignToSuspend }) => {
       setIsLoading(false);
     }
   };
+
+  const {
+    mutate,
+    isPending: isSubmitting,
+    isSuccess,
+    reset,
+  } = useSuspendReallocate();
 
   const calculateInitialAllocations = (campaigns, totalAmount) => {
     if (!campaigns.length) {
@@ -166,22 +173,16 @@ const SuspendCampaignModal = ({ isOpen, onClose, campaignToSuspend }) => {
       );
       return;
     }
-    setIsSubmitting(true);
-    try {
-      await API.post("/release/suspendreallocate", {
-        suspendedCampaignId: campaignToSuspend._id,
-        allocations,
-      });
-
-      onClose();
-      // Show success notification or redirect
-    } catch (err) {
-      setError("Failed to suspend and reallocate campaign");
-      console.error(err);
-    } finally {
-      setIsSubmitting(false);
-    }
+    mutate({ id: campaignToSuspend._id, allocations });
   };
+  useEffect(() => {
+    console.log(isSuccess);
+
+    if (isSuccess) {
+      onClose();
+      reset();
+    }
+  }, [isSuccess]);
 
   if (!isOpen) return null;
 

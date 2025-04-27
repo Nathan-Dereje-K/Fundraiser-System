@@ -5,14 +5,18 @@ export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const { data, isLoading } = useFetchLoggedUser();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { data, isPending: isLoading } = useFetchLoggedUser();
 
   useEffect(() => {
-    if (data) setUser(data.user);
-  }, [data]);
+    if (data) {
+      setUser(data.user);
+      setIsLoggedIn(data.loggedIn);
+    }
+  }, [data, isLoading]);
 
   return (
-    <AuthContext.Provider value={{ user, setUser, isLoading }}>
+    <AuthContext.Provider value={{ user, isLoggedIn, setUser, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

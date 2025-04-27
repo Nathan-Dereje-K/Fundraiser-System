@@ -104,8 +104,19 @@ const Navbar = () => {
               <Dropdown
                 trigger={
                   <div className="flex items-center cursor-pointer">
-                    <span className="text-sm font-medium text-gray-700 mr-2 hidden lg:block">
+                    <span className="text-sm font-medium text-gray-700 mr-2 hidden lg:flex  items-center flex-col">
                       {currentUser?.name}
+                      <span className="text-xs text-gray-500">
+                        {/* Display the user's role if they are admin, manager, or validator */}
+                        {["admin", "manager", "validator"].includes(
+                          currentUser?.role
+                        )
+                          ? ` ${
+                              currentUser.role.charAt(0).toUpperCase() +
+                              currentUser.role.slice(1)
+                            }`
+                          : ""}
+                      </span>
                     </span>
                     <Avatar
                       src={currentUser?.avatar}
@@ -126,7 +137,14 @@ const Navbar = () => {
                   Profile
                 </Link>
                 <Link
-                  to="/dashboard"
+                  to={
+                    {
+                      admin: "/dashboard",
+                      manager: "/campaign_manager",
+                      validator: "/validator_panel",
+                      user: "/campaign_panel",
+                    }[currentUser?.role] || "#"
+                  }
                   className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   role="menuitem"
                 >
@@ -255,7 +273,14 @@ const Navbar = () => {
                     Profile
                   </Link>
                   <Link
-                    to="/dashboard"
+                    to={
+                      {
+                        admin: "/dashboard",
+                        manager: "/campaign_manager",
+                        validator: "/validator_panel",
+                        user: "/campaign_panel",
+                      }[currentUser?.role] || "#"
+                    }
                     className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     role="menuitem"
                   >

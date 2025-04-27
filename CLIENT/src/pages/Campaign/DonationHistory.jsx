@@ -25,9 +25,9 @@ const DonationHistory = ({ campaignId }) => {
     if (isNaN(d)) return "Invalid Time";
     return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
-  useEffect(() => {
-    console.log(transactions);
-  }, [transactions]);
+  // useEffect(() => {
+  //   console.log(transactions);
+  // }, [transactions]);
 
   const formatDate = (myDate) => {
     if (!myDate) return "Invalid Date";
@@ -72,7 +72,7 @@ const DonationHistory = ({ campaignId }) => {
             formatDate(transactions[index - 1].createdAt);
 
         return (
-          <React.Fragment key={transaction.id}>
+          <React.Fragment key={transaction._id}>
             {showDateDivider && (
               <div className="bg-gray-50 px-3 py-1 text-xs text-gray-500 font-medium sticky top-7">
                 {formatDate(transaction.createdAt)}

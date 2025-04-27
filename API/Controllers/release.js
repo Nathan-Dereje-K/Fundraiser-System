@@ -21,15 +21,16 @@ exports.releaseMoney = asyncHandler(async (req, res, next) => {
     if (!campaign) {
       return next(new ErrorResponse(`Campaign not found!`, 404));
     }
-    // const user = await User.findById(campaign.userId);
-    // if (!user) {
-    //   return next(new ErrorResponse(`User not found!`, 404));
-    // }
-    // user.releasedMoney +=
-    //   (campaign.raisedAmount * (100 - OUR_PERCENT_PER_CAMPAIN)) / 100;
-    // await user.save();
+    const user = await User.findById(campaign.userId);
+    if (!user) {
+      return next(new ErrorResponse(`User not found!`, 404));
+    }
+    user.releasedMoney +=
+      (campaign.raisedAmount * (100 - OUR_PERCENT_PER_CAMPAIN)) / 100;
+    await user.save();
     campaign.raisedAmount = 0;
     campaign.releaseStatus = "released";
+    campaign.status = "completed";
     await campaign.save();
     res.status(200).json({ success: true, data: campaign });
   } catch (error) {
@@ -44,12 +45,12 @@ exports.suspendAndReallocate = asyncHandler(async (req, res, next) => {
   if (!campaign) {
     return next(new ErrorResponse(`Campaign not found!`, 404));
   }
-  // const user = await User.findById(campaign.userId);
-  // if (!user) {
-  //   return next(new ErrorResponse(`The user not found!`, 404));
-  // }
-  // user.blocked = true;
-  // await user.save();
+  const user = await User.findById(campaign.userId);
+  if (!user) {
+    return next(new ErrorResponse(`The user not found!`, 404));
+  }
+  user.blocked = true;
+  await user.save();
   // Verify that all funds are allocated
   const totalAllocated = Object.values(allocations).reduce(
     (sum, amount) => sum + parseFloat(amount),
@@ -84,6 +85,7 @@ exports.suspendAndReallocate = asyncHandler(async (req, res, next) => {
       transaction_id: "anonymous" + Date.now(),
       campaignId: targetCampaign._id,
       userId,
+      usersName: "Reallocation from " + campaign.title,
       amount: parseFloat(amount),
       transactionType: "reallocation",
       status: "approved",
@@ -130,6 +132,7 @@ exports.withdrawMoney = asyncHandler(async (req, res) => {
       await Transaction.create({
         userId,
         usersName,
+        accountNumber: bank_code + "-" + account_number,
         amount,
         transactionType: "withdrawal",
         transaction_id: reference,

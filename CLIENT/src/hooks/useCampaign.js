@@ -6,6 +6,8 @@ import {
   putCampaign,
   deleteCampaign,
   getMyCampaigns,
+  searchCampaigns,
+  doesUserOwnCampaign,
 } from "../api/campaignApi";
 
 // Existing query hooks
@@ -17,10 +19,10 @@ export const useCampaign = (id) => {
   });
 };
 
-export const useCampaigns = () => {
+export const useCampaigns = (search = "") => {
   return useQuery({
-    queryKey: ["campaigns"],
-    queryFn: () => getCampaigns(),
+    queryKey: ["campaigns", search],
+    queryFn: () => getCampaigns(search),
   });
 };
 
@@ -65,5 +67,20 @@ export const useMyCampaigns = () => {
     queryKey: ["myCampaigns"],
     queryFn: () => getMyCampaigns(),
     refetchOnWindowFocus: false,
+  });
+};
+
+export const useSearchCampaigns = (search) => {
+  return useQuery({
+    queryKey: ["searchCampaigns", search],
+    queryFn: () => searchCampaigns(search),
+    enabled: search.length >= 2,
+  });
+};
+
+export const useDoesUserOwnCampaign = (status = "approved") => {
+  return useQuery({
+    queryKey: ["doesUserOwnCampaign"],
+    queryFn: () => doesUserOwnCampaign(status),
   });
 };

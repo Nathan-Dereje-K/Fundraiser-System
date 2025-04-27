@@ -8,20 +8,32 @@ const authMiddleware = require("../Middleware/authMiddleware");
 // @Access     Public
 exports.getCampaigns = asyncHandler(async (req, res) => {
   let query;
-  const reqQuery = { ...req.query };
+  const { search, ...restQuery } = req.query;
 
   // Remove fields that are not for filtering
-  ["sort", "select", "page", "limit"].forEach(
-    (param) => delete reqQuery[param]
+  ["sort", "select", "page", "limit", "search"].forEach(
+    (param) => delete restQuery[param]
   );
 
   // Convert MongoDB operators to $gt, $lt, etc.
-  let queryStr = JSON.stringify(reqQuery).replace(
+  let queryStr = JSON.stringify(restQuery).replace(
     /\b(gt|gte|lt|lte|in)\b/g,
     (match) => `$${match}`
   );
 
-  query = Campaign.find(JSON.parse(queryStr)).populate("userId", "name email");
+  // Base MongoDB query
+  let mongoQuery = JSON.parse(queryStr);
+
+  // Add search if present
+  if (search) {
+    mongoQuery.$or = [
+      { title: { $regex: search, $options: "i" } },
+      { description: { $regex: search, $options: "i" } },
+    ];
+  }
+  query = Campaign.find(mongoQuery)
+    .populate("userId", "name email")
+    .select("-metadata");
 
   // Select fields
   if (req.query.select) {
@@ -220,5 +232,22 @@ exports.searchCampaigns = asyncHandler(async (req, res) => {
     res
       .status(500)
       .json({ error: "An error occurred while searching campaigns" });
+  }
+});
+
+// prevents a user from donating to their own campaign
+exports.doesUserHaveCampaign = asyncHandler(async (req, res, next) => {
+  if (req.user.id !== "_") {
+    const campaign = await Campaign.find({
+      userId: req.user.id,
+      status: req.query.status ? req.query.status : "approved",
+    });
+    if (!campaign) {
+      res.status(200).json({ success: false, data: false });
+    } else {
+      res.status(200).json({ success: true, data: campaign.length > 0 });
+    }
+  } else {
+    res.status(200).json({ success: false, data: false });
   }
 });

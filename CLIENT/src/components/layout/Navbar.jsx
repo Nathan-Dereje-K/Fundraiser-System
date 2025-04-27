@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { User, Users, LogOut, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -102,6 +102,17 @@ const Navbar = () => {
                   <div className="flex items-center cursor-pointer">
                     <span className="text-sm font-medium text-gray-300 mr-2 hidden lg:block">
                       {currentUser.name}
+                      <span className="text-xs text-gray-500 flex flex-col items-center">
+                        {/* Display the user's role if they are admin, manager, or validator */}
+                        {["admin", "manager", "validator"].includes(
+                          currentUser?.role
+                        )
+                          ? ` ${
+                              currentUser.role.charAt(0).toUpperCase() +
+                              currentUser.role.slice(1)
+                            }`
+                          : ""}
+                      </span>
                     </span>
                     <Avatar
                       src={currentUser.avatar}
@@ -188,8 +199,19 @@ const Navbar = () => {
                       />
                     </div>
                     <div className="ml-3">
-                      <div className="text-base font-medium text-white">
-                        {currentUser.name}
+                      <div className="text-base font-medium text-white flex items-center flex-col">
+                        {currentUser?.name}
+                        <span className="text-xs text-gray-500">
+                          {/* Display the user's role if they are admin, manager, or validator */}
+                          {["admin", "manager", "validator"].includes(
+                            currentUser?.role
+                          )
+                            ? ` ${
+                                currentUser.role.charAt(0).toUpperCase() +
+                                currentUser.role.slice(1)
+                              }`
+                            : ""}
+                        </span>
                       </div>
                       <div className="text-sm font-medium text-gray-400">
                         {currentUser.email}

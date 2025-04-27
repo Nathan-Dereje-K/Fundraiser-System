@@ -51,7 +51,7 @@ export const useChangePassword = () => {
 
 export const useAuth = () => {
   const navigate = useNavigate();
-  const { user, setUser, isLoading } = useContext(AuthContext);
+  const { user, isLoggedIn, setUser, isLoading } = useContext(AuthContext);
   const { mutate: logout } = useLogout();
 
   const handleLogout = () => {
@@ -61,7 +61,7 @@ export const useAuth = () => {
     navigate("/");
   };
 
-  return { user, handleLogout, isLoading };
+  return { user, isLoggedIn, handleLogout, isLoading };
 };
 
 export const useForggotPassword = () => {

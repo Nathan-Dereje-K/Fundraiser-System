@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   useCampaigns,
   useUpdateCampaign,
@@ -8,6 +8,7 @@ import { useReleaseMoney } from "../../hooks/useRelease"; // Assuming hooks path
 import {
   LayoutGrid,
   Flag, // Flag is still needed for the sidebar
+  MessageSquare,
   ChevronLeft,
   ChevronRight,
   ChevronDown,
@@ -22,6 +23,7 @@ import {
   X,
   DollarSign,
   PauseCircle,
+  User,
 } from "lucide-react";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import Loader from "../../components/ui/Loader"; // Adjust path as needed
@@ -29,6 +31,9 @@ import SuspendCampaignModal from "./SuspendCampaignModal"; // Adjust path as nee
 import { toast } from "react-toastify";
 import Navbar from "../../components/layout/Navbar"; // Adjust path as needed
 import Report from "./Report"; // Import the new Report component (adjust path if needed)
+import { TopLoader, ButtonLoader } from "../../components/ui/OtherLoader";
+import { useDebounce } from "../../hooks/useDebounce";
+import TestimonialManagement from "./Testimonial";
 
 const CampaignManager = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -46,12 +51,30 @@ const CampaignManager = () => {
   const [isSuspendModalOpen, setIsSuspendModalOpen] = useState(false);
   const [selectedCampaign, setSelectedCampaign] = useState(null);
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearch = useDebounce(searchTerm, 300);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [campaignsPerPage, setCampaignsPerPage] = useState(10);
+
+  const indexOfLastCampaign = currentPage * campaignsPerPage;
+  const indexOfFirstCampaign = indexOfLastCampaign - campaignsPerPage;
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   const handleSuspendClick = (campaign) => {
     setSelectedCampaign(campaign);
     setIsSuspendModalOpen(true);
   };
 
-  const { data: campaigns, isLoading, isError, error } = useCampaigns();
+  const {
+    data: campaigns,
+    isLoading,
+    isError,
+    error,
+  } = useCampaigns(debouncedSearch);
+  useEffect(() => {
+    console.log(campaigns);
+  }, [campaigns]);
   const updateCampaignMutation = useUpdateCampaign();
   const deleteCampaignMutation = useDeleteCampaign();
   const releaseMoneyMutation = useReleaseMoney();
@@ -174,13 +197,13 @@ const CampaignManager = () => {
     return null;
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex h-screen bg-gradient-to-br from-gray-50 to-blue-50 items-center justify-center">
-        <Loader size={80} color="text-orange-500" />
-      </div>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <div className="flex h-screen bg-gradient-to-br from-gray-50 to-blue-50 items-center justify-center">
+  //       <Loader size={80} color="text-orange-500" />
+  //     </div>
+  //   );
+  // }
 
   if (isError) {
     return (
@@ -242,7 +265,7 @@ const CampaignManager = () => {
           </div>
           <nav className="p-4">
             <motion.ul className="space-y-3">
-              {["campaigns", "reports"].map((tab) => (
+              {["campaigns", "reports", "testimonials"].map((tab) => (
                 <motion.li key={tab}>
                   <motion.button
                     whileHover={{ x: 5 }}
@@ -255,11 +278,16 @@ const CampaignManager = () => {
                     }`}
                   >
                     {tab === "campaigns" && <LayoutGrid size={24} />}
-                    {tab === "reports" && <Flag size={24} />}{" "}
+                    {tab === "reports" && <Flag size={24} />}
                     {/* Flag is used here */}
+                    {tab === "testimonials" && <MessageSquare size={24} />}{" "}
                     {!isSidebarCollapsed && (
                       <span className="capitalize font-medium">
-                        {tab === "campaigns" ? "Campaigns" : "Reports"}
+                        {tab === "campaigns"
+                          ? "Campaigns"
+                          : tab === "reports"
+                          ? "Reports"
+                          : "Testimonials"}
                       </span>
                     )}
                   </motion.button>
@@ -276,14 +304,24 @@ const CampaignManager = () => {
               animate={{ opacity: 1, y: 0 }}
               className="max-w-6xl mx-auto"
             >
-              <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                  Campaign Management
-                </h1>
-                <p className="text-gray-600">
-                  Manage and moderate all fundraising campaigns
-                </p>
+              <div className="mb-8 flex items-center justify-between sm:flex-row flex-col">
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                    Campaign Management
+                  </h1>
+                  <p className="text-gray-600">
+                    Manage and moderate all fundraising campaigns
+                  </p>
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search Campaigns"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="border border-gray-300 rounded px-3 py-2 mb-4"
+                />{" "}
               </div>
+              {isLoading && <TopLoader />}
               <LayoutGroup>
                 <motion.div className="grid grid-cols-1 gap-4">
                   <AnimatePresence>
@@ -330,6 +368,11 @@ const CampaignManager = () => {
                                     {campaign.raisedAmount?.toLocaleString()}{" "}
                                     Birr
                                   </span>
+                                </div>
+                                {/* owner name */}
+                                <div className="flex items-center gap-1">
+                                  <User size={16} />
+                                  <span>{campaign.userId?.name} </span>
                                 </div>
                               </div>
                             </div>
@@ -394,36 +437,43 @@ const CampaignManager = () => {
                                       Management Actions
                                     </h4>
                                     <div className="flex flex-wrap gap-3">
-                                      <motion.button
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
-                                        onClick={() =>
-                                          handleStatusToggle(campaign)
-                                        }
-                                        className={`px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium ${
-                                          campaign.status === "approved"
-                                            ? "bg-red-100 text-red-800 hover:bg-red-200"
-                                            : "bg-green-100 text-green-800 hover:bg-green-200"
-                                        }`}
-                                      >
-                                        {campaign.status === "approved" ? (
-                                          <XCircle size={16} />
-                                        ) : (
-                                          <CheckCircle2 size={16} />
+                                      {campaign.status !== "suspended" &&
+                                        campaign.status !== "completed" && (
+                                          <motion.button
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            onClick={() =>
+                                              handleStatusToggle(campaign)
+                                            }
+                                            className={`px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium ${
+                                              campaign.status === "approved"
+                                                ? "bg-red-100 text-red-800 hover:bg-red-200"
+                                                : "bg-green-100 text-green-800 hover:bg-green-200"
+                                            }`}
+                                          >
+                                            {campaign.status === "approved" ? (
+                                              <XCircle size={16} />
+                                            ) : (
+                                              <CheckCircle2 size={16} />
+                                            )}
+                                            {campaign.status === "approved"
+                                              ? "Cancel Campaign"
+                                              : "Approve Campaign"}
+                                          </motion.button>
                                         )}
-                                        {campaign.status === "approved"
-                                          ? "Reject Campaign"
-                                          : "Approve Campaign"}
-                                      </motion.button>
                                       {campaign.releaseStatus !== "released" &&
-                                        campaign.status === "approved" && ( // Only show Release if approved and not released
+                                        campaign.raisedAmount > 0 && ( // Only show Release if approved and not released
                                           <motion.button
                                             whileHover={{ scale: 1.05 }}
                                             whileTap={{ scale: 0.95 }}
                                             onClick={() =>
                                               handleReleaseCampaign(campaign)
                                             }
-                                            className={`px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 `} // Changed color for distinction
+                                            className={`px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 ${
+                                              campaign.status === "completed"
+                                                ? "bg-green-100 text-green-800 hover:bg-green-200"
+                                                : ""
+                                            }`} // Changed color for distinction
                                             disabled={
                                               releaseMoneyMutation.isPending &&
                                               releaseMoneyMutation.variables ===
@@ -433,27 +483,27 @@ const CampaignManager = () => {
                                             {releaseMoneyMutation.isPending &&
                                             releaseMoneyMutation.variables ===
                                               campaign._id ? (
-                                              <Loader
-                                                size={16}
-                                                color="text-blue-800"
-                                              />
+                                              <ButtonLoader />
                                             ) : (
                                               <DollarSign size={16} />
                                             )}
                                             Release Funds
                                           </motion.button>
                                         )}
-                                      <motion.button
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
-                                        onClick={() =>
-                                          handleSuspendClick(campaign)
-                                        }
-                                        className={`px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium bg-yellow-100 text-yellow-800 hover:bg-yellow-200 `} // Changed color
-                                      >
-                                        <PauseCircle size={16} />
-                                        Suspend
-                                      </motion.button>
+                                      {campaign.releaseStatus !== "released" &&
+                                        campaign.raisedAmount > 0 && (
+                                          <motion.button
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            onClick={() =>
+                                              handleSuspendClick(campaign)
+                                            }
+                                            className={`px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium bg-yellow-100 text-yellow-800 hover:bg-yellow-200 `} // Changed color
+                                          >
+                                            <PauseCircle size={16} />
+                                            Suspend
+                                          </motion.button>
+                                        )}
                                       <motion.button
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
@@ -548,9 +598,10 @@ const CampaignManager = () => {
                 </motion.div>
               </LayoutGroup>
             </motion.div>
-          ) : (
-            // Use the new Report component here
+          ) : selectedTab === "report" ? (
             <Report />
+          ) : (
+            <TestimonialManagement />
           )}
           {/* Edit Modal */}
           <AnimatePresence>
@@ -710,7 +761,7 @@ const CampaignManager = () => {
                       >
                         {updateCampaignMutation.isPending ? (
                           <>
-                            <Loader size={20} color="text-white" /> Updating...
+                            <ButtonLoader /> Updating...
                           </>
                         ) : (
                           "Save Changes"
