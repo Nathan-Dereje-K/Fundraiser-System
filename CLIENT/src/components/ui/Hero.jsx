@@ -37,17 +37,10 @@ const Hero = () => {
           infiniteLoop={true}
           interval={2500}
         >
-          <div className="relative  w-full h-[73vh] overflow-hidden">
-            <img
-              className="w-full h-full object-cover object-center"
-              src="https://images.pexels.com/photos/6613050/pexels-photo-6613050.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-              alt={t("Image 1")}
-            />
-          </div>
           <div className="relative w-full h-[73vh] overflow-hidden">
             <img
               className="w-full h-full object-cover object-center"
-              src="https://images.pexels.com/photos/7414283/pexels-photo-7414283.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+              src="https://img.freepik.com/free-photo/tourists-go-up-hill-sunrise_1150-19692.jpg?t=st=1745781043~exp=1745784643~hmac=1eb63213e610650113f1242b48c77006a1c00b96a19156610f6d0abcc4d0ebe5&w=1380"
               alt={t("Image 2")}
             />
           </div>
@@ -55,15 +48,22 @@ const Hero = () => {
           <div className="relative w-full h-[73vh] overflow-hidden">
             <img
               className="w-full h-full object-cover object-top"
-              src="https://images.pexels.com/photos/271168/pexels-photo-271168.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+              src="https://img.freepik.com/free-photo/smiley-volunteers-preparing-food-box-donation_23-2148732650.jpg?t=st=1745782032~exp=1745785632~hmac=76271b4da3e3a8e95727b053aacb6f2faabe3470de3c91474f7479d4f640c785&w=1380"
               alt={t("Image 3")}
+            />
+          </div>
+          <div className="relative  w-full h-[73vh] overflow-hidden">
+            <img
+              className="w-full h-full object-cover object-center"
+              src="https://img.freepik.com/free-photo/close-up-community-concept-with-hands_23-2148931127.jpg?t=st=1745781684~exp=1745785284~hmac=f82fb6f4a52fd44f5d7716d85299dee530df56e724572ea450c7f12c800fae1c&w=1380"
+              alt={t("Image 1")}
             />
           </div>
 
           <div className="relative w-full h-[73vh] overflow-hidden">
             <img
-              className="w-full h-full object-cover object-center"
-              src="https://images.pexels.com/photos/7414111/pexels-photo-7414111.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+              className="w-full h-full object-cover object-top"
+              src="https://img.freepik.com/premium-vector/volunteers-2d-vector-isolated-illustration_151150-6588.jpg?w=1380"
               alt={t("Image 4")}
             />
           </div>
