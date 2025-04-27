@@ -24,7 +24,8 @@ import Loader from "../../components/ui/Loader";
 import { getPendingCampaigns } from "../../api/campaignApi";
 import { useUpdateCampaign } from "../../hooks/useCampaign";
 import { toast } from "react-toastify";
-import { useTranslation } from "react-i18next"; 
+import { useTranslation } from "react-i18next";
+import Navbar from "../../components/layout/Navbar";
 // import Navbar from "../../components/layout/Navbar";
 
 const categoryIcons = {
@@ -108,6 +109,7 @@ const ValidatorPage = () => {
 
   return (
     <div>
+      <Navbar />
       <div className=" flex h-screen bg-gradient-to-br from-gray-50 to-blue-50">
         {/* Sidebar */}
         <motion.aside
@@ -254,8 +256,9 @@ const ValidatorPage = () => {
                     {t("Select a campaign")}
                   </h3>
                   <p className="text-gray-500">
-                    {t("Choose a campaign from the sidebar to view detailed information and perform validation actions.")}
-                    
+                    {t(
+                      "Choose a campaign from the sidebar to view detailed information and perform validation actions."
+                    )}
                   </p>
                 </motion.div>
               ) : (
@@ -281,7 +284,8 @@ const ValidatorPage = () => {
                           {selectedCampaign.status.toUpperCase()}
                         </span>
                         <span className="text-sm text-gray-500">
-                         {t("Created ")} {formatDate(selectedCampaign.createdAt)}
+                          {t("Created ")}{" "}
+                          {formatDate(selectedCampaign.createdAt)}
                         </span>
                       </div>
                     </div>
@@ -340,7 +344,8 @@ const ValidatorPage = () => {
                         <div className="flex items-center gap-3">
                           <ImageIcon className="w-6 h-6 text-purple-600" />
                           <h3 className="text-lg font-semibold text-gray-900">
-                            {t("Campaign Images")} ({selectedCampaign.image.length})
+                            {t("Campaign Images")} (
+                            {selectedCampaign.image.length})
                           </h3>
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -364,7 +369,8 @@ const ValidatorPage = () => {
                         <div className="flex items-center gap-3">
                           <VideoIcon className="w-6 h-6 text-red-600" />
                           <h3 className="text-lg font-semibold text-gray-900">
-                            {t("Campaign Videos")} ({selectedCampaign.video.length})
+                            {t("Campaign Videos")} (
+                            {selectedCampaign.video.length})
                           </h3>
                         </div>
                         <div className="grid grid-cols-1 gap-4">
@@ -382,7 +388,9 @@ const ValidatorPage = () => {
                                   src={`${video}#t=0.5`}
                                   type="video/mp4"
                                 />
-                                {t("Your browser does not support the video tag.")}
+                                {t(
+                                  "Your browser does not support the video tag."
+                                )}
                               </video>
                             </div>
                           ))}
@@ -395,7 +403,7 @@ const ValidatorPage = () => {
                         <div className="flex items-center gap-3">
                           <FileText className="w-6 h-6 text-amber-600" />
                           <h3 className="text-lg font-semibold text-gray-900">
-                            {t("Supporting Materials")} 
+                            {t("Supporting Materials")}
                           </h3>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
