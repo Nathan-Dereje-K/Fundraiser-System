@@ -172,30 +172,57 @@ const Landing = () => {
           variants={staggerContainer}
           className="py-8 md:py-12"
         >
-          {/* ... Featured Campaigns heading ... */}
+          {/* === UPDATED Featured Campaigns heading === */}
           <motion.h1
             className="font-bold text-3xl sm:text-4xl mb-6 md:mb-10 text-center md:text-left" // Centered on small screens
             variants={textVariants}
             initial="hidden"
             animate={isCampaignsInView ? "visible" : "hidden"}
           >
-            {campaigns
-              ? ["Spotlight", "Initiatives"].map((word, index) => (
-                  <motion.span
-                    key={index}
-                    className="inline-block mr-2 last:mr-0"
-                    variants={textVariants}
-                  >
-                    {word}
-                  </motion.span>
-                ))
-              : ""}
+            {/* Check if campaigns exists AND has one or more items */}
+            {
+              campaigns && campaigns.length > 0
+                ? ["Spotlight", "Initiatives"].map((word, index) => (
+                    <motion.span
+                      key={index}
+                      className="inline-block mr-2 last:mr-0"
+                      variants={textVariants}
+                    >
+                      {word}
+                    </motion.span>
+                  ))
+                : null /* Render nothing if no campaigns */
+            }
           </motion.h1>
+          {/* === END OF UPDATE === */}
+
           <div className="flex flex-col gap-8 md:gap-10">
-            {/* ... FeaturedCampaign components ... */}
-            <motion.div variants={featuredCampaignVariants}>
-              <FeaturedCampaign />
-            </motion.div>
+            {/* Render FeaturedCampaign components only if there are campaigns */}
+            {/* You might want to map over 'campaigns' here to display actual featured campaigns */}
+            {campaigns && campaigns.length > 0 && (
+              <motion.div variants={featuredCampaignVariants}>
+                {/* Example: Pass campaign data if needed */}
+                {/* <FeaturedCampaign campaign={campaigns[0]} /> */}
+                <FeaturedCampaign /> {/* Keeping original for now */}
+                {/* If you have multiple featured campaigns, map over them */}
+                {/* {campaigns.slice(0, 3).map(campaign => ( // Example: Show top 3
+                    <motion.div key={campaign.id} variants={featuredCampaignVariants}>
+                       <FeaturedCampaign campaign={campaign} />
+                    </motion.div>
+                ))} */}
+              </motion.div>
+            )}
+            {/* Optionally, display a message if there are no campaigns */}
+            {(!campaigns || campaigns.length === 0) && isCampaignsInView && (
+              <motion.p
+                className="text-center text-gray-500"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+              >
+                No featured campaigns available at the moment.
+              </motion.p>
+            )}
           </div>
         </motion.div>
 

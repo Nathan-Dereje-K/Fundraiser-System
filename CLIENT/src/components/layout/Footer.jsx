@@ -33,12 +33,7 @@ const Footer = () => {
             >
               About Us
             </Link>
-            <a
-              href="/contact"
-              className="text-gray-400 hover:text-orange-500 transition-colors duration-300"
-            >
-              Contact
-            </a>
+
             <Link
               to="/terms"
               className="text-gray-400 hover:text-orange-500 transition-colors duration-300"

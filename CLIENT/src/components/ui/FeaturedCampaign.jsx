@@ -67,13 +67,7 @@ const FeaturedCampaign = () => {
   }
 
   if (featuredCampaigns.length === 0) {
-    return (
-      <div className="text-center py-8">
-        <p className="text-xl text-gray-500">
-          No featured campaigns available right now.
-        </p>
-      </div>
-    );
+    return null; // Changed from showing message to returning nothing
   }
 
   return (

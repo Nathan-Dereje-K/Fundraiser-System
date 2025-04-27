@@ -95,19 +95,6 @@ const Report = () => {
               transition={{ duration: 0.3 }}
               className="bg-white p-6 rounded-2xl shadow-md border border-gray-100 hover:shadow-lg transition-shadow"
             >
-              {/* Report Header */}
-              <div className="flex justify-between items-start gap-4 mb-5">
-                <h4 className="text-lg font-semibold text-gray-800 line-clamp-2">
-                  {report.reason}
-                </h4>
-                <button
-                  onClick={() => handleDeleteReport(report._id)}
-                  className="text-red-500 hover:text-red-600 transition-colors"
-                >
-                  <Trash2 size={20} />
-                </button>
-              </div>
-
               {/* Report Details */}
               <div className="space-y-3">
                 <p className="text-sm text-gray-500">
@@ -118,18 +105,18 @@ const Report = () => {
                   <span className="font-medium">Reported By:</span>{" "}
                   {report.reportedBy?.name || "Unknown User"}
                 </p>
-                <p className="text-sm text-gray-500">
-                  <span className="font-medium">Status:</span>{" "}
-                  <span
-                    className={`${
-                      report.status === "pending"
-                        ? "text-orange-500"
-                        : "text-green-600"
-                    } font-medium`}
-                  >
-                    {report.status}
-                  </span>
-                </p>
+              </div>
+              {/* Report Header */}
+              <div className="flex justify-between items-start gap-4 mb-5">
+                <h4 className="text-lg font-semibold text-gray-800 ">
+                  {report.reason}
+                </h4>
+                <button
+                  onClick={() => handleDeleteReport(report._id)}
+                  className="text-red-500 hover:text-red-600 transition-colors"
+                >
+                  <Trash2 size={20} />
+                </button>
               </div>
 
               {/* Media Section */}
