@@ -17,31 +17,35 @@ const shuffleArray = (array) => {
   return array;
 };
 
+const MAX_DESCRIPTION_CHARS = 1600; // Maximum characters before truncation
+
 const FeaturedCampaign = () => {
   const navigate = useNavigate();
 
-  // Navigate to the campaign detail page based on category and id
   const handleNavigate = (id, category) => {
     navigate(`/category/${category}/${id}`);
   };
 
-  const { data: apiResponse, isError, isLoading } = useCampaigns();
+  const { data: campaigns, isError, isLoading } = useCampaigns();
 
   const featuredCampaigns = useMemo(() => {
-    const campaignsArray = apiResponse || [];
-
+    const campaignsArray = campaigns || [];
     if (!Array.isArray(campaignsArray)) return [];
-
     const approvedCampaigns = campaignsArray.filter(
       (campaign) => campaign.status === "approved"
     );
-
     if (approvedCampaigns.length === 0) return [];
-
-    // Shuffle and pick two random campaigns
     const shuffledCampaigns = shuffleArray([...approvedCampaigns]);
-    return shuffledCampaigns.slice(0, 2); // Limit to 2 campaigns
-  }, [apiResponse]);
+    return shuffledCampaigns.slice(0, 2);
+  }, [campaigns]);
+
+  const getTruncatedDescription = (text) => {
+    if (!text)
+      return "Help us make a meaningful impact in our community. Your support can change lives.";
+    return text.length > MAX_DESCRIPTION_CHARS
+      ? text.slice(0, MAX_DESCRIPTION_CHARS) + "..."
+      : text;
+  };
 
   if (isLoading) {
     return (
@@ -77,8 +81,8 @@ const FeaturedCampaign = () => {
       {featuredCampaigns.map((campaign, index) => (
         <div
           key={index}
-          className="flex flex-col sm:flex-row justify-center items-center gap-8 md:gap-16 w-full h-auto cursor-pointer"
-          onClick={() => handleNavigate(campaign.id, campaign.category)} // Navigate on click of the entire card
+          className="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-16 w-full h-auto cursor-pointer"
+          onClick={() => handleNavigate(campaign.id, campaign.category)}
         >
           {/* Image Section */}
           <div className="w-full md:w-1/2 h-auto relative overflow-hidden rounded-3xl shadow-lg">
@@ -106,9 +110,8 @@ const FeaturedCampaign = () => {
             <h2 className="text-3xl sm:text-4xl font-bold text-orange-600">
               {campaign.category || "General Support"}
             </h2>
-            <p className="text-lg sm:text-xl text-gray-600 max-w-full break-words">
-              {campaign.description ||
-                "Help us make a meaningful impact in our community. Your support can change lives."}
+            <p className="text-lg sm:text-xl text-gray-600 max-w-full break-words line-clamp-3">
+              {getTruncatedDescription(campaign.description)}
             </p>
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -116,7 +119,7 @@ const FeaturedCampaign = () => {
               className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full shadow-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               aria-label={`Donate to ${campaign.title} campaign`}
               onClick={(e) => {
-                e.stopPropagation(); // Prevent triggering parent click event
+                e.stopPropagation();
                 handleNavigate(campaign.id, campaign.category);
               }}
             >

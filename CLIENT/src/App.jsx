@@ -21,6 +21,8 @@ import ValidatorPanel from "./pages/validator/ValidatorPanel";
 import Landing from "./pages/User/Landing";
 import Category from "./pages/User/Category";
 import DonorProfile from "./pages/User/DonorProfile";
+import Terms from "./pages/User/Terms";
+import AboutUs from "./pages/User/AboutUs";
 
 // Campaign pages
 import CampaignCreation from "./pages/Campaign/CampaignCreation";
@@ -74,6 +76,10 @@ function App() {
             <Route path="/donor/:donorId" element={<DonorProfile />} />
             <Route path="/category/:category_name" element={<Category />} />
             <Route path="/campaign_manager" element={<CampaignManager />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/about_us" element={<AboutUs />} />
+
+            {/* User routes */}
             <Route
               path="/category/:categoryName/:id"
               element={<CampaignDetails />}

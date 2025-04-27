@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Facebook, Instagram, Twitter, Linkedin } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
@@ -25,24 +26,25 @@ const Footer = () => {
 
           {/* Center Section: Quick Links */}
           <div className="flex flex-col md:flex-row gap-4 text-center md:text-left">
-            <a
+            <Link
+              to="/about_us"
               href="/about"
               className="text-gray-400 hover:text-orange-500 transition-colors duration-300"
             >
               About Us
-            </a>
+            </Link>
             <a
               href="/contact"
               className="text-gray-400 hover:text-orange-500 transition-colors duration-300"
             >
               Contact
             </a>
-            <a
-              href="/privacy"
+            <Link
+              to="/terms"
               className="text-gray-400 hover:text-orange-500 transition-colors duration-300"
             >
               Privacy Policy
-            </a>
+            </Link>
           </div>
 
           {/* Right Section: Social Media Icons */}
@@ -94,7 +96,7 @@ const Footer = () => {
         <div className="mt-8 border-t border-gray-700 pt-6 text-center text-sm text-gray-400">
           Made with ❤️ and ☕ by{" "}
           <a
-            href="https://yourwebsite.com"
+            href="#"
             className="text-orange-500 hover:underline transition-colors duration-300"
           >
             A team of Three

@@ -64,18 +64,24 @@ const Navbar = () => {
 
         {/* Desktop Nav */}
         <ul className="hidden md:flex gap-6 items-center text-lg font-medium text-gray-700">
-          <li className="hover:text-orange-500 cursor-pointer transition-colors">
-            Causes
-          </li>
-          <li className="hover:text-orange-500 cursor-pointer transition-colors">
-            Campaigns
-          </li>
-          <li className="hover:text-orange-500 cursor-pointer transition-colors">
+          <Link
+            to="/"
+            className="hover:text-orange-500 cursor-pointer transition-colors"
+          >
+            Home
+          </Link>
+          <Link
+            to="about_us"
+            className="hover:text-orange-500 cursor-pointer transition-colors"
+          >
             About Us
-          </li>
-          <li className="hover:text-orange-500 cursor-pointer transition-colors">
-            Impact
-          </li>
+          </Link>
+          <Link
+            to="/terms"
+            className="hover:text-orange-500 cursor-pointer transition-colors"
+          >
+            Terms
+          </Link>
           <li className=" cursor-pointer transition-colors">
             <SearchCampaign />
           </li>
@@ -192,12 +198,12 @@ const Navbar = () => {
           >
             About Us
           </a>
-          <a
-            href="#impact"
+          <Link
+            to="/terms"
             className="text-lg font-medium text-gray-700 hover:text-orange-500 transition-colors"
           >
-            Impact
-          </a>
+            Terms
+          </Link>
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}

@@ -9,6 +9,7 @@ import Footer from "../../components/layout/Footer";
 import Hero from "../../components/ui/Hero";
 import Navbar from "../../components/layout/user/Navbar";
 import AutoMovingCards from "../../components/ui/AutoMovingCards";
+import { useCampaigns } from "../../hooks/useCampaign";
 
 // Existing category animation variants
 const categoryVariants = {
@@ -16,7 +17,7 @@ const categoryVariants = {
   animate: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.3, ease: "easeOut" },
+    transition: { duration: 0.3 },
   },
 };
 
@@ -88,6 +89,8 @@ const Landing = () => {
     once: true,
     amount: 0.2,
   });
+
+  const { data: campaigns } = useCampaigns();
 
   return (
     <div className="relative min-h-screen bg-gray-50">
@@ -176,15 +179,17 @@ const Landing = () => {
             initial="hidden"
             animate={isCampaignsInView ? "visible" : "hidden"}
           >
-            {["Spotlight", "Initiatives"].map((word, index) => (
-              <motion.span
-                key={index}
-                className="inline-block mr-2 last:mr-0"
-                variants={textVariants}
-              >
-                {word}
-              </motion.span>
-            ))}
+            {campaigns
+              ? ["Spotlight", "Initiatives"].map((word, index) => (
+                  <motion.span
+                    key={index}
+                    className="inline-block mr-2 last:mr-0"
+                    variants={textVariants}
+                  >
+                    {word}
+                  </motion.span>
+                ))
+              : ""}
           </motion.h1>
           <div className="flex flex-col gap-8 md:gap-10">
             {/* ... FeaturedCampaign components ... */}
