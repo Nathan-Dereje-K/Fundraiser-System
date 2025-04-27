@@ -2,8 +2,12 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import { useEffect } from "react";
 
-const Categories = ({ img, title }) => {
+const Categories = ({ img, title, categoryKey }) => {
+  useEffect(() => {
+    console.log(`Image: ${img}, Title: ${title} CategoryKey: ${categoryKey}`);
+  }, [img, title, categoryKey]); // Added to prevent missing dependency warning
   return (
     <motion.div
       className="w-60 rounded-xl overflow-hidden shadow-md transition-shadow duration-300 bg-white hover:shadow-lg"
@@ -15,7 +19,7 @@ const Categories = ({ img, title }) => {
       whileTap={{ scale: 0.98 }}
     >
       <Link
-        to={`/category/${title}`}
+        to={`/category/${categoryKey}`}
         className="block text-decoration-none outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         aria-label={`Explore ${title} category`}
       >

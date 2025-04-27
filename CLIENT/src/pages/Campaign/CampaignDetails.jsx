@@ -26,7 +26,7 @@ import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 
 const CampaignDetails = () => {
-  const isOwner = false;
+  const isOwner = useDoesUserOwnCampaign();
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState(
     isOwner ? "transactions" : "donate"
@@ -167,7 +167,7 @@ const CampaignDetails = () => {
               </div>
               <div className="flex items-center bg-white/10 px-3 py-1 rounded-full">
                 <Goal className="w-4 h-4 mr-2" />
-                {campaign.status.toUpperCase()}
+                {t(campaign.status.toUpperCase())}
               </div>
               {isLoggedIn ? (
                 <motion.button

@@ -12,16 +12,15 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import Loader from "../../components/ui/Loader";
-import { useTranslation } from "react-i18next"; 
+import { useTranslation } from "react-i18next";
 
 const CategoryPage = () => {
   const { t } = useTranslation();
-  const { categoryKey } = useParams();
-  console.log("Received categoryKey:", categoryKey); 
+  const { category_name: categoryKey } = useParams();
+  console.log("Received categoryKey:", categoryKey);
   const [campaigns, setCampaigns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
- 
 
   useEffect(() => {
     const fetchCampaigns = async () => {
@@ -31,7 +30,7 @@ const CategoryPage = () => {
         );
         setCampaigns(response.data.data);
       } catch (err) {
-        setError(t("fetchCampaignsError")); 
+        setError(t("fetchCampaignsError"));
         console.error("Error fetching campaigns:", err);
       } finally {
         setLoading(false);
@@ -112,7 +111,8 @@ const CategoryPage = () => {
                 to="/"
                 className="text-orange-600 hover:text-orange-700 inline-flex items-center font-medium"
               >
-                {t("browseAllCategories")} <ArrowRight className="w-5 h-5 ml-2" />
+                {t("browseAllCategories")}{" "}
+                <ArrowRight className="w-5 h-5 ml-2" />
               </Link>
             </motion.div>
           ) : (
@@ -208,7 +208,8 @@ const CategoryPage = () => {
                           <div className="flex items-center text-sm text-gray-500">
                             <Heart className="w-4 h-4 mr-2 text-rose-500" />
                             <span>
-                              {campaign.donations?.length?.toLocaleString() || 0}{" "}
+                              {campaign.donations?.length?.toLocaleString() ||
+                                0}{" "}
                               {t("supporters")}
                             </span>
                           </div>

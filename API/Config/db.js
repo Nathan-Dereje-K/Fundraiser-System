@@ -3,7 +3,7 @@ require("colors");
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI, {});
+    await mongoose.connect(process.env.MONGO_URI_Local, {});
     console.log(
       `MongoDB Connected: ${mongoose.connection.host}`.cyan.bold.underline
     );

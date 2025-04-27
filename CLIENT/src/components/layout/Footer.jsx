@@ -34,19 +34,19 @@ const Footer = () => {
               className="text-gray-400 hover:text-orange-500 transition-colors duration-300"
             >
               {t("About Us")}
-            </a>
+            </Link>
             <a
               href="/contact"
               className="text-gray-400 hover:text-orange-500 transition-colors duration-300"
             >
               {t("Contact")}
             </a>
-            <a
-              href="/privacy"
+            <Link
+              href="/terms"
               className="text-gray-400 hover:text-orange-500 transition-colors duration-300"
             >
               {t("Privacy Policy")}
-            </a>
+            </Link>
           </div>
 
           {/* Right Section: Social Media Icons */}

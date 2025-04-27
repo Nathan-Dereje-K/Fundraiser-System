@@ -129,35 +129,35 @@ const Landing = () => {
               <Categories
                 img="https://images.pexels.com/photos/1454360/pexels-photo-1454360.jpeg"
                 title={t("Education")}
-                categoryKey="education"
+                categoryKey="Education"
               />
             </motion.div>
             <motion.div variants={categoryVariants}>
               <Categories
                 img="https://images.pexels.com/photos/208512/pexels-photo-208512.jpeg"
                 title={t("Medical")}
-                categoryKey="medical"
+                categoryKey="Medical"
               />
             </motion.div>
             <motion.div variants={categoryVariants}>
               <Categories
                 img="https://images.pexels.com/photos/31115077/pexels-photo-31115077.jpeg"
                 title={t("Individual")}
-                categoryKey="individual"
+                categoryKey="Individual"
               />
             </motion.div>
             <motion.div variants={categoryVariants}>
               <Categories
                 img="https://images.pexels.com/photos/2917381/pexels-photo-2917381.jpeg"
                 title={t("Religious")}
-                categoryKey="religious"
+                categoryKey="Religious"
               />
             </motion.div>
             <motion.div variants={categoryVariants}>
               <Categories
                 img="https://images.pexels.com/photos/545014/pexels-photo-545014.jpeg"
                 title={t("Other")}
-                categoryKey="other"
+                categoryKey="Other"
               />
             </motion.div>
           </div>
