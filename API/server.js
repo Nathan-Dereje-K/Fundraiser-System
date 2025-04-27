@@ -39,7 +39,7 @@ if (process.env.NODE_ENV === "development") {
 app.use(cookieParser());
 app.use(express.json());
 app.use(
-  cors({ origin: "https://fundraiser-system.onrender.com", credentials: true })
+  cors({ origin: "https://fundraiser-system.vercel.app", credentials: true })
 );
 
 // Routes
