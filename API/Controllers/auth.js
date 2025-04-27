@@ -39,6 +39,8 @@ exports.getGoogleAuth = asyncHandler(async (req, res) => {
     });
     await user.save();
   }
+  if (user.blocked)
+    return res.status(400).json({ error: "This user is blocked" });
 
   const accessToken = signToken(user);
   res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
@@ -91,6 +93,8 @@ exports.signup = asyncHandler(async (req, res) => {
 exports.signin = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
+  if (user.blocked)
+    return res.status(400).json({ error: "This user is blocked" });
 
   if (
     !user ||

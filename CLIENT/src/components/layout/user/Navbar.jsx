@@ -3,7 +3,14 @@ import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../../../hooks/useAuth";
 import { useUser } from "../../../context/UserContext";
 import { Link, useNavigate } from "react-router-dom";
-import { User, LayoutDashboardIcon, LogOut, Menu, X } from "lucide-react";
+import {
+  User,
+  LayoutDashboardIcon,
+  LogOut,
+  Menu,
+  X,
+  Wallet,
+} from "lucide-react";
 import Avatar from "../../ui/Avatar";
 import Dropdown from "../../ui/Dropdown";
 import NotificationSystem from "../../../pages/Notification/NotificationSystem";
@@ -151,6 +158,17 @@ const Navbar = () => {
                   <LayoutDashboardIcon className="mr-2 h-4 w-4" />
                   Dashboard
                 </Link>
+                {currentUser?.role === "user" &&
+                  currentUser?.releasedMoney > 0 && (
+                    <Link
+                      to="/withdraw"
+                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      role="menuitem"
+                    >
+                      <Wallet className="mr-2 h-4 w-4" />
+                      Withdraw
+                    </Link>
+                  )}
                 <button
                   onClick={handleLogout}
                   className="flex w-full items-center px-4 py-2 text-sm text-red-700 hover:bg-red-50"

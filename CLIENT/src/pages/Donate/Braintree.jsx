@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { HeartHandshake } from "lucide-react";
 import dropin from "braintree-web-drop-in";
 import { useInitiateToken, useProcessPayment } from "../../hooks/useDonate";
+import { toast } from "react-toastify";
 
 const Braintree = ({ campaignId }) => {
   const [donationAmount, setDonationAmount] = useState("");
@@ -19,7 +20,7 @@ const Braintree = ({ campaignId }) => {
 
   useEffect(() => {
     if (isSuccess) {
-      // alert("Payment successful!");
+      toast.success("Payment successful!");
       setDonationAmount("");
       reset();
     }
@@ -68,14 +69,22 @@ const Braintree = ({ campaignId }) => {
       initializeDropin();
     }
   }, [clientToken, dropinContainerKey.current]); // Add key to dependencies
+  const isValidNumberWithCommas = (value) => /^[\d,]+$/.test(value);
 
+  const cleanNumber = (value) => value.replace(/,/g, "");
   // Handle payment
   const handlePayment = async () => {
-    if (!dropinInstance.current || !donationAmount) return;
+    if (!donationAmount || !isValidNumberWithCommas(donationAmount)) {
+      toast.error("Invalid amount. Only numbers and commas are allowed.");
+      return;
+    }
+    const pureAmount = cleanNumber(donationAmount);
+
+    if (!dropinInstance.current) return;
 
     try {
       const { nonce } = await dropinInstance.current.requestPaymentMethod();
-      processPayment({ nonce, amount: donationAmount, campaignId });
+      processPayment({ nonce, amount: pureAmount, campaignId });
 
       if (isSuccess) {
         alert("Payment successful!");

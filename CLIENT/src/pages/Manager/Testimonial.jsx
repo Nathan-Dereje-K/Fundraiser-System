@@ -18,8 +18,6 @@ const TestimonialManagement = () => {
   const [filteredTestimonials, setFilteredTestimonials] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [testimonialToDelete, setTestimonialToDelete] = useState(null);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const itemsPerPage = 6;
 

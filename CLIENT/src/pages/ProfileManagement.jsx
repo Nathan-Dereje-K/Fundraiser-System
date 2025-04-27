@@ -180,20 +180,25 @@ const ProfileManagement = () => {
             Profile Management
           </h1>
           <div className="mt-4 sm:mt-0 sm:ml-4 flex space-x-2">
-            {isOwner && (
-              <Button
-                variant="success"
-                onClick={() => setIsTestiModalOpen(true)}
-              >
-                Testimony
-              </Button>
+            {currentUser?.role === "user" && (
+              <>
+                {isOwner && (
+                  <Button
+                    variant="success"
+                    onClick={() => setIsTestiModalOpen(true)}
+                  >
+                    Testimony
+                  </Button>
+                )}
+
+                <Button
+                  variant="success"
+                  onClick={() => window.open(`/donor/${currentUser._id}`)}
+                >
+                  Share Your Donor Profile
+                </Button>
+              </>
             )}
-            <Button
-              variant="success"
-              onClick={() => window.open(`/donor/${currentUser._id}`)}
-            >
-              Share Your Donor Profile
-            </Button>
             {!isEditing && (
               <Button variant="primary" onClick={() => setIsEditing(true)}>
                 Edit Profile
@@ -384,6 +389,7 @@ const ProfileManagement = () => {
                     placeholder="Write your testimony..."
                     className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                     rows="3"
+                    maxLength={80}
                     required
                   />
                 </div>

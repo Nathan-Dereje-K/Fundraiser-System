@@ -2,23 +2,38 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { HeartHandshake } from "lucide-react";
 import { useDonate } from "../../hooks/useDonate";
+import { toast } from "react-toastify";
 function Chapa({ campaignId }) {
-  const { mutate: initiatePayment, data, isSuccess, isError } = useDonate();
+  const {
+    mutate: initiatePayment,
+    data,
+    isSuccess,
+    isError,
+  } = useDonate(campaignId);
   const [donationAmount, setDonationAmount] = useState("");
   useEffect(() => {
     if (isSuccess) {
       //open it in new tab
       window.open(data.data.data.checkout_url, "_blank");
       // window.location.href = data.data.data.checkout_url;
+      toast.success("Please go to the next tab to donate.");
       setTimeout(() => {
         setDonationAmount("");
       }, 2000);
     }
   }, [isSuccess, data]);
+  const isValidNumberWithCommas = (value) => /^[\d,]+$/.test(value);
 
+  const cleanNumber = (value) => value.replace(/,/g, "");
   const handleSubmit = (e) => {
     e.preventDefault();
-    initiatePayment({ campaignId, amount: donationAmount });
+    if (!donationAmount || !isValidNumberWithCommas(donationAmount)) {
+      toast.error("Invalid amount. Only numbers and commas are allowed.");
+      return;
+    }
+
+    const pureAmount = cleanNumber(donationAmount);
+    initiatePayment({ campaignId, amount: pureAmount });
   };
 
   return (

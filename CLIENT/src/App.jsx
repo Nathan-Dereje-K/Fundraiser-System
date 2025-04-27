@@ -76,15 +76,54 @@ function App() {
             <Route path="/forgotpassword" element={<ForgetPassword />} />
             <Route path="/resetpassword" element={<ResetPassword />} />
             <Route path="/verifyemail" element={<VerifyEmail />} />
-            <Route path="/campaign_panel" element={<CampaignPanel />} />
-            <Route path="/campaign_creation" element={<CampaignCreation />} />
-            <Route path="/validator_panel" element={<ValidatorPanel />} />
             <Route path="/donor/:donorId" element={<DonorProfile />} />
-            <Route path="/category/:category_name" element={<Category />} />
-            <Route path="/campaign_manager" element={<CampaignManager />} />
+            <Route
+              path="/campaign_panel"
+              element={
+                <ProtectedRoute allowedRoles={["user"]}>
+                  <CampaignPanel />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/campaign_creation"
+              element={
+                <ProtectedRoute allowedRoles={["user"]}>
+                  <CampaignCreation />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/validator_panel"
+              element={
+                <ProtectedRoute allowedRoles={["validator"]}>
+                  <ValidatorPanel />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/category/:category_name"
+              element={
+                <ProtectedRoute allowedRoles={["user"]}>
+                  <Category />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/campaign_manager"
+              element={
+                <ProtectedRoute allowedRoles={["manager"]}>
+                  <CampaignManager />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/category/:categoryName/:id"
-              element={<CampaignDetails />}
+              element={
+                <ProtectedRoute allowedRoles={["user"]}>
+                  <CampaignDetails />
+                </ProtectedRoute>
+              }
             />
 
             <Route path="*" element={<PageError />} />
