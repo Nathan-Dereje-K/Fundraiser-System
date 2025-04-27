@@ -8,8 +8,10 @@ import { postCampaign } from "../../api/campaignApi";
 import Loader from "../../components/ui/Loader";
 import Step4Content from "../../components/ui/Step4Content";
 import { toast } from "react-toastify";
+import { useTranslation } from "react-i18next";
 
 const CampaignCreation = () => {
+  const { t } = useTranslation();
   const form = useForm();
   const { register, handleSubmit, formState, trigger, getValues } = form;
   const { errors } = formState;
@@ -89,16 +91,16 @@ const CampaignCreation = () => {
     <>
       <div>
         <label className="block text-gray-700 font-medium mb-2">
-          Campaign Title
+          {t("Campaign Title")}
         </label>
         <input
-          placeholder="Enter a compelling campaign title"
+          placeholder={t("Enter a compelling campaign title")}
           className={`w-full px-4 py-3 rounded-lg border ${
             errors.title ? "border-red-500" : "border-gray-300"
           } focus:ring-2 focus:ring-orange-500 focus:border-transparent`}
           {...register("title", {
-            required: "Title is required",
-            maxLength: { value: 100, message: "Max 100 characters" },
+            required: t("Title is required"),
+            maxLength: { value: 100, message: t("Max 100 characters") },
           })}
         />
         {errors.title && (
@@ -107,15 +109,15 @@ const CampaignCreation = () => {
       </div>
       <div>
         <label className="block text-gray-700 font-medium mb-2">
-          Description
+          {t("Description")}
         </label>
         <textarea
-          placeholder="Describe your campaign's purpose..."
+          placeholder={t("Describe your campaign's purpose...")}
           rows={4}
           className={`w-full px-4 py-3 rounded-lg border ${
             errors.description ? "border-red-500" : "border-gray-300"
           } focus:ring-2 focus:ring-orange-500 focus:border-transparent`}
-          {...register("description", { required: "Description is required" })}
+          {...register("description", { required: t("Description is required") })}
         />
         {errors.description && (
           <p className="text-red-500 text-sm mt-1">
@@ -130,17 +132,17 @@ const CampaignCreation = () => {
     <>
       <div>
         <label className="block text-gray-700 font-medium mb-2">
-          Goal Amount (ETB)
+          {t("Goal Amount (ETB)")}
         </label>
         <input
-          placeholder="Eg: 10,000 Birr"
+          placeholder={t("Eg: 10,000 Birr")}
           type="number"
           className={`w-full px-4 py-3 rounded-lg border ${
             errors.goalAmount ? "border-red-500" : "border-gray-300"
           } focus:ring-2 focus:ring-orange-500 focus:border-transparent`}
           {...register("goalAmount", {
-            required: "Goal amount is required",
-            min: { value: 1, message: "Must be positive" },
+            required: t("Goal amount is required"),
+            min: { value: 1, message: t("Must be positive") },
           })}
         />
         {errors.goalAmount && (
@@ -150,14 +152,16 @@ const CampaignCreation = () => {
         )}
       </div>
       <div>
-        <label className="block text-gray-700 font-medium mb-2">Category</label>
+        <label className="block text-gray-700 font-medium mb-2">
+          {t("Category")}
+        </label>
         <select
           className={`w-full px-4 py-3 rounded-lg border ${
             errors.category ? "border-red-500" : "border-gray-300"
           } focus:ring-2 focus:ring-orange-500 focus:border-transparent`}
-          {...register("category", { required: "Category is required" })}
+          {...register("category", { required: t("Category is required") })}
         >
-          <option value="">Select a category</option>
+          <option value="">{t("Select a category")}</option>
           {["Education", "Medical", "Individual", "Religious", "Other"].map(
             (opt) => (
               <option key={opt} value={opt}>
@@ -176,16 +180,16 @@ const CampaignCreation = () => {
   const Step3Content = () => {
     const dateValidation = {
       startDate: {
-        required: "Start date is required",
+        required: t("Start date is required"),
         validate: (value) =>
           new Date(value) >= new Date(new Date().setHours(0, 0, 0, 0)) ||
-          "Cannot be in the past",
+          t("Cannot be in the past"),
       },
       endDate: {
-        required: "End date is required",
+        required: t("End date is required"),
         validate: (value) =>
           new Date(value) > new Date(getValues("startDate")) ||
-          "Must be after start date",
+          t("Must be after start date"),
       },
     };
 
@@ -194,7 +198,7 @@ const CampaignCreation = () => {
         {["startDate", "endDate"].map((field) => (
           <div key={field}>
             <label className="block text-gray-700 font-medium mb-2">
-              {field === "startDate" ? "Start Date" : "End Date"}
+              {field === "startDate" ? t("Start Date") : t("End Date")}
             </label>
             <input
               type="date"
@@ -232,7 +236,7 @@ const CampaignCreation = () => {
             <div className="text-center space-y-4">
               <Loader size={96} color="text-blue-500" />
               <motion.p className="text-lg font-medium text-gray-700">
-                Creating Your Campaign...
+                {t("Creating Your Campaign...")}
               </motion.p>
             </div>
           </motion.div>
@@ -241,7 +245,7 @@ const CampaignCreation = () => {
       <div className="max-w-3xl mx-auto">
         <div className="bg-white rounded-3xl shadow-xl p-8 sm:p-12">
           <h1 className="text-3xl font-bold text-gray-900 mb-8 text-center">
-            Create a New Campaign
+            {t("Create a New Campaign")}
           </h1>
           <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-8">
             <div className="flex items-center justify-center mb-8">
@@ -297,7 +301,7 @@ const CampaignCreation = () => {
                     onClick={handlePrevious}
                     className="px-6 py-2.5 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 focus:ring-2 focus:ring-gray-400"
                   >
-                    Previous
+                    {t("Previous")}
                   </button>
                 )}
               </div>
@@ -314,10 +318,10 @@ const CampaignCreation = () => {
                 } disabled:opacity-70 disabled:cursor-not-allowed`}
               >
                 {createCampaignMutation.isPending
-                  ? "Processing..."
+                  ? t("Processing...")
                   : step === 4
-                  ? "Submit Campaign"
-                  : "Next"}
+                  ? t("Submit Campaign")
+                  : t("Next")}
               </button>
             </div>
           </form>

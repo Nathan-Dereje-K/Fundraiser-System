@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import Loader from "../../components/ui/Loader";
 import { useTransactionOfCampaign } from "../../hooks/useTransaction";
+import { useTranslation } from "react-i18next";
 
 const DonationHistory = ({ campaignId }) => {
+  const { t } = useTranslation();
   const bgColors = [
     "bg-green-500",
     "bg-yellow-500",
@@ -20,9 +22,10 @@ const DonationHistory = ({ campaignId }) => {
     ...tx,
     color: bgColors[Math.floor(Math.random() * bgColors.length)],
   }));
+
   const formatTime = (date) => {
     const d = new Date(date);
-    if (isNaN(d)) return "Invalid Time";
+    if (isNaN(d)) return t("Invalid Time");
     return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
   // useEffect(() => {
@@ -30,23 +33,24 @@ const DonationHistory = ({ campaignId }) => {
   // }, [transactions]);
 
   const formatDate = (myDate) => {
-    if (!myDate) return "Invalid Date";
+    if (!myDate) return t("Invalid Date");
 
     const date = new Date(myDate);
-    if (isNaN(date)) return "Invalid Date"; // Catch bad date strings
+    if (isNaN(date)) return t("Invalid Date");
 
     const today = new Date();
     const yesterday = new Date();
     yesterday.setDate(today.getDate() - 1);
 
     if (date.toDateString() === today.toDateString()) {
-      return "Today";
+      return t("Today");
     } else if (date.toDateString() === yesterday.toDateString()) {
-      return "Yesterday";
+      return t("Yesterday");
     } else {
       return date.toLocaleDateString();
     }
   };
+
   if (isPending) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50">
@@ -59,13 +63,12 @@ const DonationHistory = ({ campaignId }) => {
     <div className="h-[500px] overflow-y-auto pr-1">
       <div className="sticky top-0 bg-white z-10 pb-2">
         <div className="flex justify-between items-center mb-2">
-          <h3 className="font-medium">Recent Transactions</h3>
+          <h3 className="font-medium">{t("Recent Transactions")}</h3>
         </div>
         <div className="h-px bg-gray-200 w-full"></div>
       </div>
 
       {coloredTransactions?.map((transaction, index) => {
-        // Check if we need to display a date divider
         const showDateDivider =
           index === 0 ||
           formatDate(transaction.createdAt) !==
@@ -93,15 +96,17 @@ const DonationHistory = ({ campaignId }) => {
               <div className="ml-6 text-green-600 font-bold">
                 {transaction.method !== "local" ? "$" : ""}
                 {transaction.amount}
-                {transaction.method === "local" ? " ETB" : ""}
+                {transaction.method === "local" ? ` ${t("ETB")}` : ""}
               </div>
             </div>
           </React.Fragment>
         );
       })}
 
-      {transactions.length === 0 && (
-        <div className="py-8 text-center text-gray-500">No donations yet</div>
+      {transactions?.length === 0 && (
+        <div className="py-8 text-center text-gray-500">
+          {t("No donations yet")}
+        </div>
       )}
     </div>
   );

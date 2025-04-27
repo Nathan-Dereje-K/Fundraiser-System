@@ -122,7 +122,7 @@ const CampaignManager = () => {
         // Optionally add success toast here
       } catch (error) {
         console.error("Release failed:", error);
-        toast.error("Failed to release campaign."); // Add error toast
+        toast.error("Failed to release campaign."); 
       }
     }
   };

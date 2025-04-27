@@ -1,5 +1,3 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable react/prop-types */
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useUser } from "../../context/UserContext";
@@ -20,8 +18,10 @@ import {
   Flag,
 } from "lucide-react";
 import Avatar from "../ui/Avatar";
+import { useTranslation } from "react-i18next";
 
 const Sidebar = ({ isCollapsed, onCollapse }) => {
+  const { t } = useTranslation();
   const location = useLocation();
   const { user: currentUser } = useUser();
 
@@ -63,7 +63,7 @@ const Sidebar = ({ isCollapsed, onCollapse }) => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <Avatar
-                src={currentUser?.avatar || null} // '' for typescript,
+                src={currentUser?.avatar || null}
                 alt={currentUser?.name || ""}
                 size={isCollapsed ? "sm" : "md"}
               />
@@ -73,7 +73,7 @@ const Sidebar = ({ isCollapsed, onCollapse }) => {
                     {currentUser?.name}
                   </p>
                   <p className="text-xs text-gray-500 truncate">
-                    {currentUser?.role}
+                    {t(currentUser?.role)}
                   </p>
                 </div>
               )}
@@ -82,6 +82,7 @@ const Sidebar = ({ isCollapsed, onCollapse }) => {
               <button
                 onClick={() => onCollapse(true)}
                 className="flex items-center justify-center border-none rounded-full text-gray-400 hover:text-gray-600 hover:bg-orange-100 h-10 w-10 transition-colors"
+                aria-label={t("Collapse sidebar")}
               >
                 <ChevronsLeft className="h-5 w-5" />
               </button>
@@ -92,6 +93,7 @@ const Sidebar = ({ isCollapsed, onCollapse }) => {
             <button
               onClick={() => onCollapse(false)}
               className="flex justify-center items-center mt-1 h-8 w-8 text-gray-400 hover:text-gray-600 hover:bg-orange-100 border-none rounded-full transition-colors"
+              aria-label={t("Expand sidebar")}
             >
               <ChevronsRight className="h-4 w-4" />
             </button>

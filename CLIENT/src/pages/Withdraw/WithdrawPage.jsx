@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useUser } from "../../context/UserContext";
 import { useTransactionOfUser } from "../../hooks/useTransaction";
 import { useWithdrawMoney } from "../../hooks/useRelease";
 import AlertMessage from "../../components/ui/AlertMessage";
+
 const banks = [
   {
     id: "946",
@@ -55,31 +57,32 @@ const banks = [
     info: "For CBE Birr, use your registered phone number",
   },
 ];
+
 const WithdrawPage = () => {
+  const { t } = useTranslation();
   const [selectedBank, setSelectedBank] = useState("946");
   const [accountNumber, setAccountNumber] = useState("");
   const [amount, setAmount] = useState("");
   const [disabled, setDisabled] = useState(true);
   const { user, refetch } = useUser();
-  const { mutate, isPending, error, isError, isSuccess, reset } =
-    useWithdrawMoney();
+  const { mutate, isPending, error, isError, isSuccess, reset } = useWithdrawMoney();
 
-  // Automatically reset the mutation state after 5 seconds
   useEffect(() => {
     if (isError || isSuccess) {
       const timer = setTimeout(() => {
-        reset(); // Reset the mutation state
+        reset();
       }, 5000);
-      return () => clearTimeout(timer); // Cleanup the timer on unmount
+      return () => clearTimeout(timer);
     }
   }, [isError, isSuccess, reset]);
 
   const [activeTab, setActiveTab] = useState("withdraw");
 
   const selectedBankInfo = banks.find((bank) => bank.id === selectedBank);
+
   useEffect(() => {
     if (
-      selectedBankInfo.maxLength === accountNumber.length &&
+      selectedBankInfo?.maxLength === accountNumber.length &&
       amount <= Math.min(user?.releasedMoney, 300000)
     ) {
       setDisabled(false);
@@ -87,6 +90,7 @@ const WithdrawPage = () => {
       setDisabled(true);
     }
   }, [selectedBank, user?.releasedMoney, amount, accountNumber]);
+
   const handleBankSelect = (bankId) => {
     setSelectedBank(bankId);
     setAccountNumber("");
@@ -94,10 +98,13 @@ const WithdrawPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Process withdrawal logic would go here
     if (
       window.confirm(
-        `Withdrawal request submitted for ${selectedBankInfo.name}\nAccount: ${accountNumber}\nAmount: $${amount}`
+        t("Withdrawal request submitted for {{bank}}\nAccount: {{account}}\nAmount: {{amount}} ETB", {
+          bank: selectedBankInfo?.name,
+          account: accountNumber,
+          amount: amount
+        })
       )
     ) {
       mutate({
@@ -114,16 +121,16 @@ const WithdrawPage = () => {
         {/* Balance Card */}
         <div className="bg-orange-50 rounded-lg p-4 mb-5 flex justify-between items-center shadow-sm">
           <div>
-            <div className="text-gray-500 text-sm">Available Balance</div>
+            <div className="text-gray-500 text-sm">{t("Available Balance")}</div>
             <div className="text-orange-500 text-2xl font-bold">
-              {user?.releasedMoney.toLocaleString()} ETB
+              {user?.releasedMoney.toLocaleString()} {t("ETB")}
             </div>
           </div>
           <button
             onClick={refetch}
             className="bg-orange-500 text-white px-3 py-1.5 rounded text-sm font-medium hover:bg-orange-600 transition-colors"
           >
-            Refresh
+            {t("Refresh")}
           </button>
         </div>
 
@@ -138,7 +145,7 @@ const WithdrawPage = () => {
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }`}
             >
-              Withdraw Funds
+              {isPending ? t("Processing...") : t("Withdraw Funds")}
             </button>
             <button
               onClick={() => setActiveTab("history")}
@@ -148,7 +155,7 @@ const WithdrawPage = () => {
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }`}
             >
-              Withdraw History
+              {t("Withdraw History")}
             </button>
           </nav>
         </div>
@@ -157,33 +164,32 @@ const WithdrawPage = () => {
         {activeTab === "withdraw" ? (
           <div className="bg-white rounded-lg p-6 shadow-md">
             <h1 className="text-2xl font-bold text-orange-500 mb-6">
-              Withdraw Funds
+              {t("Withdraw Funds")}
             </h1>
 
             <form onSubmit={handleSubmit}>
               <div className="mb-5">
                 <label className="block font-semibold mb-2 text-gray-700">
-                  Select Your Bank
+                  {t("Select Your Bank")}
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
                   {banks.map((bank) => (
                     <div
                       key={bank.id}
                       onClick={() => handleBankSelect(bank.id)}
-                      className={`cursor-pointer border-2 rounded-lg p-3 transition-all hover:-translate-y-1 hover:shadow-md
-                    ${
-                      selectedBank === bank.id
-                        ? "border-orange-500 bg-orange-50"
-                        : "border-gray-200"
-                    }`}
+                      className={`cursor-pointer border-2 rounded-lg p-3 transition-all hover:-translate-y-1 hover:shadow-md ${
+                        selectedBank === bank.id
+                          ? "border-orange-500 bg-orange-50"
+                          : "border-gray-200"
+                      }`}
                     >
                       <img
                         src={bank.icon}
-                        className="w-11 h-11 mx-auto mb-2 bg-white rounded-full p-1.5 flex items-center justify-center"
-                        alt={bank.name}
+                        className="w-11 h-11 mx-auto mb-2 bg-white rounded-full p-1.5"
+                        alt={t(bank.name)}
                       />
                       <div className="text-xs font-semibold text-center">
-                        {bank.name}
+                        {t(bank.name)}
                       </div>
                     </div>
                   ))}
@@ -191,62 +197,52 @@ const WithdrawPage = () => {
               </div>
 
               <div className="mb-5">
-                <label
-                  htmlFor="account-number"
-                  className="block font-semibold mb-2 text-gray-700"
-                >
-                  Account Number
+                <label htmlFor="account-number" className="block font-semibold mb-2 text-gray-700">
+                  {t("Account Number")}
                 </label>
                 <input
                   type="text"
                   id="account-number"
                   value={accountNumber}
                   onChange={(e) => setAccountNumber(e.target.value)}
-                  placeholder={selectedBankInfo.placeholder}
-                  maxLength={selectedBankInfo.maxLength}
+                  placeholder={t(selectedBankInfo?.placeholder)}
+                  maxLength={selectedBankInfo?.maxLength}
                   className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
                 />
                 <div className="mt-1 text-xs text-gray-500">
-                  {selectedBankInfo.info}
+                  {t(selectedBankInfo?.info)}
                 </div>
               </div>
 
               <div className="mb-5">
-                <label
-                  htmlFor="amount"
-                  className="block font-semibold mb-2 text-gray-700"
-                >
-                  Amount to Withdraw
+                <label htmlFor="amount" className="block font-semibold mb-2 text-gray-700">
+                  {t("Amount to Withdraw")}
                 </label>
                 <input
                   type="number"
                   id="amount"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  placeholder="Enter amount"
+                  placeholder={t("Enter amount")}
                   min="1"
                   step="0.01"
                   className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
                 />
                 <div className="mt-1 text-xs text-gray-500">
-                  {`Maximum withdrawal: ${Math.min(
-                    user?.releasedMoney,
-                    300000
-                  ).toLocaleString()}`}
+                  {t("Maximum withdrawal")}: {Math.min(user?.releasedMoney, 300000).toLocaleString()} {t("ETB")}
                 </div>
               </div>
+
               {isError && (
                 <AlertMessage
                   type="error"
-                  message={
-                    "You may enter an invalid account number or phone number"
-                  }
+                  message={t("You may enter an invalid account number or phone number")}
                 />
               )}
               {isSuccess && (
                 <AlertMessage
                   type="success"
-                  message="Withdrawal request submitted successfully"
+                  message={t("Withdrawal request submitted successfully")}
                 />
               )}
 
@@ -255,7 +251,7 @@ const WithdrawPage = () => {
                 disabled={disabled || isPending}
                 className="w-full disabled:opacity-50 bg-orange-500 text-white py-3 px-4 rounded-md font-semibold hover:bg-orange-600 transition-colors"
               >
-                Withdraw Funds
+                {t("Withdraw Funds")}
               </button>
             </form>
           </div>
@@ -266,8 +262,9 @@ const WithdrawPage = () => {
     </div>
   );
 };
+
 function WithdrawHistory({ userId }) {
-  // This will only fetch when the component is rendered (when history tab is active)
+  const { t } = useTranslation();
   const banksById = {
     946: "CBE",
     128: "CBEBirr",
@@ -275,24 +272,22 @@ function WithdrawHistory({ userId }) {
     656: "Awash",
     855: "Telebirr",
   };
-  const { data: transactions, isPending: isLoadingHistory } =
-    useTransactionOfUser(userId, {
-      // Only fetch if we have a userId
-      enabled: !!userId,
-    });
+  const { data: transactions, isPending: isLoadingHistory } = useTransactionOfUser(userId, {
+    enabled: !!userId,
+  });
   const withdrawalTransaction = (transactions || [])
     .filter((transaction) => transaction.transactionType === "withdrawal")
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  //sort wit
+
   return (
     <div className="bg-white rounded-lg p-6 shadow-md">
       <h1 className="text-2xl font-bold text-orange-500 mb-6">
-        Transaction History
+        {t("Transaction History")}
       </h1>
 
       {isLoadingHistory ? (
         <div className="text-center py-6">
-          <p className="text-gray-500">Loading transactions...</p>
+          <p className="text-gray-500">{t("Loading transactions...")}</p>
         </div>
       ) : withdrawalTransaction && withdrawalTransaction.length > 0 ? (
         <div className="overflow-x-auto">
@@ -300,16 +295,16 @@ function WithdrawHistory({ userId }) {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Date
+                  {t("Date")}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Amount
+                  {t("Amount")}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Account
+                  {t("Account")}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
+                  {t("Status")}
                 </th>
               </tr>
             </thead>
@@ -320,7 +315,7 @@ function WithdrawHistory({ userId }) {
                     {new Date(transaction.createdAt).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {transaction.amount.toLocaleString()} ETB
+                    {transaction.amount.toLocaleString()} {t("ETB")}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {transaction.accountNumber &&
@@ -332,8 +327,7 @@ function WithdrawHistory({ userId }) {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
-                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                      ${
+                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                         transaction.status === "approved"
                           ? "bg-green-100 text-green-800"
                           : transaction.status === "pending"
@@ -341,8 +335,7 @@ function WithdrawHistory({ userId }) {
                           : "bg-red-100 text-red-800"
                       }`}
                     >
-                      {transaction.status.charAt(0).toUpperCase() +
-                        transaction.status.slice(1)}
+                      {t(transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1))}
                     </span>
                   </td>
                 </tr>
@@ -366,14 +359,15 @@ function WithdrawHistory({ userId }) {
             />
           </svg>
           <h3 className="mt-2 text-sm font-medium text-gray-900">
-            No transactions
+            {t("No transactions")}
           </h3>
           <p className="mt-1 text-sm text-gray-500">
-            You haven't made any withdrawals yet.
+            {t("You haven't made any withdrawals yet.")}
           </p>
         </div>
       )}
     </div>
   );
 }
+
 export default WithdrawPage;

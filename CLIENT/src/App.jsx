@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import './i18n';
 import { AuthProvider } from "./context/authContext";
 import { SignInPage } from "./pages/auth/SignIn";
 import { SignUpPage } from "./pages/auth/SignUp";
@@ -42,7 +43,7 @@ const userRoutes = [
   {
     path: "/users",
     component: UserManagement,
-    roles: ["admin"],
+    roles: ["admin", "validator", "user", "manager"],
   },
   {
     path: "/profile",

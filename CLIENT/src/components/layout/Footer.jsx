@@ -1,7 +1,10 @@
 import { motion } from "framer-motion";
 import { Facebook, Instagram, Twitter, Linkedin } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const Footer = () => {
+  const { t } = useTranslation();
+
   return (
     <motion.footer
       initial={{ opacity: 0, y: 20 }}
@@ -16,10 +19,10 @@ const Footer = () => {
           {/* Left Section: Logo and Copyright */}
           <div className="text-center md:text-left">
             <h2 className="text-2xl font-bold text-orange-500">
-              Fundraising System
+              {t("Fundraising System")}
             </h2>
             <p className="text-sm text-gray-400 mt-2">
-              © 2025 All rights reserved.
+              © 2025 {t("All rights reserved")}.
             </p>
           </div>
 
@@ -29,19 +32,19 @@ const Footer = () => {
               href="/about"
               className="text-gray-400 hover:text-orange-500 transition-colors duration-300"
             >
-              About Us
+              {t("About Us")}
             </a>
             <a
               href="/contact"
               className="text-gray-400 hover:text-orange-500 transition-colors duration-300"
             >
-              Contact
+              {t("Contact")}
             </a>
             <a
               href="/privacy"
               className="text-gray-400 hover:text-orange-500 transition-colors duration-300"
             >
-              Privacy Policy
+              {t("Privacy Policy")}
             </a>
           </div>
 
@@ -92,12 +95,12 @@ const Footer = () => {
 
         {/* Bottom Line */}
         <div className="mt-8 border-t border-gray-700 pt-6 text-center text-sm text-gray-400">
-          Made with ❤️ by{" "}
+          {t("Made with")} ❤️ {t("by")}{" "}
           <a
             href="https://yourwebsite.com"
             className="text-orange-500 hover:underline transition-colors duration-300"
           >
-            Three Nerds
+            {t("Three Nerds")}
           </a>
         </div>
       </div>

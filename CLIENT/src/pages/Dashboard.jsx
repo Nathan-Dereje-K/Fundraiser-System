@@ -1,8 +1,10 @@
 import { useUsers } from "../hooks/useUsers";
 import { Users, UserCheck, UserX, Shield } from "lucide-react";
+import { useTranslation } from "react-i18next"; 
 
 const Dashboard = () => {
   const { data } = useUsers();
+  const { t } = useTranslation(); 
   const users = data?.users || [];
 
   const totalUsers = users.length;
@@ -15,7 +17,9 @@ const Dashboard = () => {
 
   return (
     <div className="px-4 py-6">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Dashboard</h1>
+      <h1 className="text-2xl font-bold text-gray-900 mb-6">
+        {t("dashboard")}
+      </h1>
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         <div className="bg-white overflow-hidden shadow rounded-lg">
@@ -27,7 +31,7 @@ const Dashboard = () => {
               <div className="ml-5 w-0 flex-1">
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">
-                    Total Users
+                    {t("totalUsers")}
                   </dt>
                   <dd>
                     <div className="text-lg font-medium text-gray-900">
@@ -49,7 +53,7 @@ const Dashboard = () => {
               <div className="ml-5 w-0 flex-1">
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">
-                    Active Users
+                    {t("activeUsers")}
                   </dt>
                   <dd>
                     <div className="text-lg font-medium text-gray-900">
@@ -71,7 +75,7 @@ const Dashboard = () => {
               <div className="ml-5 w-0 flex-1">
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">
-                    Blocked Users
+                    {t("blockedUsers")}
                   </dt>
                   <dd>
                     <div className="text-lg font-medium text-gray-900">
@@ -93,7 +97,7 @@ const Dashboard = () => {
               <div className="ml-5 w-0 flex-1">
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">
-                    Admins & Moderators
+                    {t("adminsModerators")}
                   </dt>
                   <dd>
                     <div className="text-lg font-medium text-gray-900">
@@ -109,7 +113,7 @@ const Dashboard = () => {
 
       <div className="mt-8">
         <h2 className="text-lg font-medium text-gray-900 mb-4">
-          Recent Activity
+          {t("recentActivity")}
         </h2>
         <div className="bg-white shadow overflow-hidden sm:rounded-md">
           <ul className="divide-y divide-gray-200">
@@ -143,7 +147,7 @@ const Dashboard = () => {
                               : "bg-green-100 text-green-800"
                           }`}
                         >
-                          {user.blocked ? "Blocked" : "Active"}
+                          {user.blocked ? t("blocked") : t("active")}
                         </span>
                       </div>
                       <div className="ml-2 flex-shrink-0">

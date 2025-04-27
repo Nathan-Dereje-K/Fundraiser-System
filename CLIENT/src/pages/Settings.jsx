@@ -11,8 +11,11 @@ import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import { useUser } from "../context/UserContext";
 import { useChangePassword } from "../hooks/useAuth";
+import LanguageSwitcher from "../components/language/i18com";
+import { useTranslation } from "react-i18next";
 
 const Settings = () => {
+  const { t } = useTranslation();
   const { user: currentUser } = useUser();
   const {
     mutate: updateUserPassword,
@@ -29,6 +32,7 @@ const Settings = () => {
     newPassword: "",
     confirmPassword: "",
   });
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -36,10 +40,11 @@ const Settings = () => {
       [name]: value,
     }));
   };
+
   const handleUpdatePassword = async (e) => {
     e.preventDefault();
     if (formData.newPassword !== formData.confirmPassword) {
-      setErrorMessage("Passwords do not match");
+      setErrorMessage(t("Passwords do not match"));
       setTimeout(() => {
         setErrorMessage("");
       }, 2000);
@@ -48,7 +53,7 @@ const Settings = () => {
       formData.newPassword === "" ||
       formData.confirmPassword === ""
     ) {
-      setErrorMessage("All fields are required");
+      setErrorMessage(t("All fields are required"));
       setTimeout(() => {
         setErrorMessage("");
       }, 2000);
@@ -56,7 +61,7 @@ const Settings = () => {
       formData.newPassword.length < 8 ||
       formData.currentPassword.length < 8
     ) {
-      setErrorMessage("Password must be at least 8 characters long");
+      setErrorMessage(t("Password must be at least 8 characters long"));
       setTimeout(() => {
         setErrorMessage("");
       }, 2000);
@@ -77,21 +82,19 @@ const Settings = () => {
 
   useEffect(() => {
     if (isSuccess) {
-      setSuccessMessage("Password updated successfully");
+      setSuccessMessage(t("Password updated successfully"));
       setTimeout(() => {
         setSuccessMessage("");
       }, 2000);
     }
     if (isError) {
-      console.log(error);
-
-      setErrorMessage(error.response.data.message || "Something went wrong");
+      setErrorMessage(error.response?.data?.message || t("Something went wrong"));
       setTimeout(() => {
         setErrorMessage("");
       }, 2000);
     }
   }, [isSuccess, isError]);
-  // Success Message Component
+
   const SuccessMessage = () => (
     <div className="flex items-center bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg shadow-lg">
       <Check className="h-5 w-5 mr-2" />
@@ -99,17 +102,17 @@ const Settings = () => {
     </div>
   );
 
-  // Error Message Component
   const ErrorMessage = () => (
     <div className="flex items-center bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg shadow-lg">
       <X className="h-5 w-5 mr-2" />
       {errorMessage}
     </div>
   );
+
   return (
     <div className="px-4 py-6">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">
-        Account Settings
+        {t("Account Settings")}
       </h1>
 
       <div className="space-y-6">
@@ -117,17 +120,17 @@ const Settings = () => {
           <div className="px-4 py-5 sm:px-6 flex items-center">
             <Shield className="h-5 w-5 text-gray-400 mr-2" />
             <h3 className="text-lg leading-6 font-medium text-gray-900">
-              Security Settings
+              {t("Security Settings")}
             </h3>
           </div>
           <div className="border-t border-gray-200 px-4 py-5 sm:p-6">
             <div className="space-y-6">
               <div>
                 <h4 className="text-sm font-medium text-gray-900">
-                  Change Password
+                  {t("Change Password")}
                 </h4>
                 <p className="mt-1 text-sm text-gray-500">
-                  Update your password to maintain account security.
+                  {t("Update your password to maintain account security.")}
                 </p>
                 <div className="my-3">
                   <Button
@@ -135,7 +138,7 @@ const Settings = () => {
                     variant="outline"
                   >
                     <Lock className="h-4 w-4 mr-2" />
-                    Change Password
+                    {t("Change Password")}
                   </Button>
                 </div>
                 {successMessage && <SuccessMessage />}
@@ -144,6 +147,7 @@ const Settings = () => {
             </div>
           </div>
         </div>
+
         {/* Password Change Modal */}
         <Transition appear show={isPasswordModalOpen} as={Fragment}>
           <Dialog
@@ -180,7 +184,7 @@ const Settings = () => {
                         as="h3"
                         className="text-lg font-medium leading-6 text-gray-900"
                       >
-                        Change Password
+                        {t("Change Password")}
                       </DialogTitle>
                       <button
                         onClick={() => setIsPasswordModalOpen(false)}
@@ -192,7 +196,7 @@ const Settings = () => {
 
                     <form className="space-y-4">
                       <Input
-                        label="Current Password"
+                        label={t("Current Password")}
                         name="currentPassword"
                         type="password"
                         value={formData.currentPassword}
@@ -200,14 +204,14 @@ const Settings = () => {
                       />
 
                       <Input
-                        label="New Password"
+                        label={t("New Password")}
                         name="newPassword"
                         type="password"
                         value={formData.newPassword}
                         onChange={handleChange}
                       />
                       <Input
-                        label="Confirm New Password"
+                        label={t("Confirm New Password")}
                         name="confirmPassword"
                         type="password"
                         value={formData.confirmPassword}
@@ -226,7 +230,7 @@ const Settings = () => {
                             });
                           }}
                         >
-                          Cancel
+                          {t("Cancel")}
                         </Button>
                         <Button
                           variant="primary"
@@ -236,10 +240,10 @@ const Settings = () => {
                           {isPending ? (
                             <>
                               <Loader className="h-4 w-4 mr-2 animate-spin" />
-                              Updating...
+                              {t("Updating...")}
                             </>
                           ) : (
-                            "Update Password"
+                            t("Update Password")
                           )}
                         </Button>
                       </div>
@@ -250,6 +254,9 @@ const Settings = () => {
             </div>
           </Dialog>
         </Transition>
+      </div>
+      <div className="mt-4">
+        <LanguageSwitcher/>
       </div>
     </div>
   );

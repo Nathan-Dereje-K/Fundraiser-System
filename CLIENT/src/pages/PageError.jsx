@@ -1,8 +1,11 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeftCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const NotFound = () => {
+  const { t } = useTranslation(); 
+
   return (
     <div className="w-full h-screen bg-gradient-to-br from-indigo-600 via-purple-500 to-pink-500 flex flex-col items-center justify-center text-center p-6">
       <motion.div
@@ -25,7 +28,7 @@ const NotFound = () => {
           transition={{ duration: 0.5, delay: 0.4 }}
           className="text-3xl font-semibold text-gray-100 mt-4"
         >
-          Oops! Page Not Found
+          {t("notFoundTitle")}
         </motion.h2>
         <motion.p
           initial={{ opacity: 0 }}
@@ -33,8 +36,7 @@ const NotFound = () => {
           transition={{ duration: 0.5, delay: 0.6 }}
           className="text-lg text-gray-200 mt-2 max-w-lg"
         >
-          The page you are looking for might have been moved, deleted, or does
-          not exist.
+          {t("notFoundMessage")}
         </motion.p>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -47,7 +49,7 @@ const NotFound = () => {
             className="flex items-center gap-2 px-6 py-3 bg-white text-indigo-600 font-medium rounded-lg shadow-lg hover:bg-gray-100 transition duration-300"
           >
             <ArrowLeftCircle className="w-5 h-5" />
-            Go Home
+            {t("goHome")}
           </Link>
         </motion.div>
       </motion.div>

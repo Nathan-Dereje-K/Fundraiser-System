@@ -12,22 +12,26 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import Loader from "../../components/ui/Loader";
+import { useTranslation } from "react-i18next"; 
 
 const CategoryPage = () => {
-  const { category_name } = useParams();
+  const { t } = useTranslation();
+  const { categoryKey } = useParams();
+  console.log("Received categoryKey:", categoryKey); 
   const [campaigns, setCampaigns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+ 
 
   useEffect(() => {
     const fetchCampaigns = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/api/campaigns?category=${category_name}&status=approved`
+          `http://localhost:5000/api/campaigns?category=${categoryKey}&status=approved`
         );
         setCampaigns(response.data.data);
       } catch (err) {
-        setError("Failed to load campaigns");
+        setError(t("fetchCampaignsError")); 
         console.error("Error fetching campaigns:", err);
       } finally {
         setLoading(false);
@@ -35,7 +39,7 @@ const CategoryPage = () => {
     };
 
     fetchCampaigns();
-  }, [category_name]);
+  }, [categoryKey, t]);
 
   if (loading)
     return (
@@ -75,7 +79,7 @@ const CategoryPage = () => {
             className="inline-flex items-center hover:opacity-90 transition-opacity font-medium text-gray-700"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
-            Back to Home
+            {t("backToHome")}
           </Link>
         </motion.div>
 
@@ -86,11 +90,10 @@ const CategoryPage = () => {
           className="mb-12 text-center"
         >
           <h1 className="text-5xl font-bold text-gray-900 mb-3 tracking-tight">
-            {category_name} Causes
+            {categoryKey} {t("causes")}
           </h1>
           <p className="text-gray-600 max-w-2xl mx-auto text-lg">
-            Support meaningful {category_name.toLowerCase()} initiatives and
-            make a real difference
+            {t("supportInitiative", { category: categoryKey.toLowerCase() })}
           </p>
         </motion.div>
 
@@ -103,13 +106,13 @@ const CategoryPage = () => {
               className="text-center py-20"
             >
               <div className="text-gray-500 text-lg mb-6">
-                No active campaigns in this category
+                {t("noActiveCampaigns")}
               </div>
               <Link
                 to="/"
                 className="text-orange-600 hover:text-orange-700 inline-flex items-center font-medium"
               >
-                Browse all categories <ArrowRight className="w-5 h-5 ml-2" />
+                {t("browseAllCategories")} <ArrowRight className="w-5 h-5 ml-2" />
               </Link>
             </motion.div>
           ) : (
@@ -123,7 +126,7 @@ const CategoryPage = () => {
                   className="h-full"
                 >
                   <Link
-                    to={`/category/${category_name}/${campaign._id}`}
+                    to={`/category/${categoryKey}/${campaign._id}`}
                     className="group block h-full"
                   >
                     <div className="bg-white rounded-3xl shadow-md hover:shadow-lg transition-shadow h-full overflow-hidden flex flex-col">
@@ -149,7 +152,7 @@ const CategoryPage = () => {
                         <div className="flex items-center justify-between mb-4">
                           <span className="inline-flex items-center px-3 py-1 rounded-full bg-orange-100 text-orange-800 text-sm font-medium">
                             <Zap className="w-4 h-4 mr-2" />
-                            {campaign.status}
+                            {t(campaign.status)}
                           </span>
                           <div className="flex items-center text-sm text-gray-500">
                             <Calendar className="w-4 h-4 mr-2" />
@@ -168,8 +171,9 @@ const CategoryPage = () => {
                         <div className="space-y-3">
                           <div className="flex justify-between text-sm font-medium">
                             <span className="text-orange-600">
-                              ETB {campaign.raisedAmount?.toLocaleString()}{" "}
-                              raised
+                              {t("raisedAmount", {
+                                amount: campaign.raisedAmount?.toLocaleString(),
+                              })}
                             </span>
                             <span className="text-gray-500">
                               ETB {campaign.goalAmount?.toLocaleString()}
@@ -196,7 +200,7 @@ const CategoryPage = () => {
                                 (campaign.raisedAmount / campaign.goalAmount) *
                                   100
                               )}
-                              % Funded
+                              % {t("funded")}
                             </div>
                           </div>
 
@@ -204,9 +208,8 @@ const CategoryPage = () => {
                           <div className="flex items-center text-sm text-gray-500">
                             <Heart className="w-4 h-4 mr-2 text-rose-500" />
                             <span>
-                              {campaign.donations?.length?.toLocaleString() ||
-                                0}{" "}
-                              supporters
+                              {campaign.donations?.length?.toLocaleString() || 0}{" "}
+                              {t("supporters")}
                             </span>
                           </div>
                         </div>

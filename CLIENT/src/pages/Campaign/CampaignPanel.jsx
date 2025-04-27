@@ -36,6 +36,7 @@ import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import Navbar from "../../components/layout/Navbar";
+import { useTranslation } from "react-i18next";
 
 const CampaignDashboard = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -49,7 +50,7 @@ const CampaignDashboard = () => {
   const overviewRef = useRef(null);
   const statisticsRef = useRef(null);
   const historyRef = useRef(null);
-
+  const { t } = useTranslation();
   const { data: campaigns, isLoading, isError, error } = useMyCampaigns();
   const updateCampaignMutation = useUpdateCampaign();
   const deleteCampaignMutation = useDeleteCampaign();
@@ -138,7 +139,7 @@ const CampaignDashboard = () => {
       ({ closeToast }) => (
         <div>
           <p className="text-sm font-medium text-gray-800">
-            Are you sure you want to delete this campaign?
+             {t("Are you sure you want to delete this campaign?")}
           </p>
           <div className="flex gap-3 mt-3">
             <button
@@ -149,13 +150,13 @@ const CampaignDashboard = () => {
               }}
               className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
             >
-              Yes
+            {t("Yes")}
             </button>
             <button
               onClick={closeToast}
               className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
             >
-              No
+              {t("No")}
             </button>
           </div>
         </div>
@@ -243,7 +244,7 @@ const CampaignDashboard = () => {
             className="bg-gradient-to-r from-orange-400 to-orange-600 text-white px-6 py-3 rounded-xl font-semibold shadow-md"
             onClick={() => window.location.reload()}
           >
-            Refresh Dashboard
+            {t("Refresh Dashboard")}
           </motion.button>
         </motion.div>
       </div>
@@ -270,7 +271,7 @@ const CampaignDashboard = () => {
                 className="bg-white rounded-2xl w-full max-w-md p-6"
               >
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-xl font-bold">Edit Campaign</h3>
+                  <h3 className="text-xl font-bold">{t("Edit Campaign")}</h3>
                   <button
                     onClick={() => setEditingCampaign(null)}
                     className="p-2 hover:bg-gray-100 rounded-lg"
@@ -281,7 +282,7 @@ const CampaignDashboard = () => {
                 <form onSubmit={handleUpdateCampaign} className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Title
+                    {t("Title")}
                     </label>
                     <input
                       type="text"
@@ -295,7 +296,7 @@ const CampaignDashboard = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Description
+                    {t("Description")}
                     </label>
                     <textarea
                       value={formData.description}
@@ -314,7 +315,7 @@ const CampaignDashboard = () => {
                       onClick={() => setEditingCampaign(null)}
                       className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
                     >
-                      Cancel
+                      {t("Cancel")}
                     </button>
                     <button
                       type="submit"
@@ -326,7 +327,7 @@ const CampaignDashboard = () => {
                       ) : (
                         <Save size={16} />
                       )}
-                      Update Campaign
+                      {t("Update Campaign")}
                     </button>
                   </div>
                 </form>
@@ -349,7 +350,7 @@ const CampaignDashboard = () => {
                   exit={{ opacity: 0 }}
                   className="font-bold text-2xl bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent"
                 >
-                  Campaign Panel
+                  {t("Update Campaign")}
                 </motion.h2>
               )}
             </AnimatePresence>
@@ -400,10 +401,10 @@ const CampaignDashboard = () => {
                   ref={overviewRef}
                   className="text-3xl font-bold text-gray-900 mb-2"
                 >
-                  Your Campaigns
+                  {t("Your Campaigns")}
                 </h1>
                 <p className="text-gray-600">
-                  Manage and track your fundraising progress
+                  {t("Manage your campaigns and track their progress.")}
                 </p>
               </div>
               <Link to="/campaign_creation">
@@ -413,7 +414,7 @@ const CampaignDashboard = () => {
                   className="bg-gradient-to-r from-orange-400 to-orange-600 text-white px-6 py-3 rounded-xl font-medium flex items-center gap-2 shadow-lg hover:shadow-orange-200 transition-shadow"
                 >
                   <Plus size={20} />
-                  <span>Launch New Campaign</span>
+                  <span>{t("Launch New Campaign")}</span>
                 </motion.button>
               </Link>
             </motion.div>
@@ -481,7 +482,7 @@ const CampaignDashboard = () => {
                           <div className="space-y-4">
                             <div>
                               <div className="flex justify-between text-sm text-gray-600 mb-2">
-                                <span>Progress</span>
+                                <span>{t("Progress")}</span>
                                 <span
                                   className={
                                     isFunded
@@ -516,7 +517,7 @@ const CampaignDashboard = () => {
                                 <div className="flex items-center gap-2 mb-1">
                                   <DollarSign className="w-5 h-5 text-green-600" />
                                   <span className="text-sm text-gray-600">
-                                    Raised
+                                  {t("Raised")}
                                   </span>
                                 </div>
                                 <div className="text-lg font-bold text-gray-900">
@@ -530,7 +531,7 @@ const CampaignDashboard = () => {
                                 <div className="flex items-center gap-2 mb-1">
                                   <Target className="w-5 h-5 text-blue-600" />
                                   <span className="text-sm text-gray-600">
-                                    Goal
+                                    {t("Goal")}	
                                   </span>
                                 </div>
                                 <div className="text-lg font-bold text-gray-900">
@@ -576,7 +577,7 @@ const CampaignDashboard = () => {
               <div className="flex items-center gap-3 mb-6">
                 <PieChart className="w-6 h-6 text-orange-600" />
                 <h2 className="text-2xl font-bold text-gray-900">
-                  Funding Progress Analytics
+                  {t("Funding Progress Analytics")}
                 </h2>
               </div>
               <div className="h-96">
@@ -608,14 +609,14 @@ const CampaignDashboard = () => {
                                   {payload[0].payload.name}
                                 </p>
                                 <p className="text-orange-600">
-                                  Raised: ETB{" "}
+                                {t("Raised")}: ETB{" "}
                                   {payload[0].value.toLocaleString()}
                                 </p>
                                 <p className="text-blue-600">
-                                  Goal: ETB {payload[1].value.toLocaleString()}
+                                   {t("Goal")}: ETB {payload[1].value.toLocaleString()}
                                 </p>
                                 <p className="text-sm text-gray-600 mt-2">
-                                  Progress:{" "}
+                                   {t("Progress")}:{" "}
                                   {Math.round(payload[0].payload.progress)}%
                                 </p>
                               </div>
@@ -643,7 +644,7 @@ const CampaignDashboard = () => {
                 ) : (
                   <div className="h-full flex flex-col items-center justify-center text-gray-500 space-y-4">
                     <Clock className="w-12 h-12" />
-                    <p className="text-lg">No campaign data available</p>
+                    <p className="text-lg">{t("No campaign data available")}</p>
                   </div>
                 )}
               </div>

@@ -15,6 +15,7 @@ import Avatar from "../../ui/Avatar";
 import Dropdown from "../../ui/Dropdown";
 import NotificationSystem from "../../../pages/Notification/NotificationSystem";
 import SearchCampaign from "../../ui/SearchCampaign";
+import { useTranslation } from "react-i18next";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -23,6 +24,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { handleLogout } = useAuth();
   const { user: currentUser, isLoading: userLoading } = useUser();
+  const { t } = useTranslation();
 
   // Close dropdown if clicked outside
   useEffect(() => {
@@ -65,23 +67,23 @@ const Navbar = () => {
             F
           </div>
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
-            Fundraiser
+            {t("Fundraiser")}
           </h1>
         </div>
 
         {/* Desktop Nav */}
         <ul className="hidden md:flex gap-6 items-center text-lg font-medium text-gray-700">
           <li className="hover:text-orange-500 cursor-pointer transition-colors">
-            Causes
+            {t("Causes")}
           </li>
           <li className="hover:text-orange-500 cursor-pointer transition-colors">
-            Campaigns
+            {t("Campaigns")}
           </li>
           <li className="hover:text-orange-500 cursor-pointer transition-colors">
-            About Us
+            {t("About Us")}
           </li>
           <li className="hover:text-orange-500 cursor-pointer transition-colors">
-            Impact
+            {t("Impact")}
           </li>
           <li className=" cursor-pointer transition-colors">
             <SearchCampaign />
@@ -94,7 +96,7 @@ const Navbar = () => {
               className="px-5 py-2 bg-orange-500 text-white rounded-full shadow-md"
               onClick={handleStartCampaign}
             >
-              Start a Campaign
+              {t("Start a Campaign")}
             </motion.button>
           </li>
           {currentUser && (
@@ -141,7 +143,7 @@ const Navbar = () => {
                   role="menuitem"
                 >
                   <User className="mr-2 h-4 w-4" />
-                  Profile
+                  {t("Profile")}
                 </Link>
                 <Link
                   to={
@@ -156,7 +158,7 @@ const Navbar = () => {
                   role="menuitem"
                 >
                   <LayoutDashboardIcon className="mr-2 h-4 w-4" />
-                  Dashboard
+                  {t("Dashboard")}
                 </Link>
                 {currentUser?.role === "user" &&
                   currentUser?.releasedMoney > 0 && (
@@ -175,7 +177,7 @@ const Navbar = () => {
                   role="menuitem"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
-                  Logout
+                  {t("Logout")}
                 </button>
               </Dropdown>
             ) : (
@@ -183,7 +185,7 @@ const Navbar = () => {
                 href="/signin"
                 className="px-5 py-2 bg-gray-300 text-gray-800 rounded-full shadow-sm"
               >
-                Log in
+                {t("Log in")}
               </a>
             )}
           </li>
@@ -214,25 +216,25 @@ const Navbar = () => {
             href="#causes"
             className="text-lg font-medium text-gray-700 hover:text-orange-500 transition-colors"
           >
-            Causes
+            {t("Causes")}
           </a>
           <a
             href="#campaigns"
             className="text-lg font-medium text-gray-700 hover:text-orange-500 transition-colors"
           >
-            Campaigns
+            {t("Campaigns")}
           </a>
           <a
             href="#about-us"
             className="text-lg font-medium text-gray-700 hover:text-orange-500 transition-colors"
           >
-            About Us
+            {t("About us")}
           </a>
           <a
             href="#impact"
             className="text-lg font-medium text-gray-700 hover:text-orange-500 transition-colors"
           >
-            Impact
+            {t("Impact")}
           </a>
           <motion.button
             whileHover={{ scale: 1.1 }}
@@ -240,7 +242,7 @@ const Navbar = () => {
             className="w-full px-5 py-2 bg-orange-500 text-white rounded-full shadow-md"
             onClick={handleStartCampaign}
           >
-            Start a Campaign
+            {t("Start a Campaign")}
           </motion.button>
           {currentUser ? (
             <div className="relative w-full">
@@ -288,7 +290,7 @@ const Navbar = () => {
                     role="menuitem"
                   >
                     <User className="mr-2 h-4 w-4" />
-                    Profile
+                    {t("Profile")}
                   </Link>
                   <Link
                     to={
@@ -303,7 +305,7 @@ const Navbar = () => {
                     role="menuitem"
                   >
                     <LayoutDashboardIcon className="mr-2 h-4 w-4" />
-                    Dashboard
+                    {t("Dashboard")}
                   </Link>
                   <button
                     onClick={handleLogout}
@@ -311,7 +313,7 @@ const Navbar = () => {
                     role="menuitem"
                   >
                     <LogOut className="mr-2 h-4 w-4" />
-                    Logout
+                    {t("Logout")}
                   </button>
                 </motion.div>
               )}
@@ -321,7 +323,7 @@ const Navbar = () => {
               href="/signin"
               className="w-full px-5 py-2 bg-gray-300 text-gray-800 rounded-full shadow-md text-center"
             >
-              Log in
+              {t("Log in")}
             </a>
           )}
         </motion.div>
@@ -331,3 +333,8 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
+
+
+
+
