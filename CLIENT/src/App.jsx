@@ -40,7 +40,7 @@ const userRoutes = [
   {
     path: "/dashboard",
     component: Dashboard,
-    roles: ["admin", "validator", "user", "manager"],
+    roles: ["admin"],
   },
   {
     path: "/users",

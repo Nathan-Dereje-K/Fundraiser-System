@@ -35,14 +35,9 @@ const Footer = () => {
             >
               {t("About Us")}
             </Link>
-            <a
-              href="/contact"
-              className="text-gray-400 hover:text-orange-500 transition-colors duration-300"
-            >
-              {t("Contact")}
-            </a>
+
             <Link
-              href="/terms"
+              to="/terms"
               className="text-gray-400 hover:text-orange-500 transition-colors duration-300"
             >
               {t("Privacy Policy")}
@@ -97,12 +92,12 @@ const Footer = () => {
         {/* Bottom Line */}
         <div className="mt-8 border-t border-gray-700 pt-6 text-center text-sm text-gray-400">
           Made with ❤️ and ☕ by{" "}
-          <a
-            href="#"
+          <Link
+            to="/"
             className="text-orange-500 hover:underline transition-colors duration-300"
           >
-            Three Nerds
-          </a>
+            A Team Of Three
+          </Link>
         </div>
       </div>
     </motion.footer>

@@ -179,39 +179,24 @@ const Landing = () => {
             animate={isCampaignsInView ? "visible" : "hidden"}
           >
             {/* Check if campaigns exists AND has one or more items */}
-            {
-              campaigns && campaigns.length > 0
-                ? ["Spotlight", "Initiatives"].map((word, index) => (
-                    <motion.span
-                      key={index}
-                      className="inline-block mr-2 last:mr-0"
-                      variants={textVariants}
-                    >
-                      {word}
-                    </motion.span>
-                  ))
-                : null /* Render nothing if no campaigns */
-            }
+            {campaigns && campaigns.length > 0
+              ? ["Spotlight", "Initiatives"].map((word, index) => (
+                  <motion.span
+                    key={index}
+                    className="inline-block mr-2 last:mr-0"
+                    variants={textVariants}
+                  >
+                    {word}
+                  </motion.span>
+                ))
+              : null}
           </motion.h1>
-          {/* === END OF UPDATE === */}
 
           <div className="flex flex-col gap-8 md:gap-10">
-            {/* Render FeaturedCampaign components only if there are campaigns */}
-            {/* You might want to map over 'campaigns' here to display actual featured campaigns */}
-            {campaigns && campaigns.length > 0 && (
-              <motion.div variants={featuredCampaignVariants}>
-                {/* Example: Pass campaign data if needed */}
-                {/* <FeaturedCampaign campaign={campaigns[0]} /> */}
-                <FeaturedCampaign /> {/* Keeping original for now */}
-                {/* If you have multiple featured campaigns, map over them */}
-                {/* {campaigns.slice(0, 3).map(campaign => ( // Example: Show top 3
-                    <motion.div key={campaign.id} variants={featuredCampaignVariants}>
-                       <FeaturedCampaign campaign={campaign} />
-                    </motion.div>
-                ))} */}
-              </motion.div>
-            )}
-            {/* Optionally, display a message if there are no campaigns */}
+            <motion.div variants={featuredCampaignVariants}>
+              <FeaturedCampaign />
+            </motion.div>
+
             {(!campaigns || campaigns.length === 0) && isCampaignsInView && (
               <motion.p
                 className="text-center text-gray-500"
