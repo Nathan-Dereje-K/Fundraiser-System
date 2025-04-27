@@ -26,7 +26,7 @@ const CategoryPage = () => {
     const fetchCampaigns = async () => {
       try {
         const response = await axios.get(
-          `https://fundraiser-system.onrender.com/api/campaigns?category=${categoryKey}&status=approved`
+          `http://localhost:5000/api/campaigns?category=${categoryKey}&status=approved`
         );
         setCampaigns(response.data.data);
       } catch (err) {
