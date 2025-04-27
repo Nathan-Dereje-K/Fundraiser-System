@@ -37,6 +37,7 @@ export const SignUpPage = () => {
 
   const onSubmit = (data) => {
     mutate(data);
+    navigate("/");
   };
 
   useEffect(() => {
@@ -69,7 +70,7 @@ export const SignUpPage = () => {
     t("Weak"),
     t("Moderate"),
     t("Good"),
-    t("Strong")
+    t("Strong"),
   ];
 
   return (
@@ -106,7 +107,9 @@ export const SignUpPage = () => {
               transition={{ delay: 0.4, duration: 0.5 }}
               className="text-sm md:text-base text-center"
             >
-              {t("Join thousands of donors supporting meaningful causes worldwide.")}
+              {t(
+                "Join thousands of donors supporting meaningful causes worldwide."
+              )}
             </motion.p>
           </div>
         </motion.div>
@@ -187,7 +190,9 @@ export const SignUpPage = () => {
                 type="button"
                 onClick={() => setShowPassword1(!showPassword1)}
                 className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition"
-                aria-label={showPassword1 ? t("Hide password") : t("Show password")}
+                aria-label={
+                  showPassword1 ? t("Hide password") : t("Show password")
+                }
               >
                 {showPassword1 ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
@@ -216,7 +221,9 @@ export const SignUpPage = () => {
                 type="button"
                 onClick={() => setShowPassword2(!showPassword2)}
                 className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition"
-                aria-label={showPassword2 ? t("Hide password") : t("Show password")}
+                aria-label={
+                  showPassword2 ? t("Hide password") : t("Show password")
+                }
               >
                 {showPassword2 ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
@@ -254,7 +261,9 @@ export const SignUpPage = () => {
                 ))}
               </div>
               <p className="text-xs text-gray-500">
-                {t("Use at least 8 characters with letters, numbers, and symbols")}
+                {t(
+                  "Use at least 8 characters with letters, numbers, and symbols"
+                )}
               </p>
             </motion.div>
 

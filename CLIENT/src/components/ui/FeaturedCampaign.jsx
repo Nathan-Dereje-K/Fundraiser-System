@@ -4,35 +4,39 @@ import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
 const shuffleArray = (array) => {
-  let currentIndex = array.length,
+  const shuffled = [...array];
+  let currentIndex = shuffled.length,
     randomIndex;
   while (currentIndex !== 0) {
     randomIndex = Math.floor(Math.random() * currentIndex);
     currentIndex--;
-    [array[currentIndex], array[randomIndex]] = [
-      array[randomIndex],
-      array[currentIndex],
+    [shuffled[currentIndex], shuffled[randomIndex]] = [
+      shuffled[randomIndex],
+      shuffled[currentIndex],
     ];
   }
-  return array;
+  return shuffled;
 };
 
-const MAX_DESCRIPTION_CHARS = 1600; // Maximum characters before truncation
+const MAX_DESCRIPTION_CHARS = 1600;
 
 const FeaturedCampaign = () => {
   const navigate = useNavigate();
 
   const handleNavigate = (id, category) => {
+    if (!id || !category) {
+      console.error("Invalid id or category:", { id, category });
+      return;
+    }
     navigate(`/category/${category}/${id}`);
   };
 
   const { data: campaigns, isError, isLoading } = useCampaigns();
 
   const featuredCampaigns = useMemo(() => {
-    const campaignsArray = campaigns || [];
-    if (!Array.isArray(campaignsArray)) return [];
+    const campaignsArray = Array.isArray(campaigns) ? campaigns : [];
     const approvedCampaigns = campaignsArray.filter(
-      (campaign) => campaign.status === "approved"
+      (campaign) => campaign?.status === "approved"
     );
     if (approvedCampaigns.length === 0) return [];
     const shuffledCampaigns = shuffleArray([...approvedCampaigns]);
@@ -40,11 +44,10 @@ const FeaturedCampaign = () => {
   }, [campaigns]);
 
   const getTruncatedDescription = (text) => {
-    if (!text)
-      return "Help us make a meaningful impact in our community. Your support can change lives.";
-    return text.length > MAX_DESCRIPTION_CHARS
-      ? text.slice(0, MAX_DESCRIPTION_CHARS) + "..."
-      : text;
+    const description = String(text || "");
+    return description.length > MAX_DESCRIPTION_CHARS
+      ? description.slice(0, MAX_DESCRIPTION_CHARS) + "..."
+      : description;
   };
 
   if (isLoading) {
@@ -67,14 +70,14 @@ const FeaturedCampaign = () => {
   }
 
   if (featuredCampaigns.length === 0) {
-    return null; // Changed from showing message to returning nothing
+    return null; // Let the parent handle the fallback message
   }
 
   return (
     <div className="flex flex-col gap-16 w-full h-auto py-4 md:py-8">
-      {featuredCampaigns.map((campaign, index) => (
+      {featuredCampaigns.map((campaign) => (
         <div
-          key={index}
+          key={campaign.id}
           className="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-16 w-full h-auto cursor-pointer"
           onClick={() => handleNavigate(campaign.id, campaign.category)}
         >
