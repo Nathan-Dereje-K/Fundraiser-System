@@ -12,7 +12,11 @@ const signToken = (user) => {
 };
 
 const verifyToken = (token) => {
-  return jwt.verify(token, process.env.JWT_SECRET);
+  try {
+    return jwt.verify(token, process.env.JWT_SECRET);
+  } catch (error) {
+    return null;
+  }
 };
 const getUserFromToken = async (token) => {
   try {

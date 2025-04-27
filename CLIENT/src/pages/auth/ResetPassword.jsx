@@ -4,8 +4,10 @@ import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { useResetPassword } from "../../hooks/useAuth";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import AlertMessage from "../../components/ui/AlertMessage";
+import { useTranslation } from "react-i18next";
 
 const ResetPassword = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
@@ -50,11 +52,11 @@ const ResetPassword = () => {
     <div className=" flex flex-col justify-center items-center h-screen">
       <div className="w-[450px] bg-gray-50 p-10 rounded-3xl shadow-md">
         <h2 className="text-2xl font-semibold text-gray-800 mb-4 text-center">
-          Reset password
+          {t("Reset password")}
         </h2>
 
         <p className="text-gray-500 text-sm mb-8 leading-relaxed">
-          Please enter your new password and confirm it to reset your password.
+           {t("Please enter your new password and confirm it to reset your password. ")}
         </p>
         <form onSubmit={handleSubmit} className="flex flex-col space-y-4 mb-8">
           <div className="relative">
@@ -105,7 +107,7 @@ const ResetPassword = () => {
             <AlertMessage type="success" message="Password reset" />
           )}
           <button className="w-full bg-blue-500 hover:bg-gray-700 text-white py-3.5 px-5 rounded-full transition duration-300 mb-5 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 transform hover:scale-[1.02] text-base font-medium">
-            Reset password
+             {t("Reset password")}
           </button>
         </form>
       </div>

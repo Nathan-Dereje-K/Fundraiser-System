@@ -1,7 +1,9 @@
 import API from "./api";
 
-export const getCampaigns = async () => {
-  const response = await API.get("/campaigns");
+export const getCampaigns = async (search) => {
+  console.log(search);
+
+  const response = await API.get(`/campaigns?search=${search}`);
   return response.data.data;
 };
 
@@ -48,5 +50,20 @@ export const getMyCampaigns = async (userId) => {
   const response = await API.get("/campaigns/me", {
     params: { userId },
   });
+  return response.data.data;
+};
+
+export const searchCampaigns = async (search) => {
+  if (!search || search.length < 2) return [];
+  const response = await API.get(`/campaigns/search?q=${search}`, {
+    params: { search },
+  });
+  return response.data.data;
+};
+
+export const doesUserOwnCampaign = async (status) => {
+  const response = await API.get(
+    `/campaigns/userhavecampaign?status=${status}`
+  );
   return response.data.data;
 };

@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   releaseMoney,
-  suspendCampaign,
+  suspendAndReallocate,
   withdrawMoney,
 } from "../api/releaseApi";
 
@@ -25,6 +25,12 @@ export const useWithdrawMoney = () => {
   });
 };
 
-export const useSuspendCampaign = () => {
-  return useMutation({ mutationFn: suspendCampaign });
+export const useSuspendReallocate = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: suspendAndReallocate,
+    onSuccess: () => {
+      queryClient.invalidateQueries("campaigns");
+    },
+  });
 };

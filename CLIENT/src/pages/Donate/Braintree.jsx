@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { HeartHandshake } from "lucide-react";
 import dropin from "braintree-web-drop-in";
 import { useInitiateToken, useProcessPayment } from "../../hooks/useDonate";
+import { toast } from "react-toastify";
 
 const Braintree = ({ campaignId }) => {
   const [donationAmount, setDonationAmount] = useState("");
@@ -13,8 +14,17 @@ const Braintree = ({ campaignId }) => {
   const {
     mutateAsync: processPayment,
     isPending,
-    data: payment,
+    isSuccess,
+    reset,
   } = useProcessPayment();
+
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success("Payment successful!");
+      setDonationAmount("");
+      reset();
+    }
+  }, [isSuccess]);
 
   // Cleanup function
   const cleanupDropin = async () => {
@@ -59,16 +69,24 @@ const Braintree = ({ campaignId }) => {
       initializeDropin();
     }
   }, [clientToken, dropinContainerKey.current]); // Add key to dependencies
+  const isValidNumberWithCommas = (value) => /^[\d,]+$/.test(value);
 
+  const cleanNumber = (value) => value.replace(/,/g, "");
   // Handle payment
   const handlePayment = async () => {
-    if (!dropinInstance.current || !donationAmount) return;
+    if (!donationAmount || !isValidNumberWithCommas(donationAmount)) {
+      toast.error("Invalid amount. Only numbers and commas are allowed.");
+      return;
+    }
+    const pureAmount = cleanNumber(donationAmount);
+
+    if (!dropinInstance.current) return;
 
     try {
       const { nonce } = await dropinInstance.current.requestPaymentMethod();
-      processPayment({ nonce, amount: donationAmount, campaignId });
+      processPayment({ nonce, amount: pureAmount, campaignId });
 
-      if (payment?.success) {
+      if (isSuccess) {
         alert("Payment successful!");
         setDonationAmount("");
         await handleReset();
@@ -137,6 +155,7 @@ const Braintree = ({ campaignId }) => {
         whileTap={{ scale: 0.98 }}
         className="w-full bg-gradient-to-br from-orange-500 to-orange-600 text-white py-4 rounded-xl font-semibold shadow-md hover:shadow-lg transition-shadow"
         onClick={handlePayment}
+        disabled={isPending}
       >
         <div className="flex items-center justify-center">
           <HeartHandshake className="w-5 h-5 mr-2" />

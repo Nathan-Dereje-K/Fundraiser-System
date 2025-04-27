@@ -8,6 +8,7 @@ const {
   getCampaign,
   getActiveCampaigns,
   searchCampaigns,
+  doesUserHaveCampaign,
 } = require("../Controllers/campaign");
 const { upload } = require("../Config/multerConfig");
 const authMiddleware = require("../Middleware/authMiddleware");
@@ -29,6 +30,8 @@ router
     postCampaign
   );
 router.route("/search").get(searchCampaigns);
+
+router.route("/userhavecampaign").get(authMiddleware, doesUserHaveCampaign);
 
 router
   .route("/:id")

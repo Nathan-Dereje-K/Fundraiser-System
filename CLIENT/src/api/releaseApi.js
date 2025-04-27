@@ -5,8 +5,11 @@ export const releaseMoney = async (id) => {
   return response.data;
 };
 
-export const suspendCampaign = async (id) => {
-  const response = await API.post(`/release/suspendcampaign/${id}`);
+export const suspendAndReallocate = async ({ id, allocations }) => {
+  const response = await API.post(`/release/suspendreallocate`, {
+    suspendedCampaignId: id,
+    allocations,
+  });
   return response.data;
 };
 

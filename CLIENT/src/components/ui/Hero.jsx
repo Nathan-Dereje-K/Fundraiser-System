@@ -1,8 +1,11 @@
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 const Hero = () => {
+  const { t } = useTranslation();
+
   return (
     <div className="relative w-full h-[75vh]">
       <div className="absolute mr-10 ml-10 z-10 inset-0 flex justify-center sm:justify-end items-center sm:pr-32 mt-24">
@@ -13,7 +16,7 @@ const Hero = () => {
             transition={{ duration: 1.5 }}
             className="text-4xl md:text-6xl font-bold text-white"
           >
-            Make a Difference Today
+            {t("Make a Difference Today")}
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, x: 100 }}
@@ -21,7 +24,7 @@ const Hero = () => {
             transition={{ duration: 1, delay: 1.5 }}
             className="text-lg md:text-2xl text-stone-300"
           >
-            Your Donation Matters!
+            {t("Your Donation Matters!")}
           </motion.p>
         </div>
       </div>
@@ -38,14 +41,14 @@ const Hero = () => {
             <img
               className="w-full h-full object-cover object-center"
               src="https://images.pexels.com/photos/6613050/pexels-photo-6613050.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-              alt="Image 1"
+              alt={t("Image 1")}
             />
           </div>
           <div className="relative w-full h-[73vh] overflow-hidden">
             <img
               className="w-full h-full object-cover object-center"
               src="https://images.pexels.com/photos/7414283/pexels-photo-7414283.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-              alt="Image 2"
+              alt={t("Image 2")}
             />
           </div>
 
@@ -53,7 +56,7 @@ const Hero = () => {
             <img
               className="w-full h-full object-cover object-top"
               src="https://images.pexels.com/photos/271168/pexels-photo-271168.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-              alt="Image 3"
+              alt={t("Image 3")}
             />
           </div>
 
@@ -61,7 +64,7 @@ const Hero = () => {
             <img
               className="w-full h-full object-cover object-center"
               src="https://images.pexels.com/photos/7414111/pexels-photo-7414111.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-              alt="Image 4"
+              alt={t("Image 4")}
             />
           </div>
         </Carousel>

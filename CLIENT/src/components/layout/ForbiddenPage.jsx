@@ -1,11 +1,8 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeftCircle } from "lucide-react";
-import { useTranslation } from "react-i18next";
 
-const NotFound = () => {
-  const { t } = useTranslation(); 
-
+const ForbiddenPage = () => {
   return (
     <div className="w-full h-screen bg-gradient-to-br from-indigo-600 via-purple-500 to-pink-500 flex flex-col items-center justify-center text-center p-6">
       <motion.div
@@ -20,7 +17,7 @@ const NotFound = () => {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="text-9xl font-extrabold text-white drop-shadow-xl"
         >
-          404
+          403
         </motion.h1>
         <motion.h2
           initial={{ y: 30, opacity: 0 }}
@@ -28,7 +25,7 @@ const NotFound = () => {
           transition={{ duration: 0.5, delay: 0.4 }}
           className="text-3xl font-semibold text-gray-100 mt-4"
         >
-          {t("notFoundTitle")}
+          Oops! Forbidden Page
         </motion.h2>
         <motion.p
           initial={{ opacity: 0 }}
@@ -36,7 +33,7 @@ const NotFound = () => {
           transition={{ duration: 0.5, delay: 0.6 }}
           className="text-lg text-gray-200 mt-2 max-w-lg"
         >
-          {t("notFoundMessage")}
+          You do not have permission to access this page.
         </motion.p>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -49,7 +46,7 @@ const NotFound = () => {
             className="flex items-center gap-2 px-6 py-3 bg-white text-indigo-600 font-medium rounded-lg shadow-lg hover:bg-gray-100 transition duration-300"
           >
             <ArrowLeftCircle className="w-5 h-5" />
-            {t("goHome")}
+            Go Home
           </Link>
         </motion.div>
       </motion.div>
@@ -57,4 +54,4 @@ const NotFound = () => {
   );
 };
 
-export default NotFound;
+export default ForbiddenPage;

@@ -12,8 +12,10 @@ import {
   faEyeSlash,
 } from "@fortawesome/free-solid-svg-icons";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 export const SignInPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -69,10 +71,10 @@ export const SignInPage = () => {
         >
           <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col justify-center items-center text-white p-4 md:p-6">
             <h2 className="text-3xl font-bold text-center">
-              Together, We Can Make a Difference
+              {t("Together, We Can Make a Difference")}
             </h2>
             <p className="text-sm mt-2 text-center">
-              Join thousands of donors supporting meaningful causes worldwide.
+              {t("Join thousands of donors supporting meaningful causes worldwide.")}
             </p>
           </div>
         </motion.div>
@@ -85,9 +87,11 @@ export const SignInPage = () => {
         >
           {/* Header Section */}
           <div className="space-y-3 text-center">
-            <h2 className="text-4xl font-bold text-gray-800">Welcome Back</h2>
+            <h2 className="text-4xl font-bold text-gray-800">
+              {t("Welcome Back")}
+            </h2>
             <p className="text-base text-gray-600">
-              Sign in to continue supporting your cause.
+              {t("Sign in to continue supporting your cause.")}
             </p>
           </div>
 
@@ -104,7 +108,7 @@ export const SignInPage = () => {
               />
               <input
                 type="email"
-                placeholder="Email Address"
+                placeholder={t("Email Address")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full pl-10 pr-3 py-3.5 rounded-lg border border-gray-300 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all duration-300"
@@ -120,7 +124,7 @@ export const SignInPage = () => {
               />
               <input
                 type={showPassword ? "text" : "password"}
-                placeholder="Password"
+                placeholder={t("Password")}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full pl-10 pr-3 py-3.5 rounded-lg border border-gray-300 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all duration-300"
@@ -130,7 +134,7 @@ export const SignInPage = () => {
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition"
-                aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-label={showPassword ? t("Hide password") : t("Show password")}
               >
                 <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
               </button>
@@ -141,13 +145,13 @@ export const SignInPage = () => {
               href="/forgotpassword"
               className="self-end text-sm text-orange-600 hover:underline transition-all duration-300"
             >
-              Forgot Password?
+              {t("Forgot Password?")}
             </a>
 
             {/* Error Message */}
             {error && (
               <p className="text-sm text-red-500 text-center">
-                Your email or password is incorrect.
+                {t("Your email or password is incorrect.")}
               </p>
             )}
 
@@ -161,14 +165,16 @@ export const SignInPage = () => {
               }`}
               aria-disabled={isLoading || loading}
             >
-              {isLoading ? "Signing In..." : "Sign In"}
+              {isLoading ? t("Signing In...") : t("Sign In")}
             </motion.button>
           </form>
 
           {/* Divider */}
           <div className="flex items-center my-5">
             <div className="flex-1 border-t border-gray-300" />
-            <span className="px-4 text-sm text-gray-500">or continue with</span>
+            <span className="px-4 text-sm text-gray-500">
+              {t("or continue with")}
+            </span>
             <div className="flex-1 border-t border-gray-300" />
           </div>
 
@@ -178,13 +184,13 @@ export const SignInPage = () => {
           {/* Sign Up Link */}
           <div className="text-center mt-4">
             <span className="text-sm text-gray-600">
-              Dont have an account?{" "}
+              {t("Don't have an account?")}{" "}
             </span>
             <a
               href="/signup"
               className="text-sm text-orange-600 hover:text-orange-700 font-medium hover:underline transition-all duration-300"
             >
-              Sign up
+              {t("Sign up")}
             </a>
           </div>
         </motion.div>

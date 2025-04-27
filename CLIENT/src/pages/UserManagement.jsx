@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react";
 import { useUsers } from "../hooks/useUsers";
 import { NUMBER_OF_USERS_PER_PAGE } from "../constants";
@@ -17,8 +16,10 @@ import {
 } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { useUpdateUser } from "../hooks/useUsers";
+import { useTranslation } from "react-i18next";
 
 const UserManagement = () => {
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const currentPage = Number(searchParams.get("page")) || 1;
   const [searchTerm, setSearchTerm] = useState(
@@ -37,21 +38,23 @@ const UserManagement = () => {
       [userId]: role,
     });
   };
+
   const handleBlockToggle = (user) => {
     updateUser({
       userId: user._id,
-      userData: { blocked: !user.blocked }, // Toggle blocked value
+      userData: { blocked: !user.blocked },
     });
   };
+
   const handleRoleSubmit = (userId) => {
     if (roleChanges[userId]) {
       updateUser(
-        { userId, userData: { role: roleChanges[userId] } }, // Send only updated role
+        { userId, userData: { role: roleChanges[userId] } },
         {
           onSuccess: () => {
             setRoleChanges((prev) => {
               const newChanges = { ...prev };
-              delete newChanges[userId]; // Clear change after successful update
+              delete newChanges[userId];
               return newChanges;
             });
           },
@@ -59,6 +62,7 @@ const UserManagement = () => {
       );
     }
   };
+
   const getRoleBadgeVariant = (role) => {
     switch (role) {
       case "admin":
@@ -106,10 +110,12 @@ const UserManagement = () => {
   return (
     <div className="px-2 sm:px-4 py-6">
       <div className="sm:flex sm:items-center sm:justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
+        <h1 className="text-2xl font-bold text-gray-900">
+          {t("user_management")}
+        </h1>
         <div className="relative">
           <Input
-            placeholder="Search by name or email..."
+            placeholder={t("search_placeholder")}
             value={searchTerm}
             onChange={(e) => handleSearch(e.target.value)}
             className="w-full sm:w-64"
@@ -127,31 +133,31 @@ const UserManagement = () => {
                   scope="col"
                   className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
-                  User
+                  {t("user")}
                 </th>
                 <th
                   scope="col"
                   className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell"
                 >
-                  Role
+                  {t("role")}
                 </th>
                 <th
                   scope="col"
                   className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell"
                 >
-                  Status
+                  {t("status")}
                 </th>
                 <th
                   scope="col"
                   className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell"
                 >
-                  Created
+                  {t("created")}
                 </th>
                 <th
                   scope="col"
                   className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
-                  Actions
+                  {t("actions")}
                 </th>
               </tr>
             </thead>
@@ -187,15 +193,15 @@ const UserManagement = () => {
                   <td className="px-4 sm:px-6 py-4 whitespace-nowrap hidden md:table-cell">
                     <div className="flex items-center space-x-2">
                       <Badge variant={getRoleBadgeVariant(user.role)}>
-                        {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                        {t(`role_${user.role}`)}
                       </Badge>
                       <div className="flex items-center space-x-2">
                         <Select
                           options={[
-                            { value: "admin", label: "Admin" },
-                            { value: "manager", label: "Manager" },
-                            { value: "validator", label: "Validator" },
-                            { value: "user", label: "User" },
+                            { value: "admin", label: t("role_admin") },
+                            { value: "manager", label: t("role_manager") },
+                            { value: "validator", label: t("role_validator") },
+                            { value: "user", label: t("role_user") },
                           ]}
                           value={roleChanges[user._id] || user.role}
                           onChange={(value) =>
@@ -213,12 +219,14 @@ const UserManagement = () => {
                           }
                         >
                           {isPending && roleChanges[user._id] ? (
-                            <span className="animate-pulse">Updating...</span>
+                            <span className="animate-pulse">
+                              {t("updating")}...
+                            </span>
                           ) : (
                             <>
                               <UserCog className="h-4 w-4" />
                               <span className="hidden lg:inline ml-1">
-                                Update
+                                {t("update")}
                               </span>
                             </>
                           )}
@@ -234,7 +242,7 @@ const UserManagement = () => {
                           : "bg-green-100 text-green-800"
                       }`}
                     >
-                      {user.blocked ? "Blocked" : "Active"}
+                      {user.blocked ? t("blocked") : t("active")}
                     </span>
                   </td>
                   <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden lg:table-cell">
@@ -250,11 +258,15 @@ const UserManagement = () => {
                         disabled={isPending}
                       >
                         {isPending ? (
-                          <span className="animate-pulse">Unblocking...</span>
+                          <span className="animate-pulse">
+                            {t("unblocking")}...
+                          </span>
                         ) : (
                           <>
                             <Unlock className="h-4 w-4 sm:mr-1" />
-                            <span className="hidden sm:inline">Unblock</span>
+                            <span className="hidden sm:inline">
+                              {t("unblock")}
+                            </span>
                           </>
                         )}
                       </Button>
@@ -267,11 +279,15 @@ const UserManagement = () => {
                         disabled={isPending}
                       >
                         {isPending ? (
-                          <span className="animate-pulse">Blocking...</span>
+                          <span className="animate-pulse">
+                            {t("blocking")}...
+                          </span>
                         ) : (
                           <>
                             <Lock className="h-4 w-4 sm:mr-1" />
-                            <span className="hidden sm:inline">Block</span>
+                            <span className="hidden sm:inline">
+                              {t("block")}
+                            </span>
                           </>
                         )}
                       </Button>
@@ -283,7 +299,6 @@ const UserManagement = () => {
           </table>
         </div>
 
-        {/* Display pagination only if we have results */}
         {filteredCount > 0 && (
           <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
             <div className="flex-1 flex justify-between sm:hidden">
@@ -293,10 +308,13 @@ const UserManagement = () => {
                 disabled={currentPage === 1}
                 className="w-20"
               >
-                Previous
+                {t("previous")}
               </Button>
               <span className="mx-4 flex items-center text-sm text-gray-700">
-                Page {currentPage} of {totalPages}
+                {t("page_info", {
+                  current: currentPage,
+                  total: totalPages,
+                })}
               </span>
               <Button
                 variant="outline"
@@ -304,16 +322,17 @@ const UserManagement = () => {
                 disabled={currentPage === totalPages}
                 className="w-20"
               >
-                Next
+                {t("next")}
               </Button>
             </div>
             <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
               <div>
                 <p className="text-sm text-gray-700">
-                  Showing{" "}
-                  <span className="font-medium">{indexOfFirstUser}</span> to{" "}
-                  <span className="font-medium">{indexOfLastUser}</span> of{" "}
-                  <span className="font-medium">{filteredCount}</span> results
+                  {t("showing_results", {
+                    first: indexOfFirstUser,
+                    last: indexOfLastUser,
+                    total: filteredCount,
+                  })}
                 </p>
               </div>
               <div>
@@ -332,15 +351,11 @@ const UserManagement = () => {
 
                   {Array.from({ length: totalPages }, (_, i) => i + 1)
                     .filter((pageNum) => {
-                      // Always show first and last page
                       if (pageNum === 1 || pageNum === totalPages) return true;
-                      // Show pages around current page
                       if (Math.abs(pageNum - currentPage) <= 1) return true;
-                      // Don't show too many pages
                       return false;
                     })
                     .map((pageNum, idx, array) => {
-                      // Add ellipsis when there are gaps
                       if (idx > 0 && pageNum - array[idx - 1] > 1) {
                         return (
                           <React.Fragment key={`ellipsis-${pageNum}`}>
@@ -396,11 +411,10 @@ const UserManagement = () => {
           </div>
         )}
 
-        {/* Show a message when no results are found */}
         {filteredCount === 0 && searchTerm && (
           <div className="text-center py-8">
             <p className="text-gray-500">
-              No users found matching "{searchTerm}"
+              {t("no_users_found", { searchTerm })}
             </p>
           </div>
         )}

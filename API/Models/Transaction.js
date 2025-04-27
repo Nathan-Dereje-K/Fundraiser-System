@@ -15,7 +15,7 @@ const transactionSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
-  usersName: { type: String, default: "Anonymes" },
+  usersName: { type: String, default: "Anonymous" },
   amount: {
     type: Number,
     required: true,
@@ -25,6 +25,7 @@ const transactionSchema = new mongoose.Schema({
     enum: ["donation", "withdrawal", "reallocation"],
     default: "donation",
   },
+  accountNumber: { type: String, default: "" },
   method: {
     type: String,
     enum: ["local", "international"],

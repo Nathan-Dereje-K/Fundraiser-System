@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { useTransactionOfUserForCampaign } from "../../hooks/useTransaction";
-import { useCampaign } from "../../hooks/useCampaign";
+import { useCampaign, useDoesUserOwnCampaign } from "../../hooks/useCampaign";
 import { useCreateReport } from "../../hooks/useReport";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -23,20 +23,24 @@ import {
   getTranStatusChapa,
 } from "../../api/donateApi";
 import { toast } from "react-toastify";
+import { useTranslation } from "react-i18next";
 
 const CampaignDetails = () => {
   const isOwner = false;
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState(
     isOwner ? "transactions" : "donate"
   );
+  useEffect(() => {
+    setActiveTab(isOwner ? "transactions" : "donate");
+  }, [isOwner]);
   const { categoryName, id } = useParams();
   const [activeMedia, setActiveMedia] = useState("images");
-  const { user } = useAuth();
+  const { user, isLoggedIn } = useAuth();
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [reportReason, setReportReason] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [videoFile, setVideoFile] = useState(null);
-
   // React Query hooks
 
   useEffect(() => {}, []);
@@ -68,7 +72,7 @@ const CampaignDetails = () => {
   const handleSubmitReport = async (e) => {
     e.preventDefault();
     if (!reportReason.trim()) {
-      alert("Please provide a reason for reporting.");
+      alert(t("Please provide a reason for reporting."));
       return;
     }
 
@@ -80,14 +84,14 @@ const CampaignDetails = () => {
 
     try {
       await submitReport(formData);
-      toast.success("Campaign reported successfuly !");
+      toast.success(t("Campaign reported successfully!"));
       setIsReportModalOpen(false);
       setReportReason("");
       setImageFile(null);
       setVideoFile(null);
     } catch (error) {
       console.error("Error submitting report:", error);
-      toast.error("Failed to submit report. Please try again.");
+      toast.error(t("Failed to submit report. Please try again."));
     }
   };
 
@@ -114,14 +118,14 @@ const CampaignDetails = () => {
           <AlertCircle className="w-16 h-16" />
         </motion.div>
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-          {error?.message || "Failed to load campaign details"}
+          {error?.message || t("Failed to load campaign details")}
         </h2>
         <Link
           to="/"
           className="inline-flex items-center text-orange-600 hover:text-orange-700 transition-colors font-medium"
         >
           <ArrowLeft className="w-5 h-5 mr-2" />
-          Return to Homepage
+          {t("Return to Homepage")}
         </Link>
       </motion.div>
     );
@@ -145,7 +149,7 @@ const CampaignDetails = () => {
               className="inline-flex items-center hover:opacity-90 transition-opacity font-medium"
             >
               <ArrowLeft className="w-5 h-5 mr-2" />
-              Back to {categoryName}
+              {t("Back to")} {categoryName}
             </Link>
           </motion.div>
           <motion.div
@@ -165,7 +169,7 @@ const CampaignDetails = () => {
                 <Goal className="w-4 h-4 mr-2" />
                 {campaign.status.toUpperCase()}
               </div>
-              {user?.role === "user" ? (
+              {isLoggedIn ? (
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -174,7 +178,7 @@ const CampaignDetails = () => {
                   className="flex items-center bg-white px-3 py-1 rounded-full text-red-500 border border-red-500 hover:border-blue-800 hover:text-blue-800 transition-all duration-300 shadow-md hover:shadow-lg"
                 >
                   <AlertCircle className="w-4 h-4 mr-2" />
-                  Report Campaign
+                  {t("Report Campaign")}
                 </motion.button>
               ) : (
                 <motion.div
@@ -187,7 +191,7 @@ const CampaignDetails = () => {
                     className="flex items-center bg-white px-3 py-1 rounded-full text-red-500 hover:bg-white/20 hover:text-blue-800 transition-all duration-300 shadow-sm hover:shadow-md"
                   >
                     <AlertCircle className="w-4 h-4 mr-2" />
-                    Sign In to Report
+                    {t("Sign In to Report")}
                   </Link>
                 </motion.div>
               )}
@@ -214,7 +218,7 @@ const CampaignDetails = () => {
                         : "text-gray-500 hover:text-orange-500"
                     }`}
                   >
-                    {type.charAt(0).toUpperCase() + type.slice(1)}
+                    {t(type.charAt(0).toUpperCase() + type.slice(1))}
                   </button>
                 ))}
               </div>
@@ -242,7 +246,7 @@ const CampaignDetails = () => {
                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 flex items-end p-4">
                           <span className="text-white font-medium">
                             <ImageIcon className="w-5 h-5 mr-2 inline" />
-                            Image {index + 1}
+                            {t("Image")} {index + 1}
                           </span>
                         </div>
                       </motion.div>
@@ -260,7 +264,7 @@ const CampaignDetails = () => {
                           style={{ aspectRatio: "16/9" }}
                         >
                           <source src={video} type="video/mp4" />
-                          Your browser does not support the video tag.
+                          {t("Your browser does not support the video tag.")}
                         </video>
                       </motion.div>
                     ))}
@@ -276,7 +280,7 @@ const CampaignDetails = () => {
             >
               <h2 className="flex items-center text-2xl font-semibold mb-4">
                 <FileText className="w-6 h-6 mr-2 text-orange-600" />
-                Campaign Story
+                {t("Campaign Story")}
               </h2>
               <p className="text-gray-600 leading-relaxed max-w-full break-words">
                 {campaign.description}
@@ -293,11 +297,12 @@ const CampaignDetails = () => {
                 <div className="mb-4 md:mb-0">
                   <h3 className="flex items-center text-xl font-semibold">
                     <BadgeDollarSign className="w-6 h-6 mr-2 text-orange-600" />
-                    Funding Progress
+                    {t("Funding Progress")}
                   </h3>
                   <p className="text-gray-500 text-sm mt-1">
-                    {campaign.raisedAmount.toLocaleString()} ETB raised of{" "}
-                    {campaign.goalAmount.toLocaleString()} ETB goal
+                    {campaign.raisedAmount.toLocaleString()}{" "}
+                    {t("ETB raised of")} {campaign.goalAmount.toLocaleString()}{" "}
+                    {t("ETB goal")}
                   </p>
                 </div>
                 <span className="text-orange-600 font-bold text-2xl">
@@ -325,7 +330,7 @@ const CampaignDetails = () => {
               >
                 <h2 className="flex items-center text-xl font-semibold mb-4">
                   <FileText className="w-6 h-6 mr-2 text-orange-600" />
-                  Supporting Documents
+                  {t("Supporting Documents")}
                 </h2>
                 <div className="grid grid-cols-1 gap-2">
                   {campaign.document.map((doc, index) => (
@@ -338,7 +343,7 @@ const CampaignDetails = () => {
                     >
                       <FileText className="w-5 h-5 mr-3 text-gray-500" />
                       <span className="text-gray-700">
-                        Document {index + 1}
+                        {t("Document")} {index + 1}
                       </span>
                     </a>
                   ))}
@@ -355,7 +360,7 @@ const CampaignDetails = () => {
               className="bg-white rounded-2xl shadow-xl p-6 sticky top-8 border border-gray-100"
             >
               <h2 className="text-2xl font-bold text-center mb-6">
-                Support This Cause
+                {t("Support This Cause")}
               </h2>
               {/* Tab Navigation */}
               <div className="flex border-b border-gray-200 mb-6">
@@ -368,7 +373,7 @@ const CampaignDetails = () => {
                         : "text-gray-500 hover:text-gray-700"
                     }`}
                   >
-                    Donate
+                    {t("Donate")}
                   </button>
                 )}
                 <button
@@ -379,7 +384,7 @@ const CampaignDetails = () => {
                       : "text-gray-500 hover:text-gray-700"
                   }`}
                 >
-                  Transaction History
+                  {t("Transaction History")}
                 </button>
               </div>
               {activeTab === "donate" && (
@@ -387,20 +392,20 @@ const CampaignDetails = () => {
                   <div className="space-y-5">
                     <div className="bg-orange-50/50 rounded-xl p-4 border border-orange-100">
                       <p className="text-center text-orange-700 font-medium text-sm">
-                        Your contribution can create real change
+                        {t("Your contribution can create real change")}
                       </p>
                     </div>
 
                     <Donate campaignId={campaign._id} />
                     <div className="pt-4 space-y-3">
                       <div className="flex justify-between items-center text-gray-600">
-                        <span className="text-sm">Campaign Goal</span>
+                        <span className="text-sm">{t("Campaign Goal")}</span>
                         <span className="font-medium">
                           ETB {campaign.goalAmount.toLocaleString()}
                         </span>
                       </div>
                       <div className="flex justify-between items-center text-orange-600">
-                        <span className="text-sm">Amount Raised</span>
+                        <span className="text-sm">{t("Amount Raised")}</span>
                         <span className="font-semibold">
                           ETB {campaign.raisedAmount.toLocaleString()}
                         </span>
@@ -411,7 +416,7 @@ const CampaignDetails = () => {
                     <>
                       <h2 className="flex items-center mt-2 text-2xl font-semibold mb-4">
                         <BadgeDollarSign className="w-6 h-6 mr-2 text-orange-600" />
-                        My Transactions
+                        {t("My Transactions")}
                       </h2>
                       <ul className="space-y-4">
                         {transactions.map((transaction, index) => (
@@ -433,7 +438,7 @@ const CampaignDetails = () => {
                                   : "red"
                               }-600`}
                             >
-                              {transaction.status}
+                              {t(transaction.status)}
                             </span>
                             <button
                               className="bg-transparent hover:bg-orange-500 hover:text-white text-orange-500 font-bold py-2 px-4 rounded"
@@ -472,16 +477,20 @@ const CampaignDetails = () => {
               exit={{ scale: 0.9 }}
               className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg"
             >
-              <h2 className="text-xl font-semibold mb-4">Report Campaign</h2>
+              <h2 className="text-xl font-semibold mb-4">
+                {t("Report Campaign")}
+              </h2>
               <form onSubmit={handleSubmitReport}>
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Reason for Reporting*
+                    {t("Reason for Reporting*")}
                   </label>
                   <textarea
                     value={reportReason}
                     onChange={(e) => setReportReason(e.target.value)}
-                    placeholder="Describe why you are reporting this campaign..."
+                    placeholder={t(
+                      "Describe why you are reporting this campaign..."
+                    )}
                     className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                     rows="3"
                     required
@@ -489,17 +498,17 @@ const CampaignDetails = () => {
                 </div>
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Upload Evidence (Optional)
+                    {t("Upload Evidence (Optional)")}
                   </label>
                   <div className="space-y-2">
-                    <label htmlFor="">Image</label>
+                    <label>{t("Image")}</label>
                     <input
                       type="file"
                       accept="image/*"
                       onChange={(e) => setImageFile(e.target.files[0])}
                       className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                     />
-                    <label htmlFor="">Video</label>
+                    <label>{t("Video")}</label>
                     <input
                       type="file"
                       accept="video/*"
@@ -514,14 +523,14 @@ const CampaignDetails = () => {
                     onClick={() => setIsReportModalOpen(false)}
                     className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
                   >
-                    Cancel
+                    {t("Cancel")}
                   </button>
                   <button
                     type="submit"
                     disabled={isSubmitting}
                     className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors disabled:bg-red-300"
                   >
-                    {isSubmitting ? "Submitting..." : "Submit Report"}
+                    {isSubmitting ? t("Submitting...") : t("Submit Report")}
                   </button>
                 </div>
               </form>

@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { User, Users, LogOut, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -7,8 +7,10 @@ import { useUser } from "../../context/UserContext";
 import Avatar from "../ui/Avatar";
 import Dropdown from "../ui/Dropdown";
 import { useAuth } from "../../hooks/useAuth";
+import { useTranslation } from "react-i18next";
 
 const Navbar = () => {
+  const { t } = useTranslation();
   const { user: currentUser, isLoading } = useUser();
   const { user: loggedInUser, handleLogout } = useAuth();
 
@@ -41,17 +43,17 @@ const Navbar = () => {
     }
 
     // Add dashboard link
-    navLinks.push({ path: dashboardPath, label: "Dashboard" });
+    navLinks.push({ path: dashboardPath, label: t("dashboard") });
   }
 
   // Admin-specific links
   if (loggedInUser?.role === "admin") {
-    navLinks.push({ path: "/users", label: "User Management", icon: Users });
+    navLinks.push({ path: "/users", label: t("user_management"), icon: Users });
   }
 
   // Add sign-in link for non-logged-in users
   if (!loggedInUser) {
-    navLinks.push({ path: "/signin", label: "Sign In", icon: User });
+    navLinks.push({ path: "/signin", label: t("sign_in"), icon: User });
   }
 
   return (
@@ -67,7 +69,7 @@ const Navbar = () => {
             className="flex-shrink-0 flex items-center"
           >
             <Link to="/" className="text-3xl font-bold text-white">
-              Dashboard
+              {t("dashboard")}
             </Link>
           </motion.div>
 
@@ -102,6 +104,16 @@ const Navbar = () => {
                   <div className="flex items-center cursor-pointer">
                     <span className="text-sm font-medium text-gray-300 mr-2 hidden lg:block">
                       {currentUser.name}
+                      <span className="text-xs text-gray-500 flex flex-col items-center">
+                        {["admin", "manager", "validator"].includes(
+                          currentUser?.role
+                        )
+                          ? ` ${
+                              currentUser.role.charAt(0).toUpperCase() +
+                              currentUser.role.slice(1)
+                            }`
+                          : ""}
+                      </span>
                     </span>
                     <Avatar
                       src={currentUser.avatar}
@@ -119,7 +131,7 @@ const Navbar = () => {
                   role="menuitem"
                 >
                   <User className="mr-2 h-4 w-4" />
-                  Profile
+                  {t("profile")}
                 </Link>
                 <button
                   onClick={handleLogout}
@@ -127,7 +139,7 @@ const Navbar = () => {
                   role="menuitem"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
-                  Logout
+                  {t("logout")}
                 </button>
               </Dropdown>
             )}
@@ -188,8 +200,18 @@ const Navbar = () => {
                       />
                     </div>
                     <div className="ml-3">
-                      <div className="text-base font-medium text-white">
-                        {currentUser.name}
+                      <div className="text-base font-medium text-white flex items-center flex-col">
+                        {currentUser?.name}
+                        <span className="text-xs text-gray-500">
+                          {["admin", "manager", "validator"].includes(
+                            currentUser?.role
+                          )
+                            ? ` ${
+                                currentUser.role.charAt(0).toUpperCase() +
+                                currentUser.role.slice(1)
+                              }`
+                            : ""}
+                        </span>
                       </div>
                       <div className="text-sm font-medium text-gray-400">
                         {currentUser.email}
@@ -202,7 +224,7 @@ const Navbar = () => {
                       className="block px-3 py-2 rounded-md text-base font-medium text-gray-400 hover:text-white hover:bg-gray-700"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
-                      Profile
+                      {t("profile")}
                     </Link>
                     <button
                       onClick={() => {
@@ -211,7 +233,7 @@ const Navbar = () => {
                       }}
                       className="block w-full px-3 py-2 rounded-md text-left text-base font-medium text-red-500 hover:text-white hover:bg-red-900"
                     >
-                      Logout
+                      {t("logout")}
                     </button>
                   </div>
                 </div>

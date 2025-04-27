@@ -39,6 +39,8 @@ exports.getGoogleAuth = asyncHandler(async (req, res) => {
     });
     await user.save();
   }
+  if (user.blocked)
+    return res.status(400).json({ error: "This user is blocked" });
 
   const accessToken = signToken(user);
   res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
@@ -91,6 +93,8 @@ exports.signup = asyncHandler(async (req, res) => {
 exports.signin = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
+  if (user.blocked)
+    return res.status(400).json({ error: "This user is blocked" });
 
   if (
     !user ||
@@ -111,7 +115,7 @@ exports.getMe = asyncHandler(async (req, res) => {
   const token = req.cookies.token;
   if (!token) {
     const accessToken = signToken({ _id: "_", role: "guest" });
-    res
+    return res
       .cookie("token", accessToken, {
         httpOnly: true,
         secure: false,
@@ -121,9 +125,29 @@ exports.getMe = asyncHandler(async (req, res) => {
   } else {
     try {
       const decoded = verifyToken(token);
+      if (!decoded) {
+        const accessToken = signToken({ _id: "_", role: "guest" });
+        return res
+          .cookie("token", accessToken, {
+            httpOnly: true,
+            secure: false,
+            sameSite: "Lax",
+          })
+          .json({ loggedIn: false, user: { userId: "_", role: "guest" } });
+      } else if (decoded.role === "guest") {
+        return res.json({ loggedIn: false, user: decoded });
+      }
       res.json({ loggedIn: true, user: decoded });
-    } catch {
-      res.status(401).json({ loggedIn: false });
+    } catch (err) {
+      const accessToken = signToken({ _id: "_", role: "guest" });
+      return res
+        .cookie("token", accessToken, {
+          httpOnly: true,
+          secure: false,
+          sameSite: "Lax",
+        })
+        .status(401)
+        .json({ loggedIn: false, user: { userId: "_", role: "guest" } });
     }
   }
 });

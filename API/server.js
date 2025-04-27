@@ -14,6 +14,7 @@ const reportRouter = require("./Routes/report");
 const setupChangeStreams = require("./Services/changeStream");
 
 const notificationRouter = require("./Routes/NotificationRoutes"); // New
+const testimonialRouter = require("./Routes/testimonial");
 
 const releaseRouter = require("./Routes/release");
 const cookieParser = require("cookie-parser");
@@ -49,6 +50,7 @@ app.use("/api/transaction", transactionRouter);
 app.use("/api/reports", reportRouter);
 app.use("/api/notifications", notificationRouter);
 app.use("/api/release", releaseRouter);
+app.use("/api/testimonial", testimonialRouter);
 
 app.use(errorHandler);
 

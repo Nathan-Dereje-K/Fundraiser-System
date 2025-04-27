@@ -24,6 +24,7 @@ import Loader from "../../components/ui/Loader";
 import { getPendingCampaigns } from "../../api/campaignApi";
 import { useUpdateCampaign } from "../../hooks/useCampaign";
 import { toast } from "react-toastify";
+import { useTranslation } from "react-i18next"; 
 // import Navbar from "../../components/layout/Navbar";
 
 const categoryIcons = {
@@ -61,6 +62,7 @@ const ValidatorPage = () => {
   });
 
   const updateCampaignMutation = useUpdateCampaign();
+  const { t } = useTranslation();
 
   const handleStatusUpdate = async (status, reason = "") => {
     if (!selectedCampaign) return;
@@ -123,7 +125,7 @@ const ValidatorPage = () => {
                   exit={{ opacity: 0 }}
                   className="font-bold pt-4 pb-4 text-2xl bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent"
                 >
-                  Validator Portal
+                  {t("Validator Portal")}
                 </motion.h2>
               )}
             </AnimatePresence>
@@ -165,7 +167,7 @@ const ValidatorPage = () => {
                       ""
                     ) : (
                       <p className="text-gray-500 mt-2">
-                        No campaigns awaiting review
+                        {t("No campaigns awaiting review")}
                       </p>
                     )}
                   </motion.div>
@@ -249,11 +251,11 @@ const ValidatorPage = () => {
                     <FileText className="w-12 h-12 text-blue-600" />
                   </motion.div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                    Select a Campaign
+                    {t("Select a campaign")}
                   </h3>
                   <p className="text-gray-500">
-                    Choose a campaign from the sidebar to view detailed
-                    information and perform validation actions.
+                    {t("Choose a campaign from the sidebar to view detailed information and perform validation actions.")}
+                    
                   </p>
                 </motion.div>
               ) : (
@@ -279,7 +281,7 @@ const ValidatorPage = () => {
                           {selectedCampaign.status.toUpperCase()}
                         </span>
                         <span className="text-sm text-gray-500">
-                          Created {formatDate(selectedCampaign.createdAt)}
+                         {t("Created ")} {formatDate(selectedCampaign.createdAt)}
                         </span>
                       </div>
                     </div>
@@ -295,7 +297,7 @@ const ValidatorPage = () => {
                   <div className="space-y-6">
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold text-gray-900">
-                        Campaign Overview
+                        {t("Campaign Overview")}
                       </h3>
                       <p className="text-gray-600 leading-relaxed whitespace-pre-line break-words overflow-hidden max-w-full">
                         {" "}
@@ -309,7 +311,7 @@ const ValidatorPage = () => {
                           <DollarSign className="w-6 h-6 text-blue-600" />
                           <div>
                             <p className="text-sm font-medium text-gray-500">
-                              Funding Goal
+                              {t("Funding Goal")}
                             </p>
                             <p className="text-2xl font-semibold text-gray-900">
                               ETB{" "}
@@ -323,7 +325,7 @@ const ValidatorPage = () => {
                           <Calendar className="w-6 h-6 text-green-600" />
                           <div>
                             <p className="text-sm font-medium text-gray-500">
-                              Campaign Duration
+                              {t("Campaign Duration")}
                             </p>
                             <p className="text-lg font-medium text-gray-900">
                               {formatDate(selectedCampaign.startDate)} -{" "}
@@ -338,7 +340,7 @@ const ValidatorPage = () => {
                         <div className="flex items-center gap-3">
                           <ImageIcon className="w-6 h-6 text-purple-600" />
                           <h3 className="text-lg font-semibold text-gray-900">
-                            Campaign Images ({selectedCampaign.image.length})
+                            {t("Campaign Images")} ({selectedCampaign.image.length})
                           </h3>
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -362,7 +364,7 @@ const ValidatorPage = () => {
                         <div className="flex items-center gap-3">
                           <VideoIcon className="w-6 h-6 text-red-600" />
                           <h3 className="text-lg font-semibold text-gray-900">
-                            Campaign Videos ({selectedCampaign.video.length})
+                            {t("Campaign Videos")} ({selectedCampaign.video.length})
                           </h3>
                         </div>
                         <div className="grid grid-cols-1 gap-4">
@@ -380,7 +382,7 @@ const ValidatorPage = () => {
                                   src={`${video}#t=0.5`}
                                   type="video/mp4"
                                 />
-                                Your browser does not support the video tag.
+                                {t("Your browser does not support the video tag.")}
                               </video>
                             </div>
                           ))}
@@ -393,7 +395,7 @@ const ValidatorPage = () => {
                         <div className="flex items-center gap-3">
                           <FileText className="w-6 h-6 text-amber-600" />
                           <h3 className="text-lg font-semibold text-gray-900">
-                            Supporting Materials
+                            {t("Supporting Materials")} 
                           </h3>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -447,7 +449,7 @@ const ValidatorPage = () => {
                   <div className="pt-6 border-t border-gray-100">
                     <div className="flex flex-col-reverse sm:flex-row justify-between gap-4">
                       <div className="text-sm text-gray-500">
-                        Campaign ID: {selectedCampaign._id}
+                        {t("Campaign ID")}: {selectedCampaign._id}
                       </div>
                       <div className="flex gap-3">
                         <button

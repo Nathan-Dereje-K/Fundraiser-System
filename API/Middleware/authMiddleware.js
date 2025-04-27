@@ -21,7 +21,9 @@ const authMiddleware = (req, res, next) => {
     req.user = { id: decoded.userId, role: decoded.role };
     next();
   } catch (err) {
+    console.error("Token verification failed:", err);
     res.status(401).json({ message: "Invalid token" });
+    
   }
 };
 

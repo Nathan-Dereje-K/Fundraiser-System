@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next"; 
 import { useUser } from "../../hooks/useUsers";
 import { useTransactionOfUser } from "../../hooks/useTransaction";
 import { useCampaign } from "../../hooks/useCampaign";
 
 const DonorProfile = () => {
+  const { t } = useTranslation(); 
   const { donorId } = useParams();
   const {
     data: user,
@@ -15,17 +17,19 @@ const DonorProfile = () => {
   const { data: transactions } = useTransactionOfUser(donorId || null);
   const [totalDonatedBirr, setTotalDonatedBirr] = useState(0);
   const [totalDonatedUSD, setTotalDonatedUSD] = useState(0);
+  const approvedDonations =
+    transactions?.filter(
+      (transaction) =>
+        transaction.status === "approved" &&
+        transaction.transactionType === "donation"
+    ) || [];
 
   useEffect(() => {
-    if (transactions) {
-      const approvedTransactions = transactions.filter(
-        (transaction) => transaction.status === "approved"
-      );
-
-      const localTransactions = approvedTransactions.filter(
+    if (approvedDonations) {
+      const localTransactions = approvedDonations.filter(
         (transaction) => transaction.method === "local"
       );
-      const internationalTransactions = approvedTransactions.filter(
+      const internationalTransactions = approvedDonations.filter(
         (transaction) => transaction.method === "international"
       );
 
@@ -41,7 +45,11 @@ const DonorProfile = () => {
       setTotalDonatedBirr(totalBirr);
       setTotalDonatedUSD(totalUSD);
     }
-  }, [transactions]);
+  }, [approvedDonations]);
+
+  useEffect(() => {
+    document.title = t("donorProfileTitle", { name: user?.name });
+  }, [user, t]);
 
   const copyProfileLink = () => {
     const profileLink = `${window.location.origin}/donor/${donorId}`;
@@ -61,7 +69,7 @@ const DonorProfile = () => {
   if (userError) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <p className="text-gray-600">Donor not found</p>
+        <p className="text-gray-600">{t("donorNotFound")}</p>
       </div>
     );
   }
@@ -74,7 +82,7 @@ const DonorProfile = () => {
           <div className="flex flex-col md:flex-row items-center">
             <img
               src={user.avatar}
-              alt="Profile"
+              alt={t("profilePictureAlt")}
               className="w-32 h-32 md:w-48 md:h-48 rounded-full border-4 border-orange-500 mb-4 md:mb-0 md:mr-12 object-cover"
             />
             <div className="flex-1 text-center md:text-left">
@@ -89,7 +97,7 @@ const DonorProfile = () => {
               <div className="flex flex-wrap justify-center md:justify-start gap-6 mt-4">
                 <div className="bg-orange-500 text-white px-8 py-4 rounded-lg shadow-lg">
                   <p className="text-sm uppercase tracking-wider">
-                    Total Donated (ETB)
+                    {t("totalDonatedETB")}
                   </p>
                   <p className="text-3xl font-bold">
                     ETB {totalDonatedBirr.toLocaleString()}
@@ -97,7 +105,7 @@ const DonorProfile = () => {
                 </div>
                 <div className="bg-orange-500 text-white px-8 py-4 rounded-lg shadow-lg">
                   <p className="text-sm uppercase tracking-wider">
-                    Total Donated (USD)
+                    {t("totalDonatedUSD")}
                   </p>
                   <p className="text-3xl font-bold">
                     ${totalDonatedUSD.toLocaleString()}
@@ -111,11 +119,11 @@ const DonorProfile = () => {
         {/* Donation History */}
         <div className="mb-12">
           <h2 className="text-3xl font-bold text-orange-600 border-b-2 border-orange-500 pb-3 mb-8">
-            Donation History
+            {t("donationHistory")}
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {transactions?.map((transaction) => (
+            {approvedDonations?.map((transaction) => (
               <div
                 key={transaction._id}
                 className="bg-gray-50 p-6 rounded-lg shadow-sm hover:shadow-lg transition-shadow"
@@ -140,7 +148,9 @@ const DonorProfile = () => {
 
         {/* Share Profile */}
         <div className="bg-gray-50 p-8 rounded-lg text-center max-w-3xl mx-auto">
-          <h3 className="text-2xl font-semibold mb-4">Share this Profile</h3>
+          <h3 className="text-2xl font-semibold mb-4">
+            {t("shareThisProfile")}
+          </h3>
           <div className="flex flex-col sm:flex-row gap-3">
             <input
               type="text"
@@ -152,7 +162,7 @@ const DonorProfile = () => {
               onClick={copyProfileLink}
               className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 text-lg rounded-lg transition-colors"
             >
-              {copied ? "Copied!" : "Copy Link"}
+              {copied ? t("copied") : t("copyLink")}
             </button>
           </div>
         </div>

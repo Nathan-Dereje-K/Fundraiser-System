@@ -3,11 +3,19 @@ import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../../../hooks/useAuth";
 import { useUser } from "../../../context/UserContext";
 import { Link, useNavigate } from "react-router-dom";
-import { User, LayoutDashboardIcon, LogOut, Menu, X } from "lucide-react";
+import {
+  User,
+  LayoutDashboardIcon,
+  LogOut,
+  Menu,
+  X,
+  Wallet,
+} from "lucide-react";
 import Avatar from "../../ui/Avatar";
 import Dropdown from "../../ui/Dropdown";
 import NotificationSystem from "../../../pages/Notification/NotificationSystem";
 import SearchCampaign from "../../ui/SearchCampaign";
+import { useTranslation } from "react-i18next";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -16,6 +24,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { handleLogout } = useAuth();
   const { user: currentUser, isLoading: userLoading } = useUser();
+  const { t } = useTranslation();
 
   // Close dropdown if clicked outside
   useEffect(() => {
@@ -58,30 +67,24 @@ const Navbar = () => {
             F
           </div>
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
-            Fundraiser
+            {t("Fundraiser")}
           </h1>
         </div>
 
         {/* Desktop Nav */}
         <ul className="hidden md:flex gap-6 items-center text-lg font-medium text-gray-700">
-          <Link
-            to="/"
-            className="hover:text-orange-500 cursor-pointer transition-colors"
-          >
-            Home
-          </Link>
-          <Link
-            to="about_us"
-            className="hover:text-orange-500 cursor-pointer transition-colors"
-          >
-            About Us
-          </Link>
-          <Link
-            to="/terms"
-            className="hover:text-orange-500 cursor-pointer transition-colors"
-          >
-            Terms
-          </Link>
+          <li className="hover:text-orange-500 cursor-pointer transition-colors">
+            {t("Causes")}
+          </li>
+          <li className="hover:text-orange-500 cursor-pointer transition-colors">
+            {t("Campaigns")}
+          </li>
+          <li className="hover:text-orange-500 cursor-pointer transition-colors">
+            {t("About Us")}
+          </li>
+          <li className="hover:text-orange-500 cursor-pointer transition-colors">
+            {t("Impact")}
+          </li>
           <li className=" cursor-pointer transition-colors">
             <SearchCampaign />
           </li>
@@ -93,7 +96,7 @@ const Navbar = () => {
               className="px-5 py-2 bg-orange-500 text-white rounded-full shadow-md"
               onClick={handleStartCampaign}
             >
-              Start a Campaign
+              {t("Start a Campaign")}
             </motion.button>
           </li>
           {currentUser && (
@@ -110,8 +113,19 @@ const Navbar = () => {
               <Dropdown
                 trigger={
                   <div className="flex items-center cursor-pointer">
-                    <span className="text-sm font-medium text-gray-700 mr-2 hidden lg:block">
+                    <span className="text-sm font-medium text-gray-700 mr-2 hidden lg:flex  items-center flex-col">
                       {currentUser?.name}
+                      <span className="text-xs text-gray-500">
+                        {/* Display the user's role if they are admin, manager, or validator */}
+                        {["admin", "manager", "validator"].includes(
+                          currentUser?.role
+                        )
+                          ? ` ${
+                              currentUser.role.charAt(0).toUpperCase() +
+                              currentUser.role.slice(1)
+                            }`
+                          : ""}
+                      </span>
                     </span>
                     <Avatar
                       src={currentUser?.avatar}
@@ -129,23 +143,41 @@ const Navbar = () => {
                   role="menuitem"
                 >
                   <User className="mr-2 h-4 w-4" />
-                  Profile
+                  {t("Profile")}
                 </Link>
                 <Link
-                  to="/dashboard"
+                  to={
+                    {
+                      admin: "/dashboard",
+                      manager: "/campaign_manager",
+                      validator: "/validator_panel",
+                      user: "/campaign_panel",
+                    }[currentUser?.role] || "#"
+                  }
                   className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   role="menuitem"
                 >
                   <LayoutDashboardIcon className="mr-2 h-4 w-4" />
-                  Dashboard
+                  {t("Dashboard")}
                 </Link>
+                {currentUser?.role === "user" &&
+                  currentUser?.releasedMoney > 0 && (
+                    <Link
+                      to="/withdraw"
+                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      role="menuitem"
+                    >
+                      <Wallet className="mr-2 h-4 w-4" />
+                      Withdraw
+                    </Link>
+                  )}
                 <button
                   onClick={handleLogout}
                   className="flex w-full items-center px-4 py-2 text-sm text-red-700 hover:bg-red-50"
                   role="menuitem"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
-                  Logout
+                  {t("Logout")}
                 </button>
               </Dropdown>
             ) : (
@@ -153,7 +185,7 @@ const Navbar = () => {
                 href="/signin"
                 className="px-5 py-2 bg-gray-300 text-gray-800 rounded-full shadow-sm"
               >
-                Log in
+                {t("Log in")}
               </a>
             )}
           </li>
@@ -184,25 +216,25 @@ const Navbar = () => {
             href="#causes"
             className="text-lg font-medium text-gray-700 hover:text-orange-500 transition-colors"
           >
-            Causes
+            {t("Causes")}
           </a>
           <a
             href="#campaigns"
             className="text-lg font-medium text-gray-700 hover:text-orange-500 transition-colors"
           >
-            Campaigns
+            {t("Campaigns")}
           </a>
           <a
             href="#about-us"
             className="text-lg font-medium text-gray-700 hover:text-orange-500 transition-colors"
           >
-            About Us
+            {t("About us")}
           </a>
           <Link
             to="/terms"
             className="text-lg font-medium text-gray-700 hover:text-orange-500 transition-colors"
           >
-            Terms
+            {t("Impact")}
           </Link>
           <motion.button
             whileHover={{ scale: 1.1 }}
@@ -210,7 +242,7 @@ const Navbar = () => {
             className="w-full px-5 py-2 bg-orange-500 text-white rounded-full shadow-md"
             onClick={handleStartCampaign}
           >
-            Start a Campaign
+            {t("Start a Campaign")}
           </motion.button>
           {currentUser ? (
             <div className="relative w-full">
@@ -258,15 +290,22 @@ const Navbar = () => {
                     role="menuitem"
                   >
                     <User className="mr-2 h-4 w-4" />
-                    Profile
+                    {t("Profile")}
                   </Link>
                   <Link
-                    to="/dashboard"
+                    to={
+                      {
+                        admin: "/dashboard",
+                        manager: "/campaign_manager",
+                        validator: "/validator_panel",
+                        user: "/campaign_panel",
+                      }[currentUser?.role] || "#"
+                    }
                     className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     role="menuitem"
                   >
                     <LayoutDashboardIcon className="mr-2 h-4 w-4" />
-                    Dashboard
+                    {t("Dashboard")}
                   </Link>
                   <button
                     onClick={handleLogout}
@@ -274,7 +313,7 @@ const Navbar = () => {
                     role="menuitem"
                   >
                     <LogOut className="mr-2 h-4 w-4" />
-                    Logout
+                    {t("Logout")}
                   </button>
                 </motion.div>
               )}
@@ -284,7 +323,7 @@ const Navbar = () => {
               href="/signin"
               className="w-full px-5 py-2 bg-gray-300 text-gray-800 rounded-full shadow-md text-center"
             >
-              Log in
+              {t("Log in")}
             </a>
           )}
         </motion.div>

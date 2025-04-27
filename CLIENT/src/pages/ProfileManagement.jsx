@@ -8,6 +8,7 @@ import Input from "../components/ui/Input";
 import Textarea from "../components/ui/Textarea";
 import Avatar from "../components/ui/Avatar";
 import Badge from "../components/ui/Badge";
+import { useTranslation } from "react-i18next";
 import {
   User,
   Mail,
@@ -18,11 +19,19 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import Settings from "./Settings";
+import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "react-toastify";
+import { useCreateTestimonial } from "../hooks/useTestimonial";
+import { useDoesUserOwnCampaign } from "../hooks/useCampaign";
 
 const ProfileManagement = () => {
+  const { t } = useTranslation();
   const { user: currentUser } = useUser();
+  const { data: isOwner } = useDoesUserOwnCampaign("completed");
   const { mutate: updateUser, isPending, error } = useUpdateUser();
   const { mutate: verifyEmail, isPending: isVerifying } = useVerifyEmail();
+  const { mutateAsync: submitTestimonial, isPending: isSubmitting } =
+    useCreateTestimonial();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -34,6 +43,38 @@ const ProfileManagement = () => {
     message: "",
     type: null,
   });
+  const [isTestiModalOpen, setIsTestiModalOpen] = useState(false);
+  const [testimonial, setTestimonial] = useState("");
+  const [imageFile, setImageFile] = useState(null);
+
+  const handleSubmitTestimonial = async (e) => {
+    e.preventDefault();
+    if (!testimonial.trim()) {
+      alert("Please provide a reason for reporting.");
+      return;
+    }
+    if (!currentUser) {
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("message", testimonial);
+    formData.append("userName", currentUser.name);
+    if (imageFile) formData.append("image", imageFile);
+
+    try {
+      await submitTestimonial(formData);
+      toast.success("Testimonial posted successfuly !");
+      setIsTestiModalOpen(false);
+      setTestimonial("");
+      setImageFile(null);
+    } catch (error) {
+      console.error("Error submitting report:", error);
+      setIsTestiModalOpen(false);
+      setTestimonial("");
+      setImageFile(null);
+    }
+  };
 
   useEffect(() => {
     if (currentUser) {
@@ -82,7 +123,7 @@ const ProfileManagement = () => {
         {
           onSuccess: () => {
             setVerificationStatus({
-              message: "Verification email sent! Please check your inbox.",
+              message: t("verification_sent_message"), // Changed to match your flat structure
               type: "success",
             });
             setTimeout(() => {
@@ -93,8 +134,9 @@ const ProfileManagement = () => {
       );
     }
   };
+
   if (!currentUser) {
-    return <div>Loading...</div>;
+    return <div>{t("loading")}</div>;
   }
 
   return (
@@ -108,7 +150,7 @@ const ProfileManagement = () => {
                 <AlertTriangle className="h-5 w-5 text-yellow-400 mr-2" />
                 <div>
                   <p className="text-sm text-yellow-700">
-                    Your email address ({currentUser.email}) is not verified.
+                    {t("email_not_verified", { email: currentUser.email })}
                   </p>
                   {verificationStatus.message && (
                     <p
@@ -130,7 +172,7 @@ const ProfileManagement = () => {
                 onClick={handleVerifyEmail}
                 className="ml-4"
               >
-                Send Verification
+                {t("send_verification")}
               </Button>
             </div>
           </div>
@@ -138,35 +180,51 @@ const ProfileManagement = () => {
 
         <div className="sm:flex sm:items-center sm:justify-between mb-6">
           <h1 className="text-2xl font-bold text-gray-900">
-            Profile Management
+            {t("profile_management_title")}
           </h1>
-          {!isEditing && (
-            <Button variant="primary" onClick={() => setIsEditing(true)}>
-              Edit Profile
+          <div className="mt-4 sm:mt-0 sm:ml-4 flex space-x-2">
+            {isOwner && (
+              <Button
+                variant="success"
+                onClick={() => setIsTestiModalOpen(true)}
+              >
+                {t(Testimony)}
+              </Button>
+            )}
+            <Button
+              variant="success"
+              onClick={() => window.open(`/donor/${currentUser._id}`)}
+            >
+              {t("Share Your Donor Profile")}
             </Button>
-          )}
+            {!isEditing && (
+              <Button variant="primary" onClick={() => setIsEditing(true)}>
+                {t("Edit Profile")}
+              </Button>
+            )}
+          </div>
         </div>
 
         <div className="bg-white shadow overflow-hidden sm:rounded-lg">
           <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
             <div>
               <h3 className="text-lg leading-6 font-medium text-gray-900">
-                User Profile
+                {t("user_profile")}
               </h3>
               <p className="mt-1 max-w-2xl text-sm text-gray-500">
-                Personal details and account information
+                {t("profile_details_description")}
               </p>
             </div>
             <div className="flex items-center space-x-2">
               {currentUser.verified ? (
                 <Badge variant="success" className="flex items-center">
                   <CheckCircle className="h-4 w-4 mr-1" />
-                  Verified
+                  {t("verified")}
                 </Badge>
               ) : (
                 <Badge variant="warning" className="flex items-center">
                   <AlertCircle className="h-4 w-4 mr-1" />
-                  Unverified
+                  {t("unverified")}
                 </Badge>
               )}
               <Badge
@@ -178,9 +236,9 @@ const ProfileManagement = () => {
                     : "default"
                 }
               >
-                {currentUser.role.charAt(0).toUpperCase() +
-                  currentUser.role.slice(1)}
-              </Badge>
+         {currentUser.role.charAt(0).toUpperCase() +
+                  currentUser.role.slice(1)}           
+               </Badge>
             </div>
           </div>
 
@@ -198,27 +256,27 @@ const ProfileManagement = () => {
                         onImageChange={handleImageChange}
                       />
                       <p className="mt-2 text-sm text-gray-500">
-                        Click to change photo
+                        {t("click_to_change_photo")}
                       </p>
                     </div>
                   </div>
 
                   <div className="sm:w-2/3 space-y-4">
                     <Input
-                      label="Full Name"
+                      label={t("full_name")}
                       name="name"
                       value={formData.name}
                       onChange={handleChange}
-                      placeholder="Your full name"
+                      placeholder={t("name_placeholder")}
                       icon={<User className="h-5 w-5 text-gray-400" />}
                     />
 
                     <Textarea
-                      label="Bio"
+                      label={t("bio")}
                       name="bio"
                       value={formData.bio}
                       onChange={handleChange}
-                      placeholder="Tell us about yourself"
+                      placeholder={t("bio_placeholder")}
                       rows={4}
                     />
                   </div>
@@ -240,10 +298,10 @@ const ProfileManagement = () => {
                       }
                     }}
                   >
-                    Cancel
+                    {t("cancel")}
                   </Button>
                   <Button variant="primary" type="submit">
-                    Save Changes
+                    {t("save_changes")}
                   </Button>
                 </div>
               </form>
@@ -254,7 +312,7 @@ const ProfileManagement = () => {
                 <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                   <dt className="text-sm font-medium text-gray-500 flex items-center">
                     <Camera className="h-5 w-5 mr-2" />
-                    Profile Picture
+                    {t("profile_picture")}
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                     <div className="flex items-center">
@@ -271,7 +329,7 @@ const ProfileManagement = () => {
                 <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                   <dt className="text-sm font-medium text-gray-500 flex items-center">
                     <User className="h-5 w-5 mr-2" />
-                    Full name
+                    {t("full_name")}
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                     {currentUser.name}
@@ -280,7 +338,7 @@ const ProfileManagement = () => {
                 <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                   <dt className="text-sm font-medium text-gray-500 flex items-center">
                     <Mail className="h-5 w-5 mr-2" />
-                    Email address
+                    {t("email_address")}
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                     <div className="flex items-center space-x-2">
@@ -291,7 +349,7 @@ const ProfileManagement = () => {
                 <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                   <dt className="text-sm font-medium text-gray-500 flex items-center">
                     <FileText className="h-5 w-5 mr-2" />
-                    Bio
+                    {t("bio")}
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                     {currentUser.bio}
@@ -303,6 +361,71 @@ const ProfileManagement = () => {
         </div>
       </div>
       <Settings />
+      <AnimatePresence>
+        {isTestiModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 bg-opacity-50 flex items-center justify-center z-50"
+          >
+            <motion.div
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.9 }}
+              className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg"
+            >
+              <h2 className="text-xl font-semibold mb-4">Report Campaign</h2>
+              <form onSubmit={handleSubmitTestimonial}>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {t("Submit a Testimony")}
+                  </label>
+                  <textarea
+                    value={testimonial}
+                    onChange={(e) => setTestimonial(e.target.value)}
+                    placeholder="Write your testimony..."
+                    className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    rows="3"
+                    maxLength={80}
+                    required
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {t("Upload a Photo of Yours")}
+                  </label>
+                  <div className="space-y-2">
+                    <label htmlFor="">Image</label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => setImageFile(e.target.files[0])}
+                      className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end space-x-4">
+                  <button
+                    type="button"
+                    onClick={() => setIsTestiModalOpen(false)}
+                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
+                  >
+                    {t(Cancel)}
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors disabled:bg-red-300"
+                  >
+                    {isSubmitting ? "Submitting..." : "Submit Report"}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

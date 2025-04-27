@@ -3,9 +3,12 @@ import Chapa from "./Chapa";
 import Braintree from "./Braintree";
 import { Fragment } from "react";
 import clsx from "clsx";
+import { useTranslation } from "react-i18next";
+
 const Donate = ({ campaignId }) => {
+  const { t } = useTranslation();
+
   return (
-    // <div className="w-full max-w-md bg-white shadow-lg rounded-xl p-6">
     <TabGroup>
       <TabList className="flex border-b border-gray-300">
         <Tab as={Fragment}>
@@ -18,7 +21,7 @@ const Donate = ({ campaignId }) => {
                   : "text-gray-600 hover:bg-gray-200"
               )}
             >
-              Local
+              {t("Local")}
             </button>
           )}
         </Tab>
@@ -32,7 +35,7 @@ const Donate = ({ campaignId }) => {
                   : "text-gray-600 hover:bg-gray-200"
               )}
             >
-              International
+              {t("International")}
             </button>
           )}
         </Tab>
@@ -47,7 +50,6 @@ const Donate = ({ campaignId }) => {
         </TabPanel>
       </TabPanels>
     </TabGroup>
-    // </div>
   );
 };
 
