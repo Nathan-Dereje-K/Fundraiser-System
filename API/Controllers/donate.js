@@ -40,8 +40,7 @@ exports.initiatePayment = asyncHandler(async (req, res) => {
     first_name,
     last_name,
     email,
-    callback_url:
-      "https://fundraiser-system.onrender.com/api/donate/verifypayment",
+    callback_url: "http://localhost:5000/api/donate/verifypayment",
   };
 
   try {

@@ -188,7 +188,7 @@ const ProfileManagement = () => {
                 variant="success"
                 onClick={() => setIsTestiModalOpen(true)}
               >
-                {t(Testimony)}
+                {t("Testimony")}
               </Button>
             )}
             <Button
@@ -236,9 +236,9 @@ const ProfileManagement = () => {
                     : "default"
                 }
               >
-         {currentUser.role.charAt(0).toUpperCase() +
-                  currentUser.role.slice(1)}           
-               </Badge>
+                {currentUser.role.charAt(0).toUpperCase() +
+                  currentUser.role.slice(1)}
+              </Badge>
             </div>
           </div>
 
@@ -411,7 +411,7 @@ const ProfileManagement = () => {
                     onClick={() => setIsTestiModalOpen(false)}
                     className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
                   >
-                    {t(Cancel)}
+                    {t("Cancel")}
                   </button>
                   <button
                     type="submit"

@@ -48,7 +48,7 @@ const CampaignDetails = () => {
     id,
     user?.userId
   );
-  const { mutateAsync: submitReport, isLoading: isSubmitting } =
+  const { mutateAsync: submitReport, isPending: isSubmitting } =
     useCreateReport();
 
   const progressPercentage = campaign

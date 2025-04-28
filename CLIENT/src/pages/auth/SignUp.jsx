@@ -4,8 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import GoogleAuth from "./GoogleAuth";
 import { signUpSchema } from "../../schemas/authSchema";
-import { useRegister } from "../../hooks/useAuth";
-import { useUsers } from "../../hooks/useUsers";
+import { useAuth, useRegister } from "../../hooks/useAuth";
 import { Eye, EyeOff } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
@@ -14,7 +13,7 @@ export const SignUpPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [googleLoading, setLoading] = useState(false);
-  const { user } = useUsers();
+  const { user, isLoggedIn } = useAuth();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword1, setShowPassword1] = useState(false);
@@ -35,18 +34,18 @@ export const SignUpPage = () => {
     },
   });
 
-  const onSubmit = (data) => {
-    mutate(data);
-    navigate("/");
-  };
-
   useEffect(() => {
-    if (user) {
+    if (isLoggedIn) {
       navigate("/");
     }
-  }, [user, navigate]);
+  }, [isLoggedIn, navigate]);
 
   const { mutate, isPending: isLoading, isError, error } = useRegister();
+
+  const onSubmit = (data) => {
+    mutate(data);
+    // navigate("/");
+  };
 
   const getPasswordStrength = () => {
     let strength = 0;

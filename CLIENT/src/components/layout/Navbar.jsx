@@ -69,7 +69,7 @@ const Navbar = () => {
             className="flex-shrink-0 flex items-center"
           >
             <Link to="/" className="text-3xl font-bold text-white">
-              {t("dashboard")}
+              {t("home")}
             </Link>
           </motion.div>
 

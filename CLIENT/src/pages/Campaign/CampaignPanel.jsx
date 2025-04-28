@@ -139,7 +139,7 @@ const CampaignDashboard = () => {
       ({ closeToast }) => (
         <div>
           <p className="text-sm font-medium text-gray-800">
-             {t("Are you sure you want to delete this campaign?")}
+            {t("Are you sure you want to delete this campaign?")}
           </p>
           <div className="flex gap-3 mt-3">
             <button
@@ -150,7 +150,7 @@ const CampaignDashboard = () => {
               }}
               className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
             >
-            {t("Yes")}
+              {t("Yes")}
             </button>
             <button
               onClick={closeToast}
@@ -253,9 +253,7 @@ const CampaignDashboard = () => {
 
   return (
     <div>
-      <div className="overflow-y-hidden-hidden">
-        <Navbar />
-      </div>
+      <Navbar />
       <div className="flex h-screen bg-gradient-to-br from-gray-50 to-blue-50">
         <AnimatePresence>
           {editingCampaign && (
@@ -282,7 +280,7 @@ const CampaignDashboard = () => {
                 <form onSubmit={handleUpdateCampaign} className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t("Title")}
+                      {t("Title")}
                     </label>
                     <input
                       type="text"
@@ -296,7 +294,7 @@ const CampaignDashboard = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t("Description")}
+                      {t("Description")}
                     </label>
                     <textarea
                       value={formData.description}
@@ -365,7 +363,7 @@ const CampaignDashboard = () => {
           </div>
           <nav className="p-4">
             <motion.ul className="space-y-3">
-              {["overview", "statistics", "history"].map((tab) => (
+              {["overview", "statistics"].map((tab) => (
                 <motion.li key={tab}>
                   <motion.button
                     whileHover={{ x: 5 }}
@@ -517,7 +515,7 @@ const CampaignDashboard = () => {
                                 <div className="flex items-center gap-2 mb-1">
                                   <DollarSign className="w-5 h-5 text-green-600" />
                                   <span className="text-sm text-gray-600">
-                                  {t("Raised")}
+                                    {t("Raised")}
                                   </span>
                                 </div>
                                 <div className="text-lg font-bold text-gray-900">
@@ -531,7 +529,7 @@ const CampaignDashboard = () => {
                                 <div className="flex items-center gap-2 mb-1">
                                   <Target className="w-5 h-5 text-blue-600" />
                                   <span className="text-sm text-gray-600">
-                                    {t("Goal")}	
+                                    {t("Goal")}
                                   </span>
                                 </div>
                                 <div className="text-lg font-bold text-gray-900">
@@ -609,14 +607,15 @@ const CampaignDashboard = () => {
                                   {payload[0].payload.name}
                                 </p>
                                 <p className="text-orange-600">
-                                {t("Raised")}: ETB{" "}
+                                  {t("Raised")}: ETB{" "}
                                   {payload[0].value.toLocaleString()}
                                 </p>
                                 <p className="text-blue-600">
-                                   {t("Goal")}: ETB {payload[1].value.toLocaleString()}
+                                  {t("Goal")}: ETB{" "}
+                                  {payload[1].value.toLocaleString()}
                                 </p>
                                 <p className="text-sm text-gray-600 mt-2">
-                                   {t("Progress")}:{" "}
+                                  {t("Progress")}:{" "}
                                   {Math.round(payload[0].payload.progress)}%
                                 </p>
                               </div>

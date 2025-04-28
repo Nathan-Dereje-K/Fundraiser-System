@@ -18,10 +18,12 @@ const DonationHistory = ({ campaignId }) => {
 
   const { data: transactions, isPending } =
     useTransactionOfCampaign(campaignId);
-  const coloredTransactions = transactions?.map((tx) => ({
-    ...tx,
-    color: bgColors[Math.floor(Math.random() * bgColors.length)],
-  }));
+  const coloredTransactions = transactions
+    ?.filter((tx) => tx.status === "approved")
+    .map((tx) => ({
+      ...tx,
+      color: bgColors[Math.floor(Math.random() * bgColors.length)],
+    }));
 
   const formatTime = (date) => {
     const d = new Date(date);

@@ -13,7 +13,7 @@ const SearchCampaign = () => {
     queryFn: async () => {
       if (!debouncedSearchTerm || debouncedSearchTerm.length < 2) return [];
       const { data } = await axios.get(
-        `https://fundraiser-system.onrender.com/api/campaigns/search?q=${debouncedSearchTerm}`
+        `http://localhost:5000/api/campaigns/search?q=${debouncedSearchTerm}`
       );
       return data;
     },
