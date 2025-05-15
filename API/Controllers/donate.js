@@ -40,7 +40,7 @@ exports.initiatePayment = asyncHandler(async (req, res) => {
     first_name,
     last_name,
     email,
-    callback_url: "http://localhost:5000/api/donate/verifypayment",
+    callback_url: `${process.env.BACKEND_URL}/api/donate/verifypayment`,
   };
 
   try {

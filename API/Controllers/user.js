@@ -1,6 +1,5 @@
 const asyncHandler = require("../Middleware/async");
 const User = require("../Models/User");
-const bcrypt = require("bcryptjs");
 const { getUserFromToken } = require("../Utils/jwt");
 
 exports.getUser = asyncHandler(async (req, res) => {

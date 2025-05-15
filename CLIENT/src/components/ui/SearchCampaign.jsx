@@ -13,7 +13,9 @@ const SearchCampaign = () => {
     queryFn: async () => {
       if (!debouncedSearchTerm || debouncedSearchTerm.length < 2) return [];
       const { data } = await axios.get(
-        `http://localhost:5000/api/campaigns/search?q=${debouncedSearchTerm}`
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/api/campaigns/search?q=${debouncedSearchTerm}`
       );
       return data;
     },
