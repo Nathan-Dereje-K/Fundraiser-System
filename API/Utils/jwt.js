@@ -6,7 +6,7 @@ const signToken = (user) => {
     { userId: user._id, role: user.role },
     process.env.JWT_SECRET,
     {
-      expiresIn: "2h", // Access token expires in 30 minutes
+      expiresIn: "2h", // Access token expires in 2 hours
     }
   );
 };
@@ -21,7 +21,7 @@ const verifyToken = (token) => {
 const getUserFromToken = async (token) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    if (!decoded.userId || decoded.userId === "_") return null;
+    if (!decoded.userId || decoded.userId === "_") return "guest";
     const user = await User.findOne({ _id: decoded.userId }).select(
       "-password -verifyToken -verifyTokenExpiry -forgotPasswordToken -forgotPasswordTokenExpiry"
     );

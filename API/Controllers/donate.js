@@ -13,37 +13,37 @@ const chapa_headers = {
   "Content-Type": "application/json",
 };
 exports.initiatePayment = asyncHandler(async (req, res) => {
-  const { campaignId, amount } = req.body;
-  const token = req.cookies.token;
-  if (!token) return res.status(401).json({ loggedIn: false });
-  const user = await getUserFromToken(token);
-  let first_name, last_name, email, userId;
-  if (user) {
-    const { name: fullName, email: userEmail, _id } = user;
-    [first_name, last_name] = fullName.split(" ");
-    email = userEmail;
-    userId = _id;
-  } else {
-    first_name = "Anonymous";
-    last_name = "Donor";
-    email = "anonymous@gmail.com";
-    userId = new mongoose.Types.ObjectId("000000000000000000000000");
-  }
-
-  const tx_ref = first_name + "-" + Date.now();
-  const campaign = await Campaign.findById(campaignId);
-
-  const data = {
-    tx_ref,
-    amount,
-    currency: "ETB",
-    first_name,
-    last_name,
-    email,
-    callback_url: `${process.env.BACKEND_URL}/api/donate/verifypayment`,
-  };
-
   try {
+    const { campaignId, amount } = req.body;
+    const token = req.cookies.token;
+    if (!token) return res.status(401).json({ loggedIn: false });
+    const user = await getUserFromToken(token);
+    let first_name, last_name, email, userId;
+    if (user) {
+      const { name: fullName, email: userEmail, _id } = user;
+      [first_name, last_name] = fullName.split(" ");
+      email = userEmail;
+      userId = _id;
+    } else {
+      first_name = "Anonymous";
+      last_name = "Donor";
+      email = "anonymous@gmail.com";
+      userId = new mongoose.Types.ObjectId("000000000000000000000000");
+    }
+    first_name = first_name.replace(/[^a-zA-Z0-9]/g, "");
+
+    const tx_ref = first_name + "-" + Date.now();
+    const campaign = await Campaign.findById(campaignId);
+
+    const data = {
+      tx_ref,
+      amount,
+      currency: "ETB",
+      first_name,
+      last_name,
+      email,
+      callback_url: `${process.env.BACKEND_URL}/api/donate/verifypayment`,
+    };
     const response = await axios.post(
       "https://api.chapa.co/v1/transaction/initialize",
       data,

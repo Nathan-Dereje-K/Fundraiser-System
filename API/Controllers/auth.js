@@ -14,7 +14,8 @@ const getRandomColor = () => {
 const cookiesOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
-  sameSite: "Lax",
+  sameSite: "None",
+  maxAge: 1000 * 60 * 60 * 2, // 2 hours
 };
 
 const oAuth2Client = getOAuthClient();
@@ -206,7 +207,14 @@ exports.verifyEmailToken = asyncHandler(async (req, res) => {
 });
 //logout by clearing the token
 exports.logout = asyncHandler(async (req, res) => {
-  res.clearCookie("token").json({ message: "Logged out" });
+  await res
+    .clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "None",
+      path: "/",
+    })
+    .json({ message: "Logged out" });
 });
 //change password
 exports.changePassword = asyncHandler(async (req, res) => {
