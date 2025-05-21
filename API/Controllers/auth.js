@@ -11,6 +11,13 @@ const getRandomColor = () => {
   return colors[Math.floor(Math.random() * colors.length)];
 };
 
+const cookiesOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "None",
+  maxAge: 1000 * 60 * 60 * 2, // 2 hours
+};
+
 const oAuth2Client = getOAuthClient();
 
 exports.getGoogleAuth = asyncHandler(async (req, res) => {
@@ -45,11 +52,7 @@ exports.getGoogleAuth = asyncHandler(async (req, res) => {
   const accessToken = signToken(user);
   res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
   res
-    .cookie("token", accessToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "Lax",
-    })
+    .cookie("token", accessToken, cookiesOptions)
     .json({ message: "Logged in" });
 });
 
@@ -82,11 +85,7 @@ exports.signup = asyncHandler(async (req, res) => {
   await user.save();
   const accessToken = signToken(user);
   res
-    .cookie("token", accessToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "Lax",
-    })
+    .cookie("token", accessToken, cookiesOptions)
     .json({ message: "Logged in" });
 });
 // 🟢 Login with Email/Password
@@ -106,9 +105,7 @@ exports.signin = asyncHandler(async (req, res) => {
 
   const token = signToken(user);
 
-  res
-    .cookie("token", token, { httpOnly: true, secure: false, sameSite: "Lax" })
-    .json({ message: "Logged in" });
+  res.cookie("token", token, cookiesOptions).json({ message: "Logged in" });
 });
 
 exports.getMe = asyncHandler(async (req, res) => {
@@ -116,11 +113,7 @@ exports.getMe = asyncHandler(async (req, res) => {
   if (!token) {
     const accessToken = signToken({ _id: "_", role: "guest" });
     return res
-      .cookie("token", accessToken, {
-        httpOnly: true,
-        secure: false,
-        sameSite: "Lax",
-      })
+      .cookie("token", accessToken, cookiesOptions)
       .json({ loggedIn: false, user: { userId: "_", role: "guest" } });
   } else {
     try {
@@ -128,11 +121,7 @@ exports.getMe = asyncHandler(async (req, res) => {
       if (!decoded) {
         const accessToken = signToken({ _id: "_", role: "guest" });
         return res
-          .cookie("token", accessToken, {
-            httpOnly: true,
-            secure: false,
-            sameSite: "Lax",
-          })
+          .cookie("token", accessToken, cookiesOptions)
           .json({ loggedIn: false, user: { userId: "_", role: "guest" } });
       } else if (decoded.role === "guest") {
         return res.json({ loggedIn: false, user: decoded });
@@ -141,11 +130,7 @@ exports.getMe = asyncHandler(async (req, res) => {
     } catch (err) {
       const accessToken = signToken({ _id: "_", role: "guest" });
       return res
-        .cookie("token", accessToken, {
-          httpOnly: true,
-          secure: false,
-          sameSite: "Lax",
-        })
+        .cookie("token", accessToken, cookiesOptions)
         .status(401)
         .json({ loggedIn: false, user: { userId: "_", role: "guest" } });
     }
@@ -222,7 +207,14 @@ exports.verifyEmailToken = asyncHandler(async (req, res) => {
 });
 //logout by clearing the token
 exports.logout = asyncHandler(async (req, res) => {
-  res.clearCookie("token").json({ message: "Logged out" });
+  await res
+    .clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "None",
+      path: "/",
+    })
+    .json({ message: "Logged out" });
 });
 //change password
 exports.changePassword = asyncHandler(async (req, res) => {
